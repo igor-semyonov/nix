@@ -67,20 +67,20 @@
   };
 
   # Timezone
-  time.timeZone = "Europe/Warsaw";
+  time.timeZone = "America/New_York";
 
   # Internationalization
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_IE.UTF-8";
-    LC_IDENTIFICATION = "en_IE.UTF-8";
-    LC_MEASUREMENT = "en_IE.UTF-8";
-    LC_MONETARY = "en_IE.UTF-8";
-    LC_NAME = "en_IE.UTF-8";
-    LC_NUMERIC = "en_IE.UTF-8";
-    LC_PAPER = "en_IE.UTF-8";
-    LC_TELEPHONE = "en_IE.UTF-8";
-    LC_TIME = "en_IE.UTF-8";
+    LC_ADDRESS = "en_US.UTF-8";
+    LC_IDENTIFICATION = "en_US.UTF-8";
+    LC_MEASUREMENT = "en_US.UTF-8";
+    LC_MONETARY = "en_US.UTF-8";
+    LC_NAME = "en_US.UTF-8";
+    LC_NUMERIC = "en_US.UTF-8";
+    LC_PAPER = "en_US.UTF-8";
+    LC_TELEPHONE = "en_US.UTF-8";
+    LC_TIME = "en_GB.UTF-8";
   };
 
   # Input settings
@@ -89,7 +89,7 @@
   # xserver settings
   services.xserver = {
     enable = true;
-    xkb.layout = "pl";
+    xkb.layout = "us";
     xkb.variant = "";
     excludePackages = with pkgs; [xterm];
   };
@@ -99,7 +99,7 @@
   # Set cursor size
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
-    XCURSOR_SIZE = "24";
+    XCURSOR_SIZE = "96";
   };
 
   # PATH configuration
@@ -111,17 +111,6 @@
   # Enable devmon for device management
   services.devmon.enable = true;
 
-  # Enable PipeWire for sound
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    jack.enable = true;
-  };
-
   # Enable flatpak service
   services.flatpak.enable = true;
 
@@ -130,7 +119,7 @@
     description = userConfig.fullName;
     extraGroups = ["networkmanager" "wheel" "docker"];
     isNormalUser = true;
-    shell = pkgs.zsh;
+    shell = pkgs.bash;
   };
 
   # Set User's avatar
@@ -149,7 +138,7 @@
   '';
 
   # Passwordless sudo
-  security.sudo.wheelNeedsPassword = false;
+  # security.sudo.wheelNeedsPassword = false;
 
   # System packages
   environment.systemPackages = with pkgs; [
@@ -157,8 +146,24 @@
     glib
     gnumake
     killall
-    mesa
+    vim
+    neovim
+    wget
+    git
+    tree
+    wine-staging
+    winePackages.stagingFull
+    wl-clipboard
+    clang
+    wireguard-tools
+    pcsclite
+    pcsc-tools
   ];
+
+  services.ollama = {
+    enable = true;
+    models = "/mnt/ollama-models";
+  };
 
   # Docker configuration
   virtualisation.docker.enable = true;
@@ -166,12 +171,13 @@
   virtualisation.docker.rootless.setSocketVariable = true;
 
   # Zsh configuration
-  programs.zsh.enable = true;
+  # programs.zsh.enable = true;
 
   # Fonts configuration
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
     nerd-fonts.meslo-lg
+    nerd-fonts.fira-code
     roboto
   ];
 
@@ -180,4 +186,6 @@
 
   # OpenSSH daemon
   services.openssh.enable = true;
+
+  imports = [./sound.nix];
 }
