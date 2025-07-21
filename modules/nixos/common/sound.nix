@@ -5,16 +5,14 @@
   ...
 }: let
   sample-rate = 48000;
-  bit-depth = 32;
-  default-quantum = 512;
-  max-quantum = 2048;
-  min-quantum = 128;
+  default-quantum = 128;
+  max-quantum = 256;
+  min-quantum = 64;
 
   sample-rate-str = builtins.toString sample-rate;
   default-quantum-str = builtins.toString default-quantum;
   max-quantum-str = builtins.toString max-quantum;
   min-quantum-str = builtins.toString min-quantum;
-  bit-depth-str = builtins.toString bit-depth;
 in {
   boot.kernelParams = ["preempt=full"];
   security.rtkit.enable = true;
@@ -42,21 +40,56 @@ in {
           };
         };
         pipewire-pulse."92-low-latency" = {
-          "context.modules" = [
-            {
-              name = "libpipewire-module-protocol-pulse";
-              args = {
-                "pulse.min.req" = "${default-quantum-str}/${sample-rate-str}";
-                "pulse.default.req" = "${default-quantum-str}/${sample-rate-str}";
-                "pulse.max.req" = "${default-quantum-str}/${sample-rate-str}";
-                "pulse.min.quantum" = "${min-quantum-str}/${sample-rate-str}";
-                "pulse.max.quantum" = "${max-quantum-str}/${sample-rate-str}";
-              };
-            }
-          ];
-          "stream.properties" = {
-            "node.latency" = "${default-quantum-str}/${sample-rate-str}";
-            "resample.quality" = 1;
+          # "context.modules" = [
+          #   {
+          #     name = "libpipewire-module-protocol-pulse";
+          #     args = {
+          # "pulse.min.req" = "${default-quantum-str}/${sample-rate-str}";
+          # "pulse.default.req" = "${default-quantum-str}/${sample-rate-str}";
+          # "pulse.max.req" = "${default-quantum-str}/${sample-rate-str}";
+          # "pulse.min.quantum" = "${min-quantum-str}/${sample-rate-str}";
+          # "pulse.max.quantum" = "${max-quantum-str}/${sample-rate-str}";
+          #     };
+          #   }
+          # ];
+          "pulse.properties" = {
+            "pulse.min.req" = "${default-quantum-str}/${sample-rate-str}";
+            "pulse.default.req" = "${default-quantum-str}/${sample-rate-str}";
+            "pulse.max.req" = "${default-quantum-str}/${sample-rate-str}";
+            "pulse.min.quantum" = "${min-quantum-str}/${sample-rate-str}";
+            "pulse.max.quantum" = "${max-quantum-str}/${sample-rate-str}";
+          };
+          # "stream.properties" = {
+          #   "node.latency" = "${default-quantum-str}/${sample-rate-str}";
+          #   "resample.quality" = 1;
+          # };
+        };
+      };
+      wireplumber = {
+        enable = true;
+        extraConfig = {
+          # "log-level-debug" = {
+          #   "context.properties" = {
+          #     # Output Debug log messages as opposed to only the default level (Notice)
+          #     "log.level" = "D";
+          #   };
+          # };
+          "no-suspend" = {
+            "monitor.alsa.rules" = [
+              {
+                matches = [
+                  {
+                    # "device.name" = "~alsa_card.*";
+                    "node.name" = "~alsa_*";
+                  }
+                ];
+                actions = {
+                  update-props = {
+                    "session.suspend-timeout-seconds" = 0;
+                  };
+                };
+              }
+            ];
           };
         };
       };
