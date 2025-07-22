@@ -11,22 +11,22 @@
       package = pkgs.tela-circle-icon-theme;
     };
     cursorTheme = {
-      name = "Yaru";
-      package = pkgs.yaru-theme;
-      size = 24;
+      name = "Bibata-Original-Amber-Right";
+      package = pkgs.bibata-cursors;
+      size = 96;
     };
     font = {
       name = "Roboto";
-      size = 11;
+      size = 14;
     };
     gtk3 = {
       bookmarks = [
-        "file:///home/${userConfig.name}/Documents"
+        # "file:///home/${userConfig.name}/Documents"
         "file:///home/${userConfig.name}/Downloads"
-        "file:///home/${userConfig.name}/Pictures"
-        "file:///home/${userConfig.name}/Videos"
-        "file:///home/${userConfig.name}/Downloads/temp"
-        "file:///home/${userConfig.name}/Documents/repositories"
+        # "file:///home/${userConfig.name}/Pictures"
+        # "file:///home/${userConfig.name}/Videos"
+        # "file:///home/${userConfig.name}/Downloads/temp"
+        # "file:///home/${userConfig.name}/Documents/repositories"
       ];
     };
   };

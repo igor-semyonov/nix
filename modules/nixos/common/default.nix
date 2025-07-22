@@ -36,15 +36,22 @@
     auto-optimise-store = true;
   };
 
+  security.pam = {
+    u2f = {
+      enable = true;
+      control = "sufficient";
+      settings = {
+        cue = true;
+      };
+    };
+  };
+
   # Boot settings
   boot = {
     kernelPackages = pkgs.linuxKernel.packages.linux_6_15;
     consoleLogLevel = 0;
     initrd.verbose = false;
     kernelParams = ["quiet" "splash" "rd.udev.log_level=3"];
-    loader.efi.canTouchEfiVariables = true;
-    loader.systemd-boot.enable = true;
-    loader.timeout = 0;
     plymouth.enable = true;
 
     # v4l (virtual camera) module settings
@@ -89,8 +96,10 @@
   # xserver settings
   services.xserver = {
     enable = true;
-    xkb.layout = "us";
-    xkb.variant = "";
+    xkb = {
+      layout = "us";
+      variant = "";
+    };
     excludePackages = with pkgs; [xterm];
   };
 
@@ -120,10 +129,27 @@
     extraGroups = ["networkmanager" "wheel" "docker"];
     isNormalUser = true;
     shell = pkgs.bash;
+    packages = with pkgs; [
+      vivaldi
+      brave
+      zoxide
+      thunderbird
+      nodejs
+      python313
+      python312
+      python311
+      rustup
+      unzip
+      alacritty
+      starship
+      ripgrep
+      wine-staging
+      wl-clipboard
+    ];
   };
 
   # Set User's avatar
-  system.activationScripts.script.text = ''
+  system.activationScripts.user-avatar.text = ''
     mkdir -p /var/lib/AccountsService/{icons,users}
     cp ${userConfig.avatar} /var/lib/AccountsService/icons/${userConfig.name}
 
@@ -137,9 +163,6 @@
     fi
   '';
 
-  # Passwordless sudo
-  # security.sudo.wheelNeedsPassword = false;
-
   # System packages
   environment.systemPackages = with pkgs; [
     gcc
@@ -151,9 +174,7 @@
     wget
     git
     tree
-    wine-staging
     winePackages.stagingFull
-    wl-clipboard
     clang
     wireguard-tools
     pcsclite
@@ -169,9 +190,6 @@
   virtualisation.docker.enable = true;
   virtualisation.docker.rootless.enable = true;
   virtualisation.docker.rootless.setSocketVariable = true;
-
-  # Zsh configuration
-  # programs.zsh.enable = true;
 
   # Fonts configuration
   fonts.packages = with pkgs; [

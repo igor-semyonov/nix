@@ -4,14 +4,16 @@ in {
   # Enable KDE
   services.displayManager.sddm = {
     enable = true;
-    enableHidpi = true;
-    settings.Theme.CursorTheme = "Yaru";
+    # enableHidpi = true;
+    # settings.Theme.CursorTheme = "Yaru";
+    settings.Theme.CursorTheme = "Bibata-Original-Amber-Right";
     wayland.enable = true;
   };
   services.desktopManager.plasma6.enable = true;
 
   environment.systemPackages = [
-    pkgs.yaru-theme
+    # pkgs.yaru-theme
+    pkgs.bibata-cursors
     (pkgs.writeTextDir "share/sddm/themes/breeze/theme.conf.user" ''
       [General]
       background=${wallpaper};
@@ -24,13 +26,13 @@ in {
     ark
     baloo-widgets
     elisa
-    ffmpegthumbs
+    # ffmpegthumbs
     kate
-    khelpcenter
+    # khelpcenter
     konsole
     krdp
     plasma-browser-integration
-    xwaylandvideobridge
+    # xwaylandvideobridge
   ];
 
   # Disabled redundant services

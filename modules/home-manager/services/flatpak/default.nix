@@ -11,7 +11,7 @@
     services.flatpak = {
       enable = true;
       packages = [
-        "us.zoom.Zoom"
+        # "us.zoom.Zoom"
       ];
       uninstallUnmanaged = true;
       update.auto.enable = false;

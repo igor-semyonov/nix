@@ -6,29 +6,30 @@
 }: {
   imports = [
     ../misc/qt
-    ../programs/aerospace
-    ../programs/alacritty
-    ../programs/atuin
-    ../programs/bat
-    ../programs/brave
-    ../programs/btop
-    ../programs/fastfetch
-    ../programs/fzf
-    ../programs/git
-    ../programs/go
-    ../programs/gpg
-    ../programs/k9s
-    ../programs/krew
-    ../programs/lazygit
-    ../programs/neovim
-    ../programs/obs-studio
-    ../programs/saml2aws
-    ../programs/starship
-    ../programs/telegram
-    ../programs/tmux
-    ../programs/ulauncher
-    ../programs/zsh
-    ../scripts
+    ../misc/gtk
+    # ../programs/aerospace
+    # ../programs/alacritty
+    # ../programs/atuin
+    # ../programs/bat
+    # ../programs/brave
+    # ../programs/btop
+    # ../programs/fastfetch
+    # ../programs/fzf
+    # ../programs/git
+    # ../programs/go
+    # ../programs/gpg
+    # ../programs/k9s
+    # ../programs/krew
+    # ../programs/lazygit
+    # ../programs/neovim
+    # ../programs/obs-studio
+    # ../programs/saml2aws
+    # ../programs/starship
+    # ../programs/telegram
+    # ../programs/tmux
+    # ../programs/ulauncher
+    # ../programs/zsh
+    # ../scripts
     ../services/flatpak
   ];
 
@@ -58,6 +59,8 @@
   # Ensure common packages are installed
   home.packages = with pkgs;
     [
+      bibata-cursors
+      papirus-nord
       anki-bin
       awscli2
       dig
@@ -89,7 +92,8 @@
 
   # Catpuccin flavor and accent
   catppuccin = {
-    flavor = "macchiato";
+    # flavor = "macchiato";
+    flavor = "mocha";
     accent = "lavender";
   };
 }
