@@ -15,7 +15,11 @@
     "${nixosModules}/desktop/kde"
     "${nixosModules}/programs/steam"
     "${nixosModules}/programs/firefox"
+    # "${nixosModules}/programs/tts"
+    "${nixosModules}/programs/nvim"
   ];
+
+  nix.settings.download-buffer-size = 128 * 1024 * 1024 * 1024;
 
   boot.loader = {
     efi = {

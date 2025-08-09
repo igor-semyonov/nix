@@ -27,6 +27,11 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    my-nvim = {
+      url = "github:igor-semyonov/nvim";
+      # inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Nix Darwin (for MacOS machines)
     darwin = {
       url = "github:LnL7/nix-darwin";
@@ -40,6 +45,7 @@
     darwin,
     home-manager,
     nixpkgs,
+    my-nvim,
     ...
   } @ inputs: let
     inherit (self) outputs;
