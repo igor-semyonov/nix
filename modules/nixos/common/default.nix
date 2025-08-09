@@ -163,13 +163,15 @@
     fi
   '';
 
+  programs.kdeconnect.enable = true;
+
   # System packages
   environment.systemPackages = with pkgs; [
     gcc
     glib
     gnumake
     killall
-    vim
+    # vim
     neovim
     wget
     git
