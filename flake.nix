@@ -45,7 +45,6 @@
     darwin,
     home-manager,
     nixpkgs,
-    my-nvim,
     ...
   } @ inputs: let
     inherit (self) outputs;
