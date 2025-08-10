@@ -14,8 +14,9 @@
   home.packages = with pkgs; [
     (catppuccin-kde.override {
       flavour = ["mocha"];
-      accents = ["lavender"];
+      accents = ["pink"];
     })
+    plasmusic-toolbar
     kara
     kde-rounded-corners
     kdePackages.kcalc
@@ -62,6 +63,11 @@
     };
 
     hotkeys.commands = {
+      tts-selection = {
+        name = "TTS Selection";
+        key = "Ctrl+Meta+C";
+        command = "tts-nix-selection";
+      };
       launch-alacritty = {
         name = "Launch Alacritty";
         key = "Meta+T";
@@ -159,7 +165,7 @@
           noiseStrength = 7;
         };
         cube.enable = false;
-        desktopSwitching.animation = "off";
+        desktopSwitching.animation = "slide";
         dimAdminMode.enable = true;
         dimInactive.enable = false;
         fallApart.enable = false;
@@ -168,10 +174,10 @@
           animation = "magiclamp";
           duration = 125;
         };
-        shakeCursor.enable = false;
+        shakeCursor.enable = true;
         slideBack.enable = false;
         snapHelper.enable = false;
-        translucency.enable = false;
+        translucency.enable = true;
         windowOpenClose.animation = "scale";
         wobblyWindows.enable = false;
       };
@@ -191,6 +197,21 @@
     };
 
     # overrideConfig = true;
+
+    desktop.widgets = [
+      {
+        plasmusicToolbar = {
+          position = {
+            horizontal = 51;
+            vertical = 100;
+          };
+          size = {
+            width = 250;
+            height = 250;
+          };
+        };
+      }
+    ];
 
     panels = [
       # Windows-like panel at the bottom
@@ -508,10 +529,16 @@
     workspace = {
       enableMiddleClickPaste = false;
       clickItemTo = "select";
-      colorScheme = "CatppuccinMochaLavender";
-      cursor.theme = "Bibata-Original-Amber-Right";
-      splashScreen.engine = "none";
-      splashScreen.theme = "none";
+      colorScheme = "CatppuccinMochaPink";
+      iconTheme = "Papirus-Dark";
+      cursor = {
+        theme = "Bibata-Original-Amber-Right";
+        size = 96;
+      };
+      splashScreen = {
+        engine = "KSplashQML";
+        theme = "Catppuccin-Mocha-Pink";
+      };
       tooltipDelay = 1;
       wallpaper = "${config.wallpaper}";
     };
@@ -520,13 +547,10 @@
       baloofilerc."Basic Settings"."Indexing-Enabled" = false;
       kdeglobals = {
         General = {
-          BrowserApplication = "brave-browser.desktop";
-        };
-        Icons = {
-          Theme = "Tela-circle-dark";
+          BrowserApplication = "firefox.desktop";
         };
         KDE = {
-          AnimationDurationFactor = 0;
+          AnimationDurationFactor = 0.5;
         };
       };
       klaunchrc.FeedbackStyle.BusyCursor = false;
@@ -534,27 +558,28 @@
       kwinrc = {
         Effect-overview.BorderActivate = 9;
         Plugins = {
-          krohnkiteEnabled = true;
+          krohnkiteEnabled = false;
           screenedgeEnabled = false;
+          invertEnabled = true;
         };
-        "Round-Corners" = {
-          ActiveOutlineAlpha = 255;
-          ActiveOutlineUseCustom = false;
-          ActiveOutlineUsePalette = true;
-          ActiveSecondOutlineUseCustom = false;
-          ActiveSecondOutlineUsePalette = true;
-          DisableOutlineTile = false;
-          DisableRoundTile = false;
-          InactiveCornerRadius = 8;
-          InactiveOutlineAlpha = 0;
-          InactiveOutlineUseCustom = false;
-          InactiveOutlineUsePalette = true;
-          InactiveSecondOutlineAlpha = 0;
-          InactiveSecondOutlineThickness = 0;
-          OutlineThickness = 1;
-          SecondOutlineThickness = 0;
-          Size = 8;
-        };
+        # "Round-Corners" = {
+        #   ActiveOutlineAlpha = 255;
+        #   ActiveOutlineUseCustom = false;
+        #   ActiveOutlineUsePalette = true;
+        #   ActiveSecondOutlineUseCustom = false;
+        #   ActiveSecondOutlineUsePalette = true;
+        #   DisableOutlineTile = false;
+        #   DisableRoundTile = false;
+        #   InactiveCornerRadius = 8;
+        #   InactiveOutlineAlpha = 0;
+        #   InactiveOutlineUseCustom = false;
+        #   InactiveOutlineUsePalette = true;
+        #   InactiveSecondOutlineAlpha = 0;
+        #   InactiveSecondOutlineThickness = 0;
+        #   OutlineThickness = 1;
+        #   SecondOutlineThickness = 0;
+        #   Size = 8;
+        # };
         # "Script-krohnkite" = {
         #   floatingClass = "ulauncher,brave-nngceckbapebfimnlniiiahkandclblb-Default,org.kde.kcalc";
         #   screenGapBetween = 3;

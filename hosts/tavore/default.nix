@@ -15,7 +15,7 @@
     "${nixosModules}/desktop/kde"
     "${nixosModules}/programs/steam"
     "${nixosModules}/programs/firefox"
-    # "${nixosModules}/programs/tts"
+    "${nixosModules}/programs/tts"
     "${nixosModules}/programs/nvim"
   ];
 
