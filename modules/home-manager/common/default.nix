@@ -6,9 +6,9 @@
 }: {
   imports = [
     ../misc/qt
-    ../misc/gtk
+    # ../misc/gtk
     # ../programs/aerospace
-    # ../programs/alacritty
+    ../programs/alacritty
     # ../programs/atuin
     # ../programs/bat
     # ../programs/brave
@@ -94,6 +94,6 @@
   catppuccin = {
     # flavor = "macchiato";
     flavor = "mocha";
-    accent = "lavender";
+    accent = "pink";
   };
 }
