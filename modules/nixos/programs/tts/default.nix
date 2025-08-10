@@ -34,12 +34,7 @@
 
       function tts-wayland() {
           echo wayland
-          tmp_dir=~/tmp-tts-dir
-          mkdir $tmp_dir
-          cd $tmp_dir
-          wl-paste -p | ~/scripts/tts > ~/scripts/tts.sh.out 2>&1
-          cd ~
-          rm -rf $tmp_dir
+          wl-paste -p | tts-nix
       }
 
       # wl-paste && tts-wayland || tts-x
