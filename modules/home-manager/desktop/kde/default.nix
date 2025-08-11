@@ -434,7 +434,7 @@
       "kwin"."ClearMouseMarks" = "Meta+Shift+F11";
       "kwin"."Grid View" = "Meta+G";
       "kwin"."Invert" = "Meta+Ctrl+I";
-      "kwin"."InvertWindow" = "Ctrl+Alt+I,Meta+Ctrl+U,Toggle Invert Effect on Window";
+      "kwin"."InvertWindow" = ["Ctrl+Alt+I" "Toggle Invert Effect on Window"];
       "kwin"."Kill Window" = "Ctrl+Alt+Esc,Meta+Ctrl+Esc,Kill Window";
       "kwin"."Overview" = "Meta+W";
       "kwin"."Switch One Desktop Down" = "Meta+Ctrl+Down";
