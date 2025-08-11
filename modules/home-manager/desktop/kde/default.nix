@@ -140,7 +140,11 @@
       # ];
     };
 
-    krunner.activateWhenTypingOnDesktop = true;
+    krunner = {
+      activateWhenTypingOnDesktop = true;
+      position = "center";
+      shortcuts.launch = "Alt+Space";
+    };
 
     kscreenlocker = {
       appearance.wallpaper = "${config.wallpaper}";
@@ -682,6 +686,43 @@
           useReleaseToCapture = true;
         };
         ImageSave.imageCompressionQuality = 100;
+      };
+
+      "krunnerrc" = {
+        "General"."font" = "Roboto,64,-1,5,50,0,0,0,0,0";
+        "PlasmaRunnerManager"."migrated" = true;
+        "Plugins" = {
+          "CharacterRunnerEnabled" = true;
+          "DictionaryEnabled" = true;
+          "Kill RunnerEnabled" = true;
+          "PowerDevilEnabled" = true;
+          "Spell CheckerEnabled" = true;
+          "appstreamEnabled" = true;
+          "baloosearchEnabled" = false;
+          "bookmarksEnabled" = false;
+          "browserhistoryEnabled" = true;
+          "browsertabsEnabled" = true;
+          "calculatorEnabled" = true;
+          "desktopsessionsEnabled" = false;
+          "katesessionsEnabled" = false;
+          "konsoleprofilesEnabled" = false;
+          "ktp_contactsEnabled" = true;
+          "kwinEnabled" = true;
+          "locationsEnabled" = true;
+          "marbleEnabled" = true;
+          "org.kde.activities2Enabled" = false;
+          "org.kde.activitiesEnabled" = false;
+          "org.kde.datetimeEnabled" = true;
+          "org.kde.windowedwidgetsEnabled" = true;
+          "placesEnabled" = true;
+          "plasma-desktopEnabled" = true;
+          "recentdocumentsEnabled" = true;
+          "servicesEnabled" = true;
+          "shellEnabled" = false;
+          "unitconverterEnabled" = true;
+          "webshortcutsEnabled" = false;
+          "windowsEnabled" = false;
+        };
       };
     };
     dataFile = {
