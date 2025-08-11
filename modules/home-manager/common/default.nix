@@ -11,7 +11,7 @@
     ../programs/alacritty
     # ../programs/atuin
     # ../programs/bat
-    # ../programs/brave
+    ../programs/vivaldi
     # ../programs/btop
     # ../programs/fastfetch
     # ../programs/fzf
