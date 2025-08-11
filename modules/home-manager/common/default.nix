@@ -24,7 +24,7 @@
     # ../programs/neovim
     # ../programs/obs-studio
     # ../programs/saml2aws
-    # ../programs/starship
+    ../programs/starship
     # ../programs/telegram
     # ../programs/tmux
     # ../programs/ulauncher

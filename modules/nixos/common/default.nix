@@ -139,10 +139,8 @@
       python311
       rustup
       unzip
-      alacritty
       starship
       ripgrep
-      wine-staging
       wl-clipboard
     ];
   };

@@ -2,9 +2,10 @@
   # Starship configuration
   programs.starship = {
     enable = true;
-    enableZshIntegration = true;
+    # enableZshIntegration = true;
+    enableBashIntegration = true;
     settings = {
-      add_newline = false;
+      add_newline = true;
       directory = {
         style = "bold lavender";
       };
@@ -50,12 +51,12 @@
       php = {
         symbol = " ";
       };
-      python = {
-        symbol = " ";
-      };
-      rust = {
-        symbol = " ";
-      };
+      # python = {
+      #   symbol = " ";
+      # };
+      # rust = {
+      #   symbol = " ";
+      # };
       terraform = {
         symbol = " ";
       };
