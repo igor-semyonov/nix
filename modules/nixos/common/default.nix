@@ -11,6 +11,7 @@
   nixpkgs = {
     overlays = [
       outputs.overlays.stable-packages
+      outputs.overlays.vivaldi
     ];
 
     config = {
@@ -90,19 +91,6 @@
     LC_TIME = "en_GB.UTF-8";
   };
 
-  # Input settings
-  services.libinput.enable = true;
-
-  # xserver settings
-  services.xserver = {
-    enable = true;
-    xkb = {
-      layout = "us";
-      variant = "";
-    };
-    excludePackages = with pkgs; [xterm];
-  };
-
   # Enable Wayland support in Chromium and Electron based applications
   # Remove decorations for QT apps
   # Set cursor size
@@ -114,15 +102,6 @@
   # PATH configuration
   environment.localBinInPath = true;
 
-  # Disable CUPS printing
-  services.printing.enable = false;
-
-  # Enable devmon for device management
-  services.devmon.enable = true;
-
-  # Enable flatpak service
-  services.flatpak.enable = true;
-
   # User configuration
   users.users.${userConfig.name} = {
     description = userConfig.fullName;
@@ -130,8 +109,6 @@
     isNormalUser = true;
     shell = pkgs.bash;
     packages = with pkgs; [
-      vivaldi
-      brave
       zoxide
       thunderbird
       python313
@@ -142,6 +119,8 @@
       starship
       ripgrep
       wl-clipboard
+      vivaldi
+      vivaldi-ffmpeg-codecs
     ];
   };
 
@@ -177,11 +156,34 @@
     wireguard-tools
     pcsclite
     pcsc-tools
+    opensc
   ];
 
-  services.ollama = {
-    enable = true;
-    models = "/mnt/ollama-models";
+  services = {
+    locate.enable = true;
+    pcscd = {
+      enable = true;
+      plugins = [pkgs.opensc];
+    };
+    ollama = {
+      enable = true;
+      models = "/mnt/ollama-models";
+    };
+    openssh.enable = true;
+    libinput.enable = true;
+    xserver = {
+      enable = true;
+      xkb = {
+        layout = "us";
+        variant = "";
+      };
+      excludePackages = with pkgs; [xterm];
+    };
+    printing.enable = false;
+
+    # Enable devmon for device management
+    devmon.enable = true;
+    flatpak.enable = true;
   };
 
   # Docker configuration
@@ -196,12 +198,6 @@
     nerd-fonts.fira-code
     roboto
   ];
-
-  # Additional services
-  services.locate.enable = true;
-
-  # OpenSSH daemon
-  services.openssh.enable = true;
 
   imports = [./sound.nix];
 }
