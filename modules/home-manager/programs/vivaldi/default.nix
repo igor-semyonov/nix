@@ -1,13 +1,28 @@
 {
   pkgs,
   lib,
+  outputs,
   ...
 }: {
-  # Ensure Brave browser package installed
-  home.packages = with pkgs; [
-        vivaldi
-        vivaldi-ffmpeg-codecs
-  ];
+  # home.packages = with pkgs; [
+  #   vivaldi-ffmpeg-codecs
+  # ];
+
+  programs.vivaldi = {
+    enable = true;
+    # commandLineArgs = [
+    #   "--ignore-gpu-blocklist"
+    #   "--enable-accelerated-video-encode"
+    #   "--enable-accelerated-video-decode"
+    #   "--enable-features=UseOzonePlatform,VaapiVideoDecoder"
+    #   "--ozone-platform=wayland"
+    #   "--use-gl=egl"
+    # ];
+    extensions = [
+      {id = "nngceckbapebfimnlniiiahkandclblb";} # bitwarden
+      {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark reader
+    ];
+  };
 
   # Apply XDG configuration only on non-Darwin platforms
   xdg = lib.mkIf (!pkgs.stdenv.isDarwin) {
