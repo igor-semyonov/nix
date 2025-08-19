@@ -102,6 +102,7 @@
 
     input = {
       keyboard = {
+        numlockOnStartup = "on";
         layouts = [
           {
             layout = "en";
