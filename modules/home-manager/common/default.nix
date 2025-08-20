@@ -12,6 +12,8 @@
     # ../programs/atuin
     # ../programs/bat
     ../programs/vivaldi
+    # ../programs/firefox
+    ../programs/matplotlib
     # ../programs/btop
     # ../programs/fastfetch
     # ../programs/fzf
@@ -75,7 +77,7 @@
       pipenv
       python3
       ripgrep
-      terraform
+      # terraform
     ]
     ++ lib.optionals stdenv.isDarwin [
       colima
