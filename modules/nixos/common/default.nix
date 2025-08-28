@@ -157,6 +157,7 @@
     pcsclite
     pcsc-tools
     opensc
+    sxiv
     ( # Wrapper script to tell to Chrome/Chromium to use p11-kit-proxy to load
       # security devices, so they can be used for TLS client auth.
       # Each user needs to run this themselves, it does not work on a system level
