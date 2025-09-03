@@ -6,12 +6,14 @@
   config = lib.mkIf (!pkgs.stdenv.isDarwin) {
     qt = {
       enable = true;
-      platformTheme.name = "kvantum";
-      style.name = "kvantum";
+      # platformTheme.name = "kvantum";
+      # style.name = "kvantum";
+      platformTheme.name = "kde";
+      style.name = "kde6";
     };
 
-    catppuccin.kvantum.enable = true;
-    catppuccin.kvantum.apply = true;
+    # catppuccin.kvantum.enable = true;
+    # catppuccin.kvantum.apply = true;
 
     home.sessionVariables = {
       # use wayland as the default backend, fallback to xcb if wayland is not available

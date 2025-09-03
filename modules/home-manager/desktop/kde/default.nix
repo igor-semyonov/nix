@@ -5,26 +5,36 @@
   nhModules,
   pkgs,
   ...
-}: {
+}: let
+  # sweet-kde = pkgs.callPackage (import ./sweet.nix) {};
+in {
   imports = [
     inputs.plasma-manager.homeManagerModules.plasma-manager
     "${nhModules}/misc/wallpaper"
   ];
 
-  home.packages = with pkgs; [
-    (catppuccin-kde.override {
-      flavour = ["mocha"];
-      accents = ["pink"];
-    })
-    plasmusic-toolbar
-    kara
-    kde-rounded-corners
-    kdePackages.kcalc
-    kdePackages.krohnkite
-    kdotool
-    tela-circle-icon-theme
-    papirus-nord
-  ];
+  home = {
+    # file.".local/share/plasma/look-and-feel" = {
+    #   source = sweet-kde;
+    #   recursive = true;
+    # };
+    packages = with pkgs; [
+      # (catppuccin-kde.override {
+      #   flavour = ["mocha"];
+      #   accents = ["pink"];
+      # })
+      plasmusic-toolbar
+      kara
+      kde-rounded-corners
+      kdePackages.kcalc
+      kdePackages.krohnkite
+      kdotool
+      tela-circle-icon-theme
+      papirus-nord
+      sweet-nova
+      sweet
+    ];
+  };
 
   # Set gpg agent specific to KDE/Kwallet
   services.gpg-agent = {
@@ -597,7 +607,8 @@
     workspace = {
       enableMiddleClickPaste = false;
       clickItemTo = "select";
-      colorScheme = "CatppuccinMochaPink";
+      theme = "Sweet";
+      colorScheme = "Sweet";
       iconTheme = "Papirus-Dark";
       cursor = {
         theme = "Bibata-Original-Amber-Right";
@@ -605,10 +616,14 @@
       };
       splashScreen = {
         engine = "KSplashQML";
-        theme = "Catppuccin-Mocha-Pink";
+        theme = "Sweet";
       };
       tooltipDelay = 1;
       wallpaper = "${config.wallpaper}";
+      windowDecorations = {
+        library = "org.kde.kwin.aurorae";
+        theme = "__aurorae__svg__Sweet-Dark-transparent";
+      };
     };
 
     configFile = {

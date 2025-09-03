@@ -6,9 +6,15 @@
   # GTK theme configuration
   gtk = {
     enable = true;
+    theme = {
+      name = "Sweet";
+      package = pkgs.sweet;
+    };
     iconTheme = {
-      name = "Tela-circle-dark";
-      package = pkgs.tela-circle-icon-theme;
+      # name = "Tela-circle-dark";
+      # package = pkgs.tela-circle-icon-theme;
+      name = "Papirus-Dark";
+      package = pkgs.papirus-nord;
     };
     cursorTheme = {
       name = "Bibata-Original-Amber-Right";
@@ -32,5 +38,5 @@
   };
 
   # Enable catppuccin theming for GTK apps.
-  catppuccin.gtk.enable = true;
+  # catppuccin.gtk.enable = true;
 }

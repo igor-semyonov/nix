@@ -22,7 +22,8 @@ stdenv.mkDerivation {
       mkdir -v build
       cd build || exit
       unpackPhase --verbose
-      mkdir -vp "$out"/share/plasma/look-and-feel/sweet-kde
-      cp  -vr source/* "$out"/share/plasma/look-and-feel/sweet-kde/.
+      out="$out"/Sweet
+      mkdir -vp "$out"
+      cp  -vr source/* "$out"/.
     '';
 }
