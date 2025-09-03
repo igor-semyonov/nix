@@ -1,4 +1,5 @@
 {
+  inputs,
   outputs,
   userConfig,
   pkgs,
@@ -12,7 +13,7 @@
     # ../programs/atuin
     # ../programs/bat
     ../programs/vivaldi
-    # ../programs/firefox
+    ../programs/firefox
     ../programs/matplotlib
     # ../programs/btop
     # ../programs/fastfetch
@@ -39,6 +40,7 @@
   nixpkgs = {
     overlays = [
       outputs.overlays.stable-packages
+      inputs.nur.overlays.default
     ];
 
     config = {
