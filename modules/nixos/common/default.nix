@@ -143,6 +143,9 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    nom
+    btop
+    p7zip
     gcc
     glib
     gnumake
