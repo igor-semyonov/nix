@@ -143,6 +143,7 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    nix-index
     nom
     btop
     p7zip
