@@ -465,10 +465,10 @@ in {
       "kwin"."Walk Through Windows (Reverse)" = ["Alt+Shift+Backtab" "Alt+Shift+Tab,Walk Through Windows (Reverse)"];
       "kwin"."Walk Through Windows of Current Application" = ["Meta+Tab" "Alt+`,Walk Through Windows of Current Application"];
       "kwin"."Walk Through Windows of Current Application (Reverse)" = ["Meta+Shift+Tab" "Alt+~,Walk Through Windows of Current Application (Reverse)"];
-      "kwin"."Window One Desktop Down" = "Meta+Alt+Down,Meta+Ctrl+Shift+Down,Window One Desktop Down";
-      "kwin"."Window One Desktop Up" = "Meta+Alt+Up,Meta+Ctrl+Shift+Up,Window One Desktop Up";
-      "kwin"."Window One Desktop to the Left" = "Meta+Alt+Left,Meta+Ctrl+Shift+Left,Window One Desktop to the Left";
-      "kwin"."Window One Desktop to the Right" = "Meta+Alt+Right,Meta+Ctrl+Shift+Right,Window One Desktop to the Right";
+      "kwin"."Window One Desktop Down" = "Meta+Alt+Down";
+      "kwin"."Window One Desktop Up" = "Meta+Alt+Up";
+      "kwin"."Window One Desktop to the Left" = "Meta+Alt+Left";
+      "kwin"."Window One Desktop to the Right" = "Meta+Alt+Right";
       "kwin"."Window Quick Tile Bottom" = ["Meta+Down" "Meta+Num+2,Meta+Down,Quick Tile Window to the Bottom"];
       "kwin"."Window Quick Tile Bottom Left" = "Meta+Num+1,,Quick Tile Window to the Bottom Left";
       "kwin"."Window Quick Tile Bottom Right" = "Meta+Num+3,,Quick Tile Window to the Bottom Right";
