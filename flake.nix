@@ -107,6 +107,7 @@
   in {
     nixosConfigurations = {
       tavore = mkNixosConfiguration "tavore" "igor";
+      elmin = mkNixosConfiguration "elmin" "igor";
     };
 
     # darwinConfigurations = {
