@@ -5,9 +5,9 @@
   ...
 }: {
   imports = [
-    inputs.hardware.nixosModules.common-cpu-amd
+    inputs.hardware.nixosModules.common-cpu-amd-zenpower
     # inputs.hardware.nixosModules.common-gpu-nvidia
-    inputs.hardware.nixosModules.common-gpu-nvidia.ada-lovelace
+    inputs.hardware.nixosModules.common.gpu.nvidia.ada-lovelace
     inputs.hardware.nixosModules.common-pc-ssd
 
     ./hardware-configuration.nix

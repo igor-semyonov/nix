@@ -11,7 +11,7 @@
   nixpkgs = {
     overlays = [
       outputs.overlays.stable-packages
-      outputs.overlays.vivaldi
+      # outputs.overlays.vivaldi
     ];
 
     config = {
@@ -183,10 +183,6 @@
     pcscd = {
       enable = true;
       plugins = [pkgs.opensc];
-    };
-    ollama = {
-      enable = true;
-      models = "/mnt/ollama-models";
     };
     openssh.enable = true;
     libinput.enable = true;

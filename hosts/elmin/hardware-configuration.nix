@@ -7,7 +7,9 @@
   pkgs,
   modulesPath,
   ...
-}: {
+}: let
+  btrfs-options = ["noautodefrag" "noatime" "compress-force=zstd:5" "commit=60"];
+in {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
@@ -17,28 +19,27 @@
   boot.kernelModules = ["kvm-amd"];
   boot.extraModulePackages = [];
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
-    fsType = "btrfs";
-    options = ["subvol=@"];
-  };
-
-  fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
-    fsType = "btrfs";
-    options = ["subvol=@nix"];
-  };
-
-  fileSystems."/home" = {
-    device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
-    fsType = "btrfs";
-    options = ["subvol=@home"];
-  };
-
-  fileSystems."/boot/efi" = {
-    device = "/dev/disk/by-uuid/A3CA-824C";
-    fsType = "vfat";
-    options = ["fmask=0022" "dmask=0022"];
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
+      fsType = "btrfs";
+      options = ["subvol=@"];
+    };
+    "/nix" = {
+      device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
+      fsType = "btrfs";
+      options = ["subvol=@nix"];
+    };
+    "/home" = {
+      device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
+      fsType = "btrfs";
+      options = ["subvol=@home"];
+    };
+    "/boot/efi" = {
+      device = "/dev/disk/by-uuid/A3CA-824C";
+      fsType = "vfat";
+      options = ["fmask=0022" "dmask=0022"];
+    };
   };
 
   swapDevices = [
