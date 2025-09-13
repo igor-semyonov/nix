@@ -75,18 +75,37 @@
     nvidia-container-toolkit.enable = true;
   };
 
-  services.xserver.videoDrivers = ["nvidia"];
-  hardware.nvidia = {
-    open = true;
-    modesetting.enable = true;
-    powerManagement.enable = true;
-    powerManagement.finegrained = false;
-    nvidiaSettings = true;
+  services = {
+    xserver.videoDrivers = ["nvidia"];
+    audiobookshelf = {
+      enable = true;
+      host = "10.0.0.10";
+      # host="0.0.0.0";
+      port = 13378;
+      openFirewall = true;
+    };
   };
-  hardware.nvidia-container-toolkit.enable = true;
 
   # Set hostname
   networking.hostName = hostname;
+  networking.wireguard = {
+    enable = true;
+    interfaces = {
+      fidler = {
+        ips = ["10.0.0.10/32"];
+        listenPort = 51820;
+        privateKeyFile = "/etc/wireguard/privatekey";
+        peers = [
+          {
+            publicKey = "yPTvlsTZnzAxfn2GxrvSQX5/ymcsSFqSLtHiJ7zJITc=";
+            allowedIPs = ["10.0.0.0/24"];
+            endpoint = "nalgor.net:41883";
+            persistentKeepalive = 25;
+          }
+        ];
+      };
+    };
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
