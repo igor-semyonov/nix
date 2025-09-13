@@ -39,6 +39,11 @@
         fi
       '';
       memtest86.enable = true;
+      extraEntries = ''
+        menuentry "UEFI Firmware Settings" {
+          fwsetup
+        }
+      '';
     };
   };
 
