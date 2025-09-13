@@ -20,7 +20,8 @@
     # ../programs/fzf
     # ../programs/git
     # ../programs/go
-    # ../programs/gpg
+    ../programs/gpg
+    ../programs/ssh
     # ../programs/k9s
     # ../programs/krew
     # ../programs/lazygit
