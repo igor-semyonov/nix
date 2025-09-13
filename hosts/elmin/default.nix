@@ -7,7 +7,6 @@
   imports = [
     inputs.hardware.nixosModules.common-cpu-amd-zenpower
     # inputs.hardware.nixosModules.common-gpu-nvidia
-    inputs.hardware.nixosModules.common.gpu.nvidia.ada-lovelace
     inputs.hardware.nixosModules.common-pc-ssd
 
     ./hardware-configuration.nix
@@ -48,16 +47,32 @@
   };
 
   nixpkgs.config.cudaSupport = true;
-  hardware.graphics = {
-    enable = true;
-    # extraPackages = with pkgs; [
-    # nvidia-vaapi-driver
-    # nvtopPackages.nvidia
-    # nvidia-docker
-    # nvidia-container-toolkit
-    # cudaPackages.cudatoolkit
-    # cudaPackages.cudnn
-    # ];
+  hardware = {
+    graphics = {
+      enable = true;
+      # extraPackages = with pkgs; [
+      # nvidia-vaapi-driver
+      # nvtopPackages.nvidia
+      # nvidia-docker
+      # nvidia-container-toolkit
+      # cudaPackages.cudatoolkit
+      # cudaPackages.cudnn
+      # ];
+    };
+    nvidia = {
+      open = true;
+      modesetting.enable = true;
+      powerManagement = {
+        enable = true;
+        finegrained = false;
+      };
+      nvidiaSettings = true;
+      # prime.offload = {
+      #   enable = false;
+      #   enableOffloadCmd = false;
+      # };
+    };
+    nvidia-container-toolkit.enable = true;
   };
 
   services.xserver.videoDrivers = ["nvidia"];
