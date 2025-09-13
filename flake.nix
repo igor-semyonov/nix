@@ -107,7 +107,7 @@
   in {
     nixosConfigurations = {
       tavore = mkNixosConfiguration "tavore" "igor";
-      elmin = mkNixosConfiguration "elmin" "igor";
+      boxy = mkNixosConfiguration "boxy" "igor";
     };
 
     # darwinConfigurations = {
@@ -116,7 +116,7 @@
 
     homeConfigurations = {
       "igor@tavore" = mkHomeConfiguration "x86_64-linux" "igor" "tavore";
-      "igor@elmin" = mkHomeConfiguration "x86_64-linux" "igor" "elmin";
+      "igor@boxy" = mkHomeConfiguration "x86_64-linux" "igor" "boxy";
     };
 
     overlays = import ./overlays {inherit inputs;};
