@@ -17,6 +17,7 @@
     "${nixosModules}/programs/firefox"
     "${nixosModules}/programs/tts"
     "${nixosModules}/programs/nvim"
+    "${nixosModules}/services/unpatched"
   ];
 
   services.ollama = {

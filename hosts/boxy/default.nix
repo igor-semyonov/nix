@@ -17,6 +17,7 @@
     "${nixosModules}/programs/firefox"
     "${nixosModules}/programs/tts"
     "${nixosModules}/programs/nvim"
+    "${nixosModules}/services/unpatched"
   ];
 
   nix.settings.download-buffer-size = 48 * 1024 * 1024 * 1024;
@@ -111,27 +112,6 @@
           ];
         };
       };
-    };
-  };
-
-  # making unpatched things work
-  programs = {
-    nix-ld = {
-      enable = true;
-      # put whatever libraries you think you might need
-      # nix-ld includes a strong sane-default as well
-      # in addition to these
-      libraries = with pkgs; [
-        stdenv.cc.cc.lib
-        cudaPackages.cudatoolkit.lib
-        zlib
-      ];
-    };
-  };
-
-  services = {
-    envfs = {
-      enable = true;
     };
   };
 
