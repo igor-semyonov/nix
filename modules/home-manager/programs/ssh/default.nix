@@ -3,8 +3,20 @@
   lib,
   ...
 }: {
-  # programs.ssh = {
-  #   enable = true;
-  # };
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+    matchBlocks = {
+      "*".addKeysToAgent = "yes";
+      "fid" = {
+        hostname = "10.0.0.1";
+        user = "root";
+      };
+      "tav" = {
+        hostname = "tavore";
+        user = "igor";
+      };
+    };
+  };
   services.ssh-agent.enable = true;
 }
