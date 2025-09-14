@@ -9,4 +9,7 @@ clean:
 home: .FORCE
 	home-manager  switch --flake .
 
+home-backup: .FORCE
+	home-manager  switch --flake . -b backup
+
 .FORCE:
