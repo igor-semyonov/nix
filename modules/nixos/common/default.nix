@@ -143,6 +143,7 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    lm_sensors
     nix-index
     nom
     btop
