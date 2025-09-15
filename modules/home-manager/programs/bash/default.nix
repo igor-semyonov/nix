@@ -1,4 +1,4 @@
-{...}: {
+{pkgs, ...}: {
   # Install bat via home-manager module
   programs.bash = {
     enable = true;
@@ -28,6 +28,8 @@
         else
             start_agent;
         fi
+
+        eval "$(${pkgs.zoxide}/bin/zoxide init bash)"
       '';
     shellAliases = {
       ".." = "cd ..";
