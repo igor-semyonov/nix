@@ -3,7 +3,4 @@
   programs.bat = {
     enable = true;
   };
-
-  # Enable catppuccin theming for bat.
-  catppuccin.bat.enable = true;
 }
