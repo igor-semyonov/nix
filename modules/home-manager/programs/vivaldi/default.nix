@@ -1,26 +1,33 @@
 {
   pkgs,
   lib,
-  outputs,
   ...
 }: {
-  # home.packages = with pkgs; [
-  #   vivaldi-ffmpeg-codecs
-  # ];
-
   programs.vivaldi = {
     enable = true;
-    # commandLineArgs = [
-    #   "--ignore-gpu-blocklist"
-    #   "--enable-accelerated-video-encode"
-    #   "--enable-accelerated-video-decode"
-    #   "--enable-features=UseOzonePlatform,VaapiVideoDecoder"
-    #   "--ozone-platform=wayland"
-    #   "--use-gl=egl"
-    # ];
+    commandLineArgs = [
+      # "--ignore-gpu-blocklist"
+      # "--enable-accelerated-video-encode"
+      # "--enable-accelerated-video-decode"
+      # "--enable-features=UseOzonePlatform,VaapiVideoDecoder"
+      "--ozone-platform=wayland"
+      # "--use-gl=egl"
+    ];
     extensions = [
       {id = "nngceckbapebfimnlniiiahkandclblb";} # bitwarden
       {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark reader
+    ];
+  };
+
+  programs.brave = {
+    enable = true;
+    commandLineArgs = [
+      # "--ignore-gpu-blocklist"
+      # "--enable-accelerated-video-encode"
+      # "--enable-accelerated-video-decode"
+      # "--enable-features=UseOzonePlatform,VaapiVideoDecoder"
+      "--ozone-platform=wayland"
+      # "--use-gl=egl"
     ];
   };
 

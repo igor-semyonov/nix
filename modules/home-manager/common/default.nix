@@ -14,6 +14,7 @@
     ../programs/bash
     ../programs/bat
     ../programs/vivaldi
+    ../programs/brave
     ../programs/firefox
     ../programs/matplotlib
     # ../programs/btop
