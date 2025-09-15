@@ -78,6 +78,10 @@
               # icon = "https://www.amazon.com/favicon.png";
               definedAliases = ["am"];
             };
+            "Amazon Orders" = {
+              urls = [{template = "https://www.amazon.com/your-orders/search?search={searchTerms}";}];
+              definedAliases = ["ao"];
+            };
             "Google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
           };
         };
