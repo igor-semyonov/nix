@@ -7,4 +7,17 @@
       config.allowUnfree = true;
     };
   };
+
+  # vivaldi = final: prev: {
+  #   vivaldi = prev.vivaldi.override {
+  #     commandLineArgs = [
+  #       "--ignore-gpu-blocklist"
+  #       # "--enable-accelerated-video-encode"
+  #       # "--enable-accelerated-video-decode"
+  #       "--enable-features=UseOzonePlatform,VaapiVideoDecoder"
+  #       "--ozone-platform=wayland"
+  #       "--use-gl=egl"
+  #     ];
+  #   };
+  # };
 }
