@@ -34,6 +34,7 @@
     # ../programs/tmux
     # ../programs/ulauncher
     # ../programs/zsh
+    # ../programs/zoxide
     # ../scripts
     ../services/flatpak
   ];
