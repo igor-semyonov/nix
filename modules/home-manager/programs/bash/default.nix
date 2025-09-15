@@ -45,6 +45,11 @@
       gco = "git checkout";
       ggl = "git pull";
       ggp = "git push";
+
+      flatpak = "flatpak --user";
+      lo = "flatpak run org.libreoffice.LibreOffice";
+
+      xcp = "xclip -i -selection clipboard";
     };
   };
 }
