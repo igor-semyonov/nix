@@ -31,6 +31,8 @@
     })
     config.nix.registry;
 
+  environment.pathsToLink = ["/share/bash-completion"];
+
   # Nix settings
   nix.settings = {
     experimental-features = "nix-command flakes";
