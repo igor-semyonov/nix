@@ -11,7 +11,8 @@
     # ../programs/aerospace
     ../programs/alacritty
     # ../programs/atuin
-    # ../programs/bat
+    ../programs/bash
+    ../programs/bat
     ../programs/vivaldi
     ../programs/firefox
     ../programs/matplotlib
