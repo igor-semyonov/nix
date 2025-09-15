@@ -5,9 +5,8 @@
       libraries = with pkgs; [
         stdenv.cc.cc.lib
         cudaPackages.cudatoolkit.lib
-        zlib
+        linuxPackages.nvidia_x11
       ];
-      # ++ extra-libs;
     };
   };
 
