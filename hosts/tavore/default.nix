@@ -69,7 +69,12 @@
   hardware.nvidia-container-toolkit.enable = true;
 
   # Set hostname
-  networking.hostName = hostname;
+  networking = {
+    hostName = hostname;
+    nftables = {
+      enable = true;
+    };
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
