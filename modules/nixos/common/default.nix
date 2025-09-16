@@ -189,7 +189,7 @@
   ];
 
   services = {
-    locate.enable = true;
+    locate.enable = false;
     pcscd = {
       enable = true;
       plugins = [pkgs.opensc];
