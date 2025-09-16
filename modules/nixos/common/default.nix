@@ -217,5 +217,8 @@
     roboto
   ];
 
-  imports = [./sound.nix];
+  imports = [
+    ./sound.nix
+    ../programs/nvim
+  ];
 }
