@@ -79,8 +79,12 @@
               definedAliases = ["am"];
             };
             "Amazon Orders" = {
-              urls = [{template = "https://www.amazon.com/your-orders/search?search={searchTerms}";}];
+              urls = [{template = "https://www.amazon.com/your-orders/search/ref=ppx_yo2ov_dt_b_search?opt=ab&search={searchTerms}";}];
               definedAliases = ["ao"];
+            };
+            "Audible" = {
+              urls = [{template = "https://www.audible.com/search?keywords={searchTerms}";}];
+              definedAliases = ["au"];
             };
             "Google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
           };
