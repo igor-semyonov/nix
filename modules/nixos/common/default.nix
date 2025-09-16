@@ -141,7 +141,13 @@
     fi
   '';
 
-  programs.kdeconnect.enable = true;
+  programs = {
+    kdeconnect.enable = true;
+    appimage = {
+      enable = true;
+      binfmt = true;
+    };
+  };
 
   # System packages
   environment.systemPackages = with pkgs; [
