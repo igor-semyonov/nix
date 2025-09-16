@@ -151,6 +151,7 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    signal-desktop
     lm_sensors
     nix-index
     nom
