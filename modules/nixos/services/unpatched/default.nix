@@ -8,13 +8,23 @@
         linuxPackages.nvidia_x11
 
         # matplotlib and pyside6
-        pkgs.libGL
-        pkgs.libxkbcommon
-        pkgs.fontconfig
-        pkgs.libx11
-        pkgs.glib
-        pkgs.freetype
-        pkgs.dbus
+        libGL
+        libxkbcommon
+        fontconfig
+        libx11
+        glib
+        freetype
+        dbus
+        kdePackages.wayland
+        kdePackages.qtwayland
+        xorg.xcbutil
+        xorg.xcbutilcursor
+        xorg.xcbutilwm
+        xorg.xcbutilkeysyms
+        xorg.xcbutilrenderutil
+        xorg.xcbutilimage
+        libxcb
+        libdrm
       ];
     };
   };
