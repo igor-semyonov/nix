@@ -37,6 +37,7 @@
   nix.settings = {
     experimental-features = "nix-command flakes";
     auto-optimise-store = true;
+    allowed-users = ["@wheel"];
   };
 
   security.pam = {
