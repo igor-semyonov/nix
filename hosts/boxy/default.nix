@@ -36,7 +36,11 @@
       efiSupport = true;
       #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
       device = "nodev";
+      font = "${pkgs.fira-code}/share/fonts/truetype/FiraCode-VF.ttf";
       fontSize = 64;
+      entryOptions = "--class nixos --unrestricted --id nixos";
+      default = "nixos";
+      # default="gentoo";
       extraConfig = ''
         if [ -f  ''${config_directory}/custom.cfg ]; then
           source ''${config_directory}/custom.cfg
