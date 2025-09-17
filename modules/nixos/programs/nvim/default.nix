@@ -10,6 +10,7 @@
     variables = {
       EDITOR = "vim";
       VISUAL = "vim";
+      SYSTEMD_EDITOR = "vim";
     };
   };
 }
