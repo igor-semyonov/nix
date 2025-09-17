@@ -1,4 +1,5 @@
 {
+  pkgs,
   inputs,
   hostname,
   nixosModules,
@@ -93,6 +94,13 @@
       port = 13378;
       openFirewall = true;
     };
+  };
+
+  systemd.services = {
+    # wg-quick-fidler.requires = ["nss-lookup.target"];
+    # audiobookshelf.requires = ["wg-quick-fidler.service"];
+    wg-quick-fidler.preStart = "until host nalgor.net; do sleep 1; done; sleep 3";
+    audiobookshelf.preStart = "until ip a s dev fidler; do sleep 1; done; sleep 3";
   };
 
   # Set hostname
