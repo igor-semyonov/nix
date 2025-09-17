@@ -9,7 +9,7 @@
       # platformTheme.name = "kvantum";
       # style.name = "kvantum";
       platformTheme.name = "kde";
-      style.name = "kde6";
+      style.name = "Breeze";
     };
 
     # catppuccin.kvantum.enable = true;
