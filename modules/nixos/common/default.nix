@@ -54,9 +54,14 @@
   boot = {
     # kernelPackages = pkgs.linuxKernel.packages.linux_6_15;
     consoleLogLevel = 0;
-    initrd.verbose = false;
-    kernelParams = ["quiet" "splash" "rd.udev.log_level=3"];
-    plymouth.enable = true;
+
+    # initrd.verbose = false;
+    # kernelParams = ["quiet" "splash" "rd.udev.log_level=3"];
+    # plymouth.enable = true;
+
+    initrd.verbose = true;
+    kernelParams = ["rd.udev.log_level=3"];
+    plymouth.enable = false;
 
     # v4l (virtual camera) module settings
     kernelModules = ["v4l2loopback"];
