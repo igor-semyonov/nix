@@ -147,6 +147,14 @@
       enable = true;
       binfmt = true;
     };
+    gnupg.agent = {
+      enable = true;
+      settings = {
+        default-cache-ttl = 86400;
+      };
+      pinentryPackage = pkgs.pinentry-curses;
+      enableSSHSupport = true;
+    };
   };
 
   # System packages
