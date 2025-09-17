@@ -19,7 +19,11 @@
     "${nixosModules}/services/unpatched"
   ];
 
-  nix.settings.download-buffer-size = 48 * 1024 * 1024 * 1024;
+  nix.settings = {
+    download-buffer-size = 48 * 1024 * 1024 * 1024;
+    cores = 32;
+    max-jobs = 48;
+  };
 
   boot.loader = {
     efi = {

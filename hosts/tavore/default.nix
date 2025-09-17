@@ -24,7 +24,11 @@
     models = "/mnt/ollama-models";
   };
 
-  nix.settings.download-buffer-size = 128 * 1024 * 1024 * 1024;
+  nix.settings = {
+    download-buffer-size = 128 * 1024 * 1024 * 1024;
+    cores = 72;
+    max-jobs = 96;
+  };
 
   boot.loader = {
     efi = {
