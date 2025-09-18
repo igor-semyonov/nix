@@ -36,6 +36,11 @@ in {
       fsType = "btrfs";
       options = ["subvol=@home"] ++ btrfs-options;
     };
+    "/mnt/btrfs-pool" = {
+      device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
+      fsType = "btrfs";
+      options = ["subvolid=5"] ++ btrfs-options;
+    };
     "/mnt/8tb" = {
       device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
       fsType = "btrfs";
