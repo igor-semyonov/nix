@@ -11,9 +11,9 @@
   btrfs-options = ["noautodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
   btrfs-options-hdd = ["autodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
 in {
-  imports = [
-    (modulesPath + "/installer/scan/not-detected.nix")
-  ];
+  # imports = [
+  #   (modulesPath + "/installer/scan/not-detected.nix")
+  # ];
 
   boot.initrd.availableKernelModules = [];
   boot.initrd.kernelModules = [];
