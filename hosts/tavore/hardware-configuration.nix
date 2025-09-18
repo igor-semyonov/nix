@@ -7,7 +7,10 @@
   pkgs,
   modulesPath,
   ...
-}: {
+}: let
+  btrfs-options = ["noautodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
+  btrfs-options-hdd = ["autodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
+in {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
@@ -17,50 +20,49 @@
   boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
-    fsType = "btrfs";
-    options = ["subvol=@"];
-  };
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
+      fsType = "btrfs";
+      options = ["subvol=@"] ++ btrfs-options;
+    };
+    "/home" = {
+      device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
+      fsType = "btrfs";
+      options = ["subvol=@home"] ++ btrfs-options;
+    };
+    "/nix" = {
+      device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
+      fsType = "btrfs";
+      options = ["subvol=@nix"];
+    };
+    "/mnt/btrfs-pool" = {
+      device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
+      fsType = "btrfs";
+      options = ["subvolid=5"] ++ btrfs-options;
+    };
 
-  fileSystems."/home" = {
-    device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
-    fsType = "btrfs";
-    options = ["subvol=@home"];
-  };
+    "/boot/efi" = {
+      device = "/dev/disk/by-uuid/D203-132D";
+      fsType = "vfat";
+      options = ["fmask=0077" "dmask=0077"];
+    };
 
-  fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
-    fsType = "btrfs";
-    options = ["subvol=@nix"];
-  };
-
-  fileSystems."/mnt/btrfs-pool" = {
-    device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
-    fsType = "btrfs";
-    options = ["subvolid=5"];
-  };
-
-  fileSystems."/boot/efi" = {
-    device = "/dev/disk/by-uuid/D203-132D";
-    fsType = "vfat";
-    options = ["fmask=0077" "dmask=0077"];
-  };
-
-  fileSystems."/mnt/ssd" = {
-    device = "/dev/disk/by-uuid/16f331fb-188f-4362-8f28-00fbb333304a";
-    fsType = "btrfs";
-    options = ["subvolid=5"];
-  };
-  fileSystems."/data" = {
-    device = "/dev/disk/by-uuid/16f331fb-188f-4362-8f28-00fbb333304a";
-    fsType = "btrfs";
-    options = ["subvol=@data"];
-  };
-  fileSystems."/mnt/ollama-models" = {
-    device = "/dev/disk/by-uuid/16f331fb-188f-4362-8f28-00fbb333304a";
-    fsType = "btrfs";
-    options = ["subvol=@ollama-models"];
+    "/mnt/ssd" = {
+      device = "/dev/disk/by-uuid/16f331fb-188f-4362-8f28-00fbb333304a";
+      fsType = "btrfs";
+      options = ["subvolid=5"] ++ btrfs-options;
+    };
+    "/data" = {
+      device = "/dev/disk/by-uuid/16f331fb-188f-4362-8f28-00fbb333304a";
+      fsType = "btrfs";
+      options = ["subvol=@data"] ++ btrfs-options;
+    };
+    "/mnt/ollama-models" = {
+      device = "/dev/disk/by-uuid/16f331fb-188f-4362-8f28-00fbb333304a";
+      fsType = "btrfs";
+      options = ["subvol=@ollama-models"] ++ btrfs-options;
+    };
   };
 
   swapDevices = [];
