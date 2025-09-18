@@ -39,6 +39,7 @@
       lt = "eza --tree --level=2 --icons"; # tree
 
       gs = "git status";
+      gd = "git diff";
       gcam = "git commit --all --message";
       gcm = "git commit --message";
       gcl = "git clone";
