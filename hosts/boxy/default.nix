@@ -35,7 +35,7 @@
     systemd-boot.enable = false;
     grub = {
       efiSupport = true;
-      #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
+      # efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
       device = "nodev";
       font = "${pkgs.fira-code}/share/fonts/truetype/FiraCode-VF.ttf";
       fontSize = 128;
@@ -97,10 +97,28 @@
   };
 
   systemd.services = {
-    # wg-quick-fidler.requires = ["nss-lookup.target"];
-    # audiobookshelf.requires = ["wg-quick-fidler.service"];
-    wg-quick-fidler.preStart = "until host nalgor.net; do sleep 1; done; sleep 3";
-    audiobookshelf.preStart = "until ip a s dev fidler; do sleep 1; done; sleep 3";
+    # dns-available = {
+    #   enable = true;
+    #   description = "Ensure DNS lookup is working";
+    #   after = ["network-online.target"];
+    #   # postStart = "until host nalgor.net; do sleep 1; done;";
+    #   wantedBy = ["multi-user.target"];
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     ExecStart = "${pkgs.bash}/bin/bash -c 'until host nalgor.net; do sleep 1; done'";
+    #   };
+    # };
+    # wg-quick-fidler.after = ["nss-lookup.target"];
+    audiobookshelf.after = ["wg-quick-fidler.service"];
+    wg-quick-fidler.preStart =
+      /*
+      bash
+      */
+      ''
+        until ${pkgs.host}/bin/host nalgor.net; do
+          sleep 1
+        done'';
+    # audiobookshelf.preStart = "until ip a s dev fidler; do sleep 1; done; sleep 3";
   };
 
   # Set hostname
