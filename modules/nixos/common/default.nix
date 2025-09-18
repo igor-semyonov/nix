@@ -251,5 +251,6 @@
   imports = [
     ./sound.nix
     ../programs/nvim
+    ../services/btrbk
   ];
 }
