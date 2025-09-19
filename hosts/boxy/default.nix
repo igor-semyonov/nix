@@ -96,6 +96,55 @@
     };
   };
 
+  # backing up fidler
+  systemd = {
+    timers.backup-fidler = {
+      description = "Backup fidler timer";
+      wantedBy = ["timers.target"];
+      partOf = ["backup-fidler.service"];
+      timerConfig.OnCalendar = "03:00";
+      timerConfig.Persistent = "true";
+    };
+    services.backup-fidler = {
+      description = "Make backup of fidler";
+      path = with pkgs; [bash rsync openssh];
+      serviceConfig.Type = "exec";
+      script =
+        /*
+        bash
+        */
+        ''
+          rsync \
+            -ahPHAX \
+            --exclude sys  \
+            --exclude dev  \
+            --exclude proc \
+            --delete \
+            10.0.0.1:/*  \
+            /mnt/btrfs-pool/@fidler/.
+        '';
+    };
+  };
+  services.btrbk.instances.fidler = {
+    onCalendar = "12:00";
+    settings = {
+      timestamp_format = "long";
+      preserve_day_of_week = "monday";
+      preserve_hour_of_day = "0";
+      volume = {
+        "/mnt/btrfs-pool" = {
+          snapshot_preserve_min = "latest";
+          snapshot_preserve = "14d 8w 6m";
+          snapshot_create = "always";
+          snapshot_dir = "fidler-snapshots";
+          subvolume = {
+            "@fidler" = {};
+          };
+        };
+      };
+    };
+  };
+
   systemd.services = {
     # dns-available = {
     #   enable = true;
