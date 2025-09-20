@@ -22,6 +22,8 @@
   services.ollama = {
     enable = true;
     models = "/mnt/ollama-models";
+    openFirewall = true;
+    host = "0.0.0.0";
   };
 
   nix.settings = {
