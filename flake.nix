@@ -59,7 +59,7 @@
       igor = {
         avatar = ./files/avatar/face;
         email = "igor@semyonov.xyz";
-        fullName = "Igor Semynov";
+        fullName = "Igor Semyonov";
         gitKey = "C56C6E528F5A18A69B03FC721783BE487E6885DD";
         name = "igor";
       };
