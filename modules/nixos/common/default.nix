@@ -127,25 +127,30 @@
   environment.localBinInPath = true;
 
   # User configuration
-  users.users.${userConfig.name} = {
-    description = userConfig.fullName;
-    extraGroups = ["networkmanager" "wheel" "docker"];
-    isNormalUser = true;
-    shell = pkgs.bash;
-    packages = with pkgs; [
-      zoxide
-      thunderbird
-      python313
-      python312
-      python311
-      rustup
-      unzip
-      starship
-      ripgrep
-      wl-clipboard
-      vivaldi
-      vivaldi-ffmpeg-codecs
-    ];
+  users = {
+    users.${userConfig.name} = {
+      description = userConfig.fullName;
+      extraGroups = ["networkmanager" "wheel" "docker" "i2c"];
+      isNormalUser = true;
+      shell = pkgs.bash;
+      packages = with pkgs; [
+        zoxide
+        thunderbird
+        python313
+        python312
+        python311
+        rustup
+        unzip
+        starship
+        ripgrep
+        wl-clipboard
+        vivaldi
+        vivaldi-ffmpeg-codecs
+      ];
+    };
+    groups = {
+      i2c = {};
+    };
   };
 
   # Set User's avatar
@@ -219,7 +224,12 @@
     )
   ];
 
+  services.udev.extraRules = ''
+    KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
+  '';
+
   services = {
+    ddccontrol.enable = true;
     locate.enable = false;
     pcscd = {
       enable = true;
