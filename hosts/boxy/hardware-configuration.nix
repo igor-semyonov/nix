@@ -24,36 +24,43 @@ in {
     "/" = {
       device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvol=@"] ++ btrfs-options;
     };
     "/nix" = {
       device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvol=@nix"] ++ btrfs-options;
     };
     "/home" = {
       device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvol=@home"] ++ btrfs-options;
     };
     "/mnt/btrfs-pool" = {
       device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvolid=5"] ++ btrfs-options;
     };
     "/mnt/8tb" = {
       device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvolid=5"] ++ btrfs-options;
     };
     "/mnt/gentoo-btrfs-pool" = {
       device = "/dev/disk/by-uuid/11a22b3d-fa0c-4821-8bf0-802b5d983c7e";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvolid=5"] ++ btrfs-options;
     };
     "/mnt/10tb" = {
       device = "/dev/disk/by-uuid/a11033d4-a88b-4c02-8ba7-9a36ba9c6df8";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvolid=5"] ++ btrfs-options-hdd;
     };
     "/boot/efi" = {

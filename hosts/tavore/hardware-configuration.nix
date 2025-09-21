@@ -24,21 +24,25 @@ in {
     "/" = {
       device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvol=@"] ++ btrfs-options;
     };
     "/home" = {
       device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvol=@home"] ++ btrfs-options;
     };
     "/nix" = {
       device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvol=@nix"];
     };
     "/mnt/btrfs-pool" = {
       device = "/dev/disk/by-uuid/56836784-c98e-43b7-b349-1e125ff66fa7";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvolid=5"] ++ btrfs-options;
     };
 
@@ -51,16 +55,19 @@ in {
     "/mnt/ssd" = {
       device = "/dev/disk/by-uuid/16f331fb-188f-4362-8f28-00fbb333304a";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvolid=5"] ++ btrfs-options;
     };
     "/data" = {
       device = "/dev/disk/by-uuid/16f331fb-188f-4362-8f28-00fbb333304a";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvol=@data"] ++ btrfs-options;
     };
     "/mnt/ollama-models" = {
       device = "/dev/disk/by-uuid/16f331fb-188f-4362-8f28-00fbb333304a";
       fsType = "btrfs";
+      noCheck = true;
       options = ["subvol=@ollama-models"] ++ btrfs-options;
     };
   };
