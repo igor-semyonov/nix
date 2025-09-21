@@ -5,6 +5,7 @@
   config,
   userConfig,
   pkgs,
+  hostname,
   ...
 }: {
   # Nixpkgs configuration
@@ -83,7 +84,13 @@
   };
 
   # Networking
-  networking.networkmanager.enable = true;
+  networking = {
+    hostName = hostname;
+    networkmanager.enable = true;
+    nftables = {
+      enable = true;
+    };
+  };
 
   # Disable systemd services that are affecting the boot time
   systemd.services = {

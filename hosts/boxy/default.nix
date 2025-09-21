@@ -1,7 +1,6 @@
 {
   pkgs,
   inputs,
-  hostname,
   nixosModules,
   ...
 }: {
@@ -170,12 +169,7 @@
     # audiobookshelf.preStart = "until ip a s dev fidler; do sleep 1; done; sleep 3";
   };
 
-  # Set hostname
   networking = {
-    hostName = hostname;
-    nftables = {
-      enable = true;
-    };
     wg-quick = {
       interfaces = {
         fidler = {
