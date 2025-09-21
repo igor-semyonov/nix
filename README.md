@@ -1,22 +1,8 @@
-# NixOS and nix-darwin Configurations for My Machines
+# NixOS Configurations for My Machines
 
-This repository contains NixOS and nix-darwin configurations for my machines, managed through [Nix Flakes](https://nixos.wiki/wiki/Flakes).
+This repository contains NixOS configurations for my machines, managed through [Nix Flakes](https://nixos.wiki/wiki/Flakes).
 
 It is structured to easily accommodate multiple machines and user configurations, leveraging [nixpkgs](https://github.com/NixOS/nixpkgs), [home-manager](https://github.com/nix-community/home-manager), [nix-darwin](https://github.com/LnL7/nix-darwin), and various other community contributions for a seamless experience across NixOS and macOS.
-
-## Showcase
-
-### Hyprland
-
-![hyprland](./files/screenshots/hyprland.png)
-
-### KDE
-
-![kde](./files/screenshots/kde.png)
-
-### macOS
-
-![macos](./files/screenshots/mac.png)
 
 ## Structure
 
@@ -26,7 +12,6 @@ It is structured to easily accommodate multiple machines and user configurations
 - `files/`: Miscellaneous configuration files and scripts used across various applications and services
 - `modules/`: Reusable platform-specific modules
   - `nixos/`: NixOS-specific modules
-  - `darwin/`: macOS-specific modules
   - `home-manager/`: User-space configuration modules
 - `flake.lock`: Lock file ensuring reproducible builds by pinning input versions
 - `overlays/`: Custom Nix overlays for package modifications or additions
@@ -37,9 +22,7 @@ It is structured to easily accommodate multiple machines and user configurations
 - **nixpkgs-stable**: Points to the `nixos-25.05` channel, providing stable NixOS packages
 - **home-manager**: Manages user-specific configurations, following the `nixpkgs` input (release-25.05)
 - **hardware**: Optimizes settings for different hardware configurations
-- **catppuccin**: Provides global Catppuccin theme integration
 - **nix-flatpak**: Provides declarative way to manage flatpaks
-- **darwin**: Enables nix-darwin for macOS system configuration
 
 ## Usage
 
