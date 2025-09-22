@@ -17,6 +17,7 @@
     "${nixosModules}/programs/tts"
     # "${nixosModules}/programs/open-audible"
     "${nixosModules}/services/unpatched"
+    "${nixosModules}/hardware/nas"
   ];
 
   nix.settings = {
@@ -189,6 +190,15 @@
         };
       };
     };
+  };
+
+  mine.nas = {
+    enable = true;
+    host = "synology";
+    shares = [
+      "share-1"
+      "share-2"
+    ];
   };
 
   # This value determines the NixOS release from which the default

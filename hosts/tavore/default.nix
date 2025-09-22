@@ -16,6 +16,7 @@
     "${nixosModules}/programs/firefox"
     "${nixosModules}/programs/tts"
     "${nixosModules}/services/unpatched"
+    "${nixosModules}/hardware/nas"
   ];
 
   services.ollama = {
@@ -74,6 +75,14 @@
   hardware.nvidia-container-toolkit.enable = true;
 
   networking = {
+  };
+
+  mine.nas = {
+    enable = true;
+    host = "synology";
+    shares = [
+      "share-1"
+    ];
   };
 
   # This value determines the NixOS release from which the default
