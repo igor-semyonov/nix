@@ -38,6 +38,7 @@
     # ../programs/zoxide
     # ../scripts
     ../services/flatpak
+    ../services/xresources
   ];
 
   # Nixpkgs configuration
