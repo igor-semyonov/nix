@@ -11,7 +11,7 @@
     services.flatpak = {
       enable = true;
       packages = [
-        # "us.zoom.Zoom"
+        "org.libreoffice.LibreOffice	"
       ];
       uninstallUnmanaged = true;
       update.auto.enable = false;
