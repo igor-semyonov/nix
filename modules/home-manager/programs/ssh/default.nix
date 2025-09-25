@@ -16,6 +16,10 @@
         hostname = "tavore";
         user = "igor";
       };
+      "syn" = {
+        hostname = "synology";
+        user = "igor";
+      };
     };
   };
   services.ssh-agent.enable = true;
