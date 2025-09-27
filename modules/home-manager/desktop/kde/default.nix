@@ -442,7 +442,8 @@ in {
     };
 
     shortcuts = {
-      "plasmashell"."show dashboard" = "none,Ctrl+F12,Show Desktop";
+      "plasmashell"."clear-history" = "Meta+Ctrl+V";
+      "plasmashell"."show-on-mouse-pos" = "Meta+V";
       "kwin"."Window Maximize" = "Meta+PgUp";
       "kwin"."Window Close" = "Alt+F4";
       "kwin"."TrackMouse" = "Meta+`,none,Track mouse";
