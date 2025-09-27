@@ -1,9 +1,9 @@
 update:
-	sudo nixos-rebuild switch --flake .
+	j=$(nproc) && sudo nixos-rebuild switch --flake . -j $((j + 1))
 trace:
 	sudo nixos-rebuild switch --flake . --show-trace
 boot:
-	sudo nixos-rebuild boot --flake .
+	j=$(nproc) && sudo nixos-rebuild boot --flake . -j $((j + 1))
 
 clean:
 	nix-collect-garbage -d
