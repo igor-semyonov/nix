@@ -134,6 +134,7 @@
       isNormalUser = true;
       shell = pkgs.bash;
       packages = with pkgs; [
+        cryptomator
         zoxide
         thunderbird
         python313
