@@ -51,17 +51,13 @@
     };
   };
 
-  nixpkgs.config.cudaSupport = true;
+  nixpkgs.config = {
+    cudaSupport = true;
+    cudaCapabilities = ["8.6"];
+    cudaForwardCompat = true;
+  };
   hardware.graphics = {
     enable = true;
-    # extraPackages = with pkgs; [
-    # nvidia-vaapi-driver
-    # nvtopPackages.nvidia
-    # nvidia-docker
-    # nvidia-container-toolkit
-    # cudaPackages.cudatoolkit
-    # cudaPackages.cudnn
-    # ];
   };
 
   services.xserver.videoDrivers = ["nvidia"];
