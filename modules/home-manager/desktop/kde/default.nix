@@ -446,7 +446,7 @@ in {
       "plasmashell"."show-on-mouse-pos" = "Meta+V";
       "kwin"."Window Maximize" = "Meta+PgUp";
       "kwin"."Window Close" = "Alt+F4";
-      "kwin"."TrackMouse" = "Meta+`,none,Track mouse";
+      "kwin"."TrackMouse" = "Meta+`";
       "kwin"."ClearLastMouseMark" = "Meta+Shift+F12";
       "kwin"."ClearMouseMarks" = "Meta+Shift+F11";
       "kwin"."Grid View" = "Meta+G";
