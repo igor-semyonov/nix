@@ -31,6 +31,10 @@
                       value = "packages";
                     }
                     {
+                      name = "channel";
+                      value = "unstable";
+                    }
+                    {
                       name = "query";
                       value = "{searchTerms}";
                     }
@@ -48,6 +52,10 @@
                     {
                       name = "type";
                       value = "options";
+                    }
+                    {
+                      name = "channel";
+                      value = "unstable";
                     }
                     {
                       name = "query";
