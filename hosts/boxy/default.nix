@@ -98,23 +98,54 @@
 
   # backing up fidler
   systemd = {
-    timers.backup-fidler = {
-      description = "Backup fidler timer";
-      wantedBy = ["timers.target"];
-      partOf = ["backup-fidler.service"];
-      timerConfig.OnCalendar = "03:00";
-      timerConfig.Persistent = "true";
+    timers = {
+      backup-fidler = {
+        description = "Backup fidler timer";
+        wantedBy = ["timers.target"];
+        partOf = ["backup-fidler.service"];
+        timerConfig.OnCalendar = "03:00";
+        timerConfig.Persistent = "true";
+      };
+      backup-audiobooks = {
+        description = "Backup audiobooks timer";
+        wantedBy = ["timers.target"];
+        partOf = ["backup-audiobooks.service"];
+        timerConfig.OnCalendar = "05:00";
+        timerConfig.Persistent = "true";
+      };
     };
-    services.backup-fidler = {
-      description = "Make backup of fidler";
-      path = with pkgs; [bash rsync openssh];
-      serviceConfig.Type = "exec";
-      script =
-        /*
-        bash
-        */
-        ''
-          rsync \
+    services = {
+      backup-audiobooks = {
+        description = "Run backup of audiobooks";
+        path = with pkgs; [bash rsync openssh];
+        serviceConfig = {
+          Type = "exec";
+        };
+        script =
+          /*
+          bash
+          */
+          ''
+            rsync \
+            -ahP \
+            /mnt/10tb/OpenAudible/books/* \
+            igor@synology.local:/volume4/share-2/audiobookshelf/audiobooks/.
+            rsync \
+            -ahP \
+            /var/lib/audiobookshelf/* \
+            igor@synology.local:/volume4/share-2/audiobookshelf/.
+          '';
+      };
+      backup-fidler = {
+        description = "Run backup of fidler";
+        path = with pkgs; [bash rsync openssh];
+        serviceConfig.Type = "exec";
+        script =
+          /*
+          bash
+          */
+          ''
+            rsync \
             -ahPHAX \
             --exclude sys  \
             --exclude dev  \
@@ -122,7 +153,8 @@
             --delete \
             10.0.0.1:/*  \
             /mnt/btrfs-pool/@fidler/.
-        '';
+          '';
+      };
     };
   };
   services.btrbk.instances.fidler = {
