@@ -134,6 +134,8 @@
       isNormalUser = true;
       shell = pkgs.bash;
       packages = with pkgs; [
+        dropbox
+        dropbox-cli
         cryptomator
         zoxide
         thunderbird
