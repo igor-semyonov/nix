@@ -76,7 +76,17 @@ in {
       tts-selection = {
         name = "TTS Selection";
         key = "Ctrl+Meta+C";
-        command = "tts-nix-selection";
+        command = "tts-selection";
+      };
+      tts-screen = {
+        name = "TTS Screen";
+        key = "Ctrl+Meta+Alt+C";
+        command = "tts-screen";
+      };
+      tts-region = {
+        name = "TTS Region";
+        key = "Ctrl+Meta+Shift+C";
+        command = "tts-region";
       };
       launch-alacritty = {
         name = "Launch Alacritty";

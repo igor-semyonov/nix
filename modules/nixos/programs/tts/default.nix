@@ -1,6 +1,6 @@
 {pkgs, ...}: let
   tts = pkgs.writeShellApplication {
-    name = "tts-nix";
+    name = "tts";
     runtimeInputs = [pkgs.wine-staging];
     text = ''
       tts_speed=''${1:-8}
@@ -19,7 +19,7 @@
     '';
   };
   tts-selection = pkgs.writeShellApplication {
-    name = "tts-nix-selection";
+    name = "tts-selection";
     runtimeInputs = [tts pkgs.wl-clipboard];
     text = ''
       function tts-x() {
@@ -34,16 +34,48 @@
 
       function tts-wayland() {
           echo wayland
-          wl-paste -p | tts-nix
+          wl-paste -p | tts
       }
 
       # wl-paste && tts-wayland || tts-x
       tts-wayland
     '';
   };
+  tts-screen = pkgs.writeShellApplication {
+    name = "tts-screen";
+    runtimeInputs = [tts pkgs.kdePackages.spectacle pkgs.tesseract];
+    text = ''
+      if [ -f /tmp/tts.tif ]; then
+        rm /tmp/tts.tif
+      fi
+      spectacle -nbfo /tmp/tts.tif
+      if [ -f /tmp/tts.tif ]; then
+        tesseract -l eng /tmp/tts.tif /tmp/tts
+        # shellcheck disable=SC2002
+        cat /tmp/tts.txt | tts
+      fi
+    '';
+  };
+  tts-region = pkgs.writeShellApplication {
+    name = "tts-region";
+    runtimeInputs = [tts pkgs.kdePackages.spectacle pkgs.tesseract];
+    text = ''
+      if [ -f /tmp/tts.tif ]; then
+        rm /tmp/tts.tif
+      fi
+      spectacle -nbro /tmp/tts.tif
+      if [ -f /tmp/tts.tif ]; then
+        tesseract -l eng /tmp/tts.tif /tmp/tts
+        # shellcheck disable=SC2002
+        cat /tmp/tts.txt | tts
+      fi
+    '';
+  };
 in {
   environment.systemPackages = [
     tts
     tts-selection
+    tts-screen
+    tts-region
   ];
 }
