@@ -1,9 +1,11 @@
+NPROC := $(shell nproc)
+
 update:
-	j=$(nproc) && sudo nixos-rebuild switch --flake . -j $((j + 1))
+	sudo nixos-rebuild switch --flake . --cores $(NPROC) --max-jobs $(NPROC)
 trace:
 	sudo nixos-rebuild switch --flake . --show-trace
 boot:
-	j=$(nproc) && sudo nixos-rebuild boot --flake . -j $((j + 1))
+	j=$(nproc) && sudo nixos-rebuild boot --flake . --cores $(NPROC) --max-jobs $(NPROC)
 
 clean:
 	nix-collect-garbage -d
