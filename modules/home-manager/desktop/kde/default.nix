@@ -708,7 +708,8 @@ in {
       spectaclerc = {
         Annotations.annotationToolType = 8;
         General = {
-          launchAction = "DoNotTakeScreenshot";
+          clipboardGroup = "PostScreenshotCopyImage";
+          launchAction = "TakeFullscreenScreenshot";
           showCaptureInstructions = false;
           showMagnifier = "ShowMagnifierAlways";
           useReleaseToCapture = true;
