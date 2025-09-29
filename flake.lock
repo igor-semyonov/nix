@@ -100,11 +100,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1759060643,
-        "narHash": "sha256-rx0/NQqOnv9LMzYIm4w6DqEIxqUGSLOpuSwtMEe8IX0=",
+        "lastModified": 1759118514,
+        "narHash": "sha256-MiCHicrM7Iax7sf5ojaUG0EDIKFN0WiiGEl5SANmNog=",
         "owner": "igor-semyonov",
         "repo": "nvim",
-        "rev": "e04c039cb87b24db0ea69e70cf28b7f3d5561671",
+        "rev": "25f9b644535e42654332140c4eef3fbe1c7adf1d",
         "type": "github"
       },
       "original": {
@@ -131,11 +131,11 @@
     },
     "nixCats": {
       "locked": {
-        "lastModified": 1756502529,
-        "narHash": "sha256-IPhN1a/DecHCJKugq51TnPqcMkwHU7qrQXagR2k1KwA=",
+        "lastModified": 1758545673,
+        "narHash": "sha256-MMcEImF7vHqImzrdRlSFCbzGq0ebi/5eSYwypNGr+AA=",
         "owner": "BirdeeHub",
         "repo": "nixCats-nvim",
-        "rev": "b262211fc80bf5909f9b6642a7930fee907e3e8d",
+        "rev": "91f9a4b4605cc3aed835e180eb58a5bd73236407",
         "type": "github"
       },
       "original": {
@@ -178,11 +178,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1756911493,
-        "narHash": "sha256-6n/n1GZQ/vi+LhFXMSyoseKdNfc2QQaSBXJdgamrbkE=",
+        "lastModified": 1759036355,
+        "narHash": "sha256-0m27AKv6ka+q270dw48KflE0LwQYrO7Fm4/2//KCVWg=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "c6a788f552b7b7af703b1a29802a7233c0067908",
+        "rev": "e9f00bd893984bc8ce46c895c3bf7cac95331127",
         "type": "github"
       },
       "original": {
