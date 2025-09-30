@@ -140,9 +140,6 @@
         zoxide
         thunderbird
         python313
-        python312
-        python311
-        rustup
         unzip
         starship
         ripgrep
