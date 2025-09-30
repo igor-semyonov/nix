@@ -134,6 +134,7 @@
       isNormalUser = true;
       shell = pkgs.bash;
       packages = with pkgs; [
+        pass
         dropbox
         dropbox-cli
         cryptomator
