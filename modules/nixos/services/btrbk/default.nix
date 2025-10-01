@@ -9,7 +9,7 @@
           preserve_hour_of_day = "0";
           volume = {
             "/mnt/btrfs-pool" = {
-              snapshot_preserve_min = "latest";
+              snapshot_preserve_min = "6h";
               snapshot_preserve = "8h 7d 3w";
               snapshot_create = "always";
               snapshot_dir = "btrbk-snapshots";
