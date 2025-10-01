@@ -53,6 +53,8 @@
 
   # Boot settings
   boot = {
+    supportedFilesystems = ["ntfs"];
+
     # kernelPackages = pkgs.linuxKernel.packages.linux_6_15;
     consoleLogLevel = 0;
 
