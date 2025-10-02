@@ -256,9 +256,14 @@
   };
 
   # Docker configuration
-  virtualisation.docker.enable = true;
-  virtualisation.docker.rootless.enable = true;
-  virtualisation.docker.rootless.setSocketVariable = true;
+  virtualisation.docker = {
+    enable = true;
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+    };
+  };
+  hardware.nvidia-container-toolkit.enable = true;
 
   # Fonts configuration
   fonts.packages = with pkgs; [
