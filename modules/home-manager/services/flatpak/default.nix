@@ -12,6 +12,7 @@
       enable = true;
       packages = [
         "org.libreoffice.LibreOffice	"
+        "com.obsproject.Studio	"
       ];
       uninstallUnmanaged = true;
       update.auto.enable = false;
