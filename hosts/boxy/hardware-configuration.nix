@@ -6,6 +6,7 @@
   lib,
   pkgs,
   modulesPath,
+  userConfig,
   ...
 }: let
   btrfs-options = ["noautodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
@@ -50,6 +51,12 @@ in {
       fsType = "btrfs";
       noCheck = true;
       options = ["subvolid=5"] ++ btrfs-options;
+    };
+    "/home/${userConfig.name}/data" = {
+      device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
+      fsType = "btrfs";
+      noCheck = true;
+      options = ["subvol=@data"] ++ btrfs-options;
     };
     "/mnt/gentoo-btrfs-pool" = {
       device = "/dev/disk/by-uuid/11a22b3d-fa0c-4821-8bf0-802b5d983c7e";
