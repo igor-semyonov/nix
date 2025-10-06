@@ -189,6 +189,7 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    mpv
     terminus_font
     signal-desktop
     lm_sensors
