@@ -189,6 +189,7 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    usbutils
     mpv
     terminus_font
     signal-desktop
@@ -228,9 +229,27 @@
     )
   ];
 
-  services.udev.extraRules = ''
-    KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
-  '';
+  services.udev = {
+    extraRules = ''
+      KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
+    '';
+    packages = let
+      microbitv2 =
+        pkgs.writeTextFile
+        {
+          name = "microbitv2-udev-rule";
+          text = ''
+            # CMSIS-DAP for microbit
+            ACTION!="add|change", GOTO="microbit_rules_end"
+            SUBSYSTEM=="usb", ATTR{idVendor}=="0d28", ATTR{idProduct}=="0204", TAG+="uaccess"
+            LABEL="microbit_rules_end"
+          '';
+          destination = "/etc/udev/rules.d/60-microbitv2.rules";
+        };
+    in [
+      microbitv2
+    ];
+  };
 
   services = {
     ddccontrol.enable = true;
