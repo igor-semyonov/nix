@@ -104,6 +104,7 @@
             darkreader
             vimium
             tree-style-tab
+            tabliss
           ];
           settings = {
             "treestyletab@piro.sakura.ne.jp" = {
