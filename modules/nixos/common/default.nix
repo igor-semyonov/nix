@@ -297,5 +297,6 @@
     ./sound.nix
     ../programs/nvim
     ../services/btrbk
+    ../scripts
   ];
 }
