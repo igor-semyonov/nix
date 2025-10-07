@@ -103,14 +103,9 @@
             bitwarden
             darkreader
             vimium
-            tree-style-tab
             tabliss
           ];
           settings = {
-            "treestyletab@piro.sakura.ne.jp" = {
-              force = true;
-              permissions = [ "activeTab" "contextualIdentities" "cookies" "menus" "menus.overrideContext" "search" "sessions" "storage" "tabGroups" "theme" "notifications" "tabs"];
-            };
           };
         };
       };
