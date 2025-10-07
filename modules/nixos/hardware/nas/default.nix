@@ -12,24 +12,24 @@ in {
     host = lib.mkOption {
       default = "synology.local";
       description = "Base addresso f my NAS";
-      type = lib.types.string;
+      type = lib.types.str;
     };
     shares = lib.mkOption {
       default = [
         "share-1"
       ];
       description = "Which shares to mount";
-      type = lib.types.listOf lib.types.string;
+      type = lib.types.listOf lib.types.str;
     };
     mount-root = lib.mkOption {
       default = "/mnt/nas";
       description = "Each share will be mounted as a subdirectory of this path.";
-      type = lib.types.string;
+      type = lib.types.str;
     };
     credentialsFile = lib.mkOption {
       default = "/root/secrets/syn.credentials";
       description = "Path to credentials file";
-      type = lib.types.string;
+      type = lib.types.str;
     };
     extraMountOptions = lib.mkOption {
       default = [
@@ -40,7 +40,7 @@ in {
         "x-systemd.mount-timeout=10s"
       ];
       description = "Mount options in addition to credentials, uid, and gid";
-      type = lib.types.listOf lib.types.string;
+      type = lib.types.listOf lib.types.str;
     };
   };
   config = lib.mkIf cfg.enable {
