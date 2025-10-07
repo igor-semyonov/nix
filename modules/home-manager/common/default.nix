@@ -39,6 +39,7 @@
     # ../scripts
     ../services/flatpak
     ../services/xresources
+    ../programs/rustfmt
   ];
 
   # Nixpkgs configuration
