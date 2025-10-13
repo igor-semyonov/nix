@@ -286,12 +286,33 @@
   hardware.nvidia-container-toolkit.enable = true;
 
   # Fonts configuration
-  fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
-    nerd-fonts.meslo-lg
-    nerd-fonts.fira-code
-    roboto
-  ];
+  fonts = {
+    packages = with pkgs; [
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.meslo-lg
+      nerd-fonts.fira-code
+      roboto
+      liberation_ttf
+      lato
+      fira
+      garamond-libre
+      helvetica-neue-lt-std
+      noto-fonts-color-emoji
+      openmoji-color
+      openmoji-black
+    ];
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        sansSerif = ["Roboto"];
+        serif = ["Garamond Libre"];
+        monospace = ["FiraCode Nerd Font"];
+        emoji = ["Noto Color Emoji" "Openmoji Color"];
+      };
+      cache32Bit=true;
+    };
+    fontDir.enable=true;
+  };
 
   imports = [
     ./sound.nix
