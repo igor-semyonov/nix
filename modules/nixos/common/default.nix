@@ -296,6 +296,7 @@
       lato
       fira
       garamond-libre
+      eb-garamond
       helvetica-neue-lt-std
       noto-fonts-color-emoji
       noto-fonts-monochrome-emoji
