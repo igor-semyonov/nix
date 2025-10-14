@@ -298,6 +298,8 @@
       garamond-libre
       helvetica-neue-lt-std
       noto-fonts-color-emoji
+      noto-fonts-monochrome-emoji
+      noto-fonts-emoji-blob-bin
       openmoji-color
       openmoji-black
     ];
@@ -309,9 +311,9 @@
         monospace = ["FiraCode Nerd Font"];
         emoji = ["Noto Color Emoji" "Openmoji Color"];
       };
-      cache32Bit=true;
+      cache32Bit = true;
     };
-    fontDir.enable=true;
+    fontDir.enable = true;
   };
 
   imports = [
