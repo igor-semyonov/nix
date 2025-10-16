@@ -325,13 +325,11 @@ in {
               pin = false;
               icons = {
                 spacing = "small";
-                scaleToFit = true;
+                scaleToFit = false;
               };
               items = {
-                # We explicitly show bluetooth and battery
                 shown = [
                 ];
-                # And explicitly hide networkmanagement and volume
                 hidden = [
                   "org.kde.plasma.networkmanagement"
                   "org.kde.plasma.volume"
