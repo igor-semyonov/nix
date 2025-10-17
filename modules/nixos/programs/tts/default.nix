@@ -34,8 +34,7 @@
 
       function tts-wayland() {
           echo wayland
-          # wl-paste -p | tts
-          wl-paste | tts
+          wl-paste -p | tts
       }
 
       # wl-paste && tts-wayland || tts-x
