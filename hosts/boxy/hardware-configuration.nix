@@ -58,6 +58,12 @@ in {
       noCheck = true;
       options = ["subvol=@data"] ++ btrfs-options;
     };
+    "/home/${userConfig.name}/games" = {
+      device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
+      fsType = "btrfs";
+      noCheck = true;
+      options = ["subvol=@games"] ++ btrfs-options;
+    };
     "/mnt/gentoo-btrfs-pool" = {
       device = "/dev/disk/by-uuid/11a22b3d-fa0c-4821-8bf0-802b5d983c7e";
       fsType = "btrfs";
