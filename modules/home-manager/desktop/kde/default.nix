@@ -314,11 +314,11 @@ in {
               time.format = "24h";
             };
           }
-          {
-            panelSpacer = {
-              expanding = true;
-            };
-          }
+          # {
+          #   panelSpacer = {
+          #     expanding = true;
+          #   };
+          # }
           # "org.kde.plasma.marginsseparator"
           {
             systemTray = {
