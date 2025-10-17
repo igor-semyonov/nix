@@ -55,7 +55,7 @@
   boot = {
     supportedFilesystems = ["ntfs"];
 
-    # kernelPackages = pkgs.linuxKernel.packages.linux_6_15;
+    kernelPackages = pkgs.linuxPackages_latest;
     consoleLogLevel = 0;
 
     # initrd.verbose = false;
