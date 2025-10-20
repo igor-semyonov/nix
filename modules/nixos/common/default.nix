@@ -190,6 +190,7 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    file
     usbutils
     mpv
     terminus_font
