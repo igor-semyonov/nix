@@ -136,6 +136,7 @@
       isNormalUser = true;
       shell = pkgs.bash;
       packages = with pkgs; [
+        gh
         pass
         dropbox
         dropbox-cli
