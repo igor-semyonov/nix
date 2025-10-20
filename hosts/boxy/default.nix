@@ -59,7 +59,7 @@
   nixpkgs.config = {
     cudaSupport = true;
     cudaCapabilities = ["8.9"];
-    cudaForwardCompat = true;
+    cudaForwardCompat = false;
   };
   hardware = {
     graphics = {
