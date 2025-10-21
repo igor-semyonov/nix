@@ -95,6 +95,14 @@
               definedAliases = ["au"];
             };
             "Google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
+            "Rust Std" = {
+              urls = [{template = "https://doc.rust-lang.org/stable/std/index.html?search={searchTerms}";}];
+              definedAliases = ["rs"];
+            };
+            "Docs.rs" = {
+              urls = [{template = "https://docs.rs/releases/search?query={searchTerms}";}];
+              definedAliases = ["rc"];
+            };
           };
         };
         extensions = {
