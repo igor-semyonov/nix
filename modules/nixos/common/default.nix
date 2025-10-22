@@ -254,6 +254,7 @@
   };
 
   services = {
+    brltty.enable = true;
     ddccontrol.enable = true;
     locate.enable = false;
     pcscd = {
