@@ -1,6 +1,7 @@
 {pkgs, ...}: {
   programs.firefox = {
     enable = true;
+    package = pkgs.firefox-bin;
     policies.SecurityDevices.p11-kit-proxy = "${pkgs.p11-kit}/lib/p11-kit-proxy.so";
   };
 
