@@ -12,10 +12,6 @@
     ./hardware-configuration.nix
     "${nixosModules}/common"
     "${nixosModules}/desktop/kde"
-    "${nixosModules}/programs/steam"
-    "${nixosModules}/programs/firefox"
-    "${nixosModules}/programs/tts"
-    "${nixosModules}/services/unpatched"
     "${nixosModules}/hardware/nas"
   ];
 

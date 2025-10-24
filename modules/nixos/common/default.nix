@@ -142,7 +142,6 @@
         dropbox-cli
         cryptomator
         zoxide
-        thunderbird
         python313
         unzip
         starship
@@ -323,7 +322,11 @@
   imports = [
     ./sound.nix
     ../programs/nvim
+    ../programs/firefox
+    ../programs/thunderbird
+    ../programs/tts
     ../services/btrbk
+    ../services/unpatched
     ../scripts
   ];
 }
