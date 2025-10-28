@@ -23,13 +23,13 @@ in {
       #   flavour = ["mocha"];
       #   accents = ["pink"];
       # })
+
       plasmusic-toolbar
-      kara
       kde-rounded-corners
       kdePackages.kcalc
-      kdePackages.krohnkite
-      kdotool
-      tela-circle-icon-theme
+      # kdePackages.krohnkite
+      # kdotool
+      # tela-circle-icon-theme
       papirus-nord
       sweet-nova
       sweet
