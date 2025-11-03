@@ -40,6 +40,7 @@
     ../services/flatpak
     ../services/xresources
     ../programs/rustfmt
+    ../programs/clang-format
   ];
 
   # Nixpkgs configuration
