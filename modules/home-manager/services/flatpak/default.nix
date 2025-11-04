@@ -11,11 +11,16 @@
     services.flatpak = {
       enable = true;
       packages = [
-        "org.libreoffice.LibreOffice	"
-        "com.obsproject.Studio	"
+        "org.libreoffice.LibreOffice"
+        "com.obsproject.Studio"
+        "org.prismlauncher.PrismLauncher"
+        "com.discordapp.Discord"
       ];
       uninstallUnmanaged = true;
-      update.auto.enable = false;
+      update.auto = {
+        enable = false;
+        onCalendar = "weekly";
+      };
     };
 
     home.packages = [pkgs.flatpak];

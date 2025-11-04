@@ -277,6 +277,7 @@ in {
             iconTasks = {
               launchers = [
                 "applications:firefox.desktop"
+                "com.discordapp.Discord.desktop"
               ];
             };
           }
