@@ -19,7 +19,7 @@ in {
       background=${wallpaper};
       type=image
     '')
-    pkgs.kdePackages.kcolorpicker
+    pkgs.kdePackages.kcolorchooser
   ];
 
   # Excluding some KDE applications from the default install
