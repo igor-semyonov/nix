@@ -1,7 +1,7 @@
 {pkgs, ...}: let
   tts = pkgs.writeShellApplication {
     name = "tts";
-    runtimeInputs = [pkgs.wine-staging];
+    runtimeInputs = [pkgs.stable.wine-staging];
     text = ''
       tts_speed=''${1:-8}
       text="''$(</dev/stdin)"
