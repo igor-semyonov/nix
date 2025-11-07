@@ -13,6 +13,7 @@
     "${nixosModules}/common"
     "${nixosModules}/desktop/kde"
     "${nixosModules}/programs/steam"
+    "${nixosModules}/programs/prismlauncher"
     # "${nixosModules}/programs/open-audible"
     "${nixosModules}/hardware/nas"
   ];

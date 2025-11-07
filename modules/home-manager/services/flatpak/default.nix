@@ -13,7 +13,7 @@
       packages = [
         "org.libreoffice.LibreOffice"
         "com.obsproject.Studio"
-        "org.prismlauncher.PrismLauncher"
+        # "org.prismlauncher.PrismLauncher"
         "com.discordapp.Discord"
       ];
       uninstallUnmanaged = true;
