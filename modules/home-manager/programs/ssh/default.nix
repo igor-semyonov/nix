@@ -20,6 +20,10 @@
         hostname = "synology";
         user = "igor";
       };
+      "uri" = {
+        hostname = "urithiru";
+        user = "root";
+      };
     };
   };
   services.ssh-agent.enable = true;
