@@ -325,6 +325,7 @@
     ../programs/firefox
     ../programs/thunderbird
     ../programs/tts
+    ../programs/journal
     ../services/btrbk
     ../services/unpatched
     ../scripts

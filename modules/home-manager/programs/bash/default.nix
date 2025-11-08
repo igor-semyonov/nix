@@ -52,6 +52,8 @@
       lo = "flatpak run org.libreoffice.LibreOffice";
 
       xcp = "xclip -i -selection clipboard";
+
+      j = "journal";
     };
     sessionVariables = {
       _ZO_DOCTOR = 0;
