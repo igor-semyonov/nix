@@ -3,6 +3,8 @@
     name = "tts";
     runtimeInputs = [pkgs.stable.wine-staging];
     text = ''
+      # shellcheck disable=SC1054,1073
+      # shellcheck disable=SC1083,1009
       tts_speed=''${1:-8}
       text="''$(</dev/stdin)"
 
@@ -13,7 +15,6 @@
       # text=$(echo "$text" | tr -d "<>")
       text=''${text//>/rangle}
       text=''${text//</langle}
-
 
       echo "$text" | wine 'C:\balcon\balcon.exe' -i -n 'Microsoft Server Speech Text to Speech Voice (en-US, ZiraPro)' -s "$tts_speed" &> /dev/null
     '';
@@ -60,17 +61,22 @@
   tts-region = pkgs.writeShellApplication {
     name = "tts-region";
     runtimeInputs = [tts pkgs.kdePackages.spectacle pkgs.tesseract];
-    text = ''
-      if [ -f /tmp/tts.tif ]; then
-        rm /tmp/tts.tif
-      fi
-      spectacle -nbro /tmp/tts.tif
-      if [ -f /tmp/tts.tif ]; then
-        tesseract -l eng /tmp/tts.tif /tmp/tts
-        # shellcheck disable=SC2002
-        cat /tmp/tts.txt | tts
-      fi
-    '';
+    text =
+      /*
+      bash
+      */
+      ''
+        # shellcheck disable=SC1072
+        if [ -f /tmp/tts.tif ]; then
+          rm /tmp/tts.tif
+        fi
+        spectacle -nbro /tmp/tts.tif
+        if [ -f /tmp/tts.tif ]; then
+          tesseract -l eng /tmp/tts.tif /tmp/tts
+          # shellcheck disable=SC2002
+          cat /tmp/tts.txt | tts
+        fi
+      '';
   };
 in {
   environment.systemPackages = [
