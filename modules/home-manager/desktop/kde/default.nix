@@ -7,6 +7,28 @@
   ...
 }: let
   # sweet-kde = pkgs.callPackage (import ./sweet.nix) {};
+  zoom-to-factor = pkgs.writeShellApplication {
+    name = "zoom-to-factor";
+    runtimeInputs = [
+      pkgs.kdePackages.qttools
+    ];
+    text =
+      /*
+      bash
+      */
+      ''
+        # shellcheck disable=SC1073,1054,1083,1056,1072
+        zoom_factor=''${1:-10}
+        for ((i=0; i<25; i++))
+        do
+          qdbus org.kde.kglobalaccel /component/kwin invokeShortcut "view_zoom_out"
+        done
+        for ((i=0; i<zoom_factor; i++))
+        do
+          qdbus org.kde.kglobalaccel /component/kwin invokeShortcut "view_zoom_in"
+        done
+      '';
+  };
 in {
   imports = [
     inputs.plasma-manager.homeModules.plasma-manager
@@ -33,6 +55,7 @@ in {
       papirus-nord
       sweet-nova
       sweet
+      zoom-to-factor
     ];
   };
 
@@ -87,6 +110,11 @@ in {
         name = "TTS Region";
         key = "Ctrl+Meta+Shift+C";
         command = "tts-region";
+      };
+      zoom-toggle = {
+        name = "Zoom to {zoom-factor}x";
+        key = "Ctrl+Meta+Esc";
+        command = "zoom-to-factor 8";
       };
       launch-alacritty = {
         name = "Launch Alacritty";
