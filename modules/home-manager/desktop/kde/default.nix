@@ -112,9 +112,9 @@ in {
         command = "tts-region";
       };
       zoom-toggle = {
-        name = "Zoom to {zoom-factor}x";
+        name = "Zoom to Factor";
         key = "Ctrl+Meta+Esc";
-        command = "zoom-to-factor 8";
+        command = "zoom-to-factor";
       };
       launch-alacritty = {
         name = "Launch Alacritty";
