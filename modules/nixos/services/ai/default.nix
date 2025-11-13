@@ -9,10 +9,10 @@
 in {
   options.mine.ai = {
     ollama = {
-      enable = lib.mkEnableOption;
+      enable = lib.mkEnableOption "Enable ollama";
     };
     open-webui = {
-      enable = lib.mkEnableOption;
+      enable = lib.mkEnableOption "Enable open-webui";
     };
   };
   config.services.ollama =
