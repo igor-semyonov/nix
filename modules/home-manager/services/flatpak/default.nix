@@ -11,7 +11,7 @@
     services.flatpak = {
       enable = true;
       packages = [
-        "org.libreoffice.LibreOffice"
+        # "org.libreoffice.LibreOffice" # switched to nixpkgs version for better qt support
         "com.obsproject.Studio"
         # "org.prismlauncher.PrismLauncher"
         "com.discordapp.Discord"

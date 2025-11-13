@@ -189,6 +189,7 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
+    libreoffice-qt6-fresh
     file
     usbutils
     mpv

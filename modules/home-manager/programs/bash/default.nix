@@ -49,7 +49,7 @@
       ga = "git add";
 
       flatpak = "flatpak --user";
-      lo = "flatpak run org.libreoffice.LibreOffice";
+      lo = "libreoffice";
 
       xcp = "xclip -i -selection clipboard";
 
