@@ -12,7 +12,6 @@
     ./hardware-configuration.nix
     "${nixosModules}/common"
     "${nixosModules}/desktop/kde"
-    "${nixosModules}/hardware/nas"
   ];
 
   nix.settings = {

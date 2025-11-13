@@ -15,7 +15,6 @@
     "${nixosModules}/programs/steam"
     "${nixosModules}/programs/prismlauncher"
     # "${nixosModules}/programs/open-audible"
-    "${nixosModules}/hardware/nas"
   ];
 
   nix.settings = {

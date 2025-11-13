@@ -331,5 +331,6 @@
     ../services/unpatched
     ../scripts
     ../services/ai
+    ../hardware/nas
   ];
 }
