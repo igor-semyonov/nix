@@ -330,5 +330,6 @@
     ../services/btrbk
     ../services/unpatched
     ../scripts
+    ../services/ai
   ];
 }
