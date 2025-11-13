@@ -21,7 +21,7 @@
   };
   tts-selection = pkgs.writeShellApplication {
     name = "tts-selection";
-    runtimeInputs = [tts pkgs.wl-clipboard];
+    runtimeInputs = [tts pkgs.stable.wl-clipboard];
     text = ''
       function tts-x() {
           echo x11

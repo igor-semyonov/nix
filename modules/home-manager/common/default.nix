@@ -98,7 +98,6 @@
       pavucontrol
       tesseract
       unzip
-      wl-clipboard
     ];
 
   # Catpuccin flavor and accent
