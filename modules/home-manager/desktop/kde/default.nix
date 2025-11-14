@@ -6,7 +6,6 @@
   pkgs,
   ...
 }: let
-  # sweet-kde = pkgs.callPackage (import ./sweet.nix) {};
   zoom-to-factor = pkgs.writeShellApplication {
     name = "zoom-to-factor";
     runtimeInputs = [
