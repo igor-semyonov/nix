@@ -262,7 +262,12 @@
       enable = true;
       plugins = [pkgs.opensc];
     };
-    openssh.enable = true;
+    openssh = {
+      enable = true;
+      settings = {
+        X11Forwarding = true;
+      };
+    };
     libinput.enable = true;
     xserver = {
       enable = true;
