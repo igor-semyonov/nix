@@ -54,6 +54,8 @@
       xcp = "xclip -i -selection clipboard";
 
       j = "journal";
+
+      nd = "nix develop";
     };
     sessionVariables = {
       _ZO_DOCTOR = 0;
