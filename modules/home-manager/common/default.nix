@@ -41,6 +41,7 @@
     ../services/xresources
     ../programs/rustfmt
     ../programs/clang-format
+    ../programs/easyeffects
   ];
 
   # Nixpkgs configuration
