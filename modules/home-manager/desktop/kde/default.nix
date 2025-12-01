@@ -641,7 +641,7 @@ in {
     # ];
 
     workspace = {
-      enableMiddleClickPaste = false;
+      enableMiddleClickPaste = true;
       clickItemTo = "select";
       theme = "Sweet";
       colorScheme = "Sweet";
