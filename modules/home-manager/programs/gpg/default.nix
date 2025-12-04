@@ -36,5 +36,6 @@
     enableSshSupport = true;
     # pinentry.package = lib.mkDefault pkgs.pinentry-gnome3;
     # pinentry.package = lib.mkDefault pkgs.pinentry-qt;
+    pinentry.package = lib.mkDefault pkgs.pinentry-curses;
   };
 }

@@ -59,10 +59,10 @@ in {
   };
 
   # Set gpg agent specific to KDE/Kwallet
-  services.gpg-agent = {
-    pinentry.package = lib.mkForce pkgs.kwalletcli;
-    extraConfig = "pinentry-program ${pkgs.kwalletcli}/bin/pinentry-kwallet";
-  };
+  # services.gpg-agent = {
+  #   pinentry.package = lib.mkForce pkgs.kwalletcli;
+  #   extraConfig = "pinentry-program ${pkgs.kwalletcli}/bin/pinentry-kwallet";
+  # };
 
   programs.plasma = {
     enable = true;
