@@ -7,9 +7,6 @@
   programs.gpg = {
     enable = true;
     settings = {
-      scdaemon-program = "${pkgs.gnupg-pkcs11-scd}/bin/gnupg-pkcs11-scd";
-      default-cache-ttl = "34560000";
-      max-cache-ttl = "34560000";
       personal-cipher-preferences = "AES256";
       personal-digest-preferences = "SHA512";
       personal-compress-preferences = "ZLIB BZIP2 ZIP Uncompressed";
@@ -36,9 +33,12 @@
   services.gpg-agent = lib.mkIf (!pkgs.stdenv.isDarwin) {
     enable = true;
     defaultCacheTtl = 86400;
+    # scdaemon-program = "${pkgs.gnupg-pkcs11-scd}/bin/gnupg-pkcs11-scd";
+    # default-cache-ttl = "34560000";
+    # max-cache-ttl = "34560000";
     enableSshSupport = true;
     # pinentry.package = lib.mkDefault pkgs.pinentry-gnome3;
     # pinentry.package = lib.mkDefault pkgs.pinentry-qt;
-    pinentry.package = lib.mkDefault pkgs.pinentry-curses;
+    pinentry.package = pkgs.pinentry-curses;
   };
 }
