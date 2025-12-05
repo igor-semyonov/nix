@@ -7,6 +7,9 @@
   programs.gpg = {
     enable = true;
     settings = {
+      scdaemon-program = "${pkgs.gnupg-pkcs11-scd}/bin/gnupg-pkcs11-scd";
+      default-cache-ttl = "34560000";
+      max-cache-ttl = "34560000";
       personal-cipher-preferences = "AES256";
       personal-digest-preferences = "SHA512";
       personal-compress-preferences = "ZLIB BZIP2 ZIP Uncompressed";
