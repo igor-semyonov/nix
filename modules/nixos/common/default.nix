@@ -172,6 +172,10 @@
   '';
 
   programs = {
+    nh = {
+      enable = true;
+      flake = "/home/${userConfig.name}/.config/nix-config";
+    };
     kdeconnect.enable = true;
     appimage = {
       enable = true;
