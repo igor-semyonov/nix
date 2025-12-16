@@ -2,85 +2,103 @@
   # Tmux terminal multiplexer configuration
   programs.tmux = {
     enable = true;
+    clock24 = true;
+
     baseIndex = 1;
-    escapeTime = 10;
+
+    escapeTime = 300;
     historyLimit = 10000;
     keyMode = "vi";
     mouse = true;
-    sensibleOnTop = false;
-    terminal = "screen-256color";
+    sensibleOnTop = true;
+    terminal = "alacritty";
 
     extraConfig = ''
-      # Set the prefix to `ctrl + q` instead of `ctrl + b`
-      set -g prefix C-q
-      unbind C-b
+      unbind C-s
+      set -g prefix C-s
 
-      # Use | and - to split a window vertically and horizontally instead of " and % respoectively
-      unbind '"'
-      unbind %
-      bind v split-window -h -c "#{pane_current_path}"
-      bind s split-window -v -c "#{pane_current_path}"
+      set -g repeat-time 750
+      set -g mouse on
+      set -g extended-keys always
+      set -g display-time 0
+      set -g display-panes-time 5000
+      set -g main-pane-width 50
+      set -g status-position top
+      set set-clipboard external
 
-      # Bind Arrow keys to resize the window
-      bind -n S-Down resize-pane -D 8
-      bind -n S-Up resize-pane -U 8
-      bind -n S-Left resize-pane -L 8
-      bind -n S-Right resize-pane -R 8
+      unbind -T copy-mode-vi t
+      bind-key -T copy-mode-vi   t  "send-keys -X copy-selection-no-clear \; run-shell \"tmux show-buffer | tts\" "
 
-      # Rename window with prefix + r
-      bind r command-prompt -I "#W" "rename-window '%%'"
+      unbind -T copy-mode-vi WheelUpPane
+      unbind -T copy-mode-vi WheelDownPane
+      bind -T copy-mode-vi WheelUpPane send -N1 -X scroll-up
+      bind -T copy-mode-vi WheelDownPane send -N1 -X scroll-down
 
-      # Reload tmux config by pressing prefix + R
-      bind R source-file ~/.config/tmux/tmux.conf \; display "TMUX Conf Reloaded"
+      unbind q
+      bind q select-layout main-vertical
 
-      # Clear screen with prefix + l
-      bind C-l send-keys 'C-l'
+      bind-key -r C-n next-window
+      bind-key -r C-p previous-window
 
-      # Open a project in a separate window
-      bind-key -n C-f run-shell "tmux new-window -t 10 -n project-selector cd-to-project"
+      unbind z
+      bind z display-panes
 
-      # Apply Tc
-      set -ga terminal-overrides ",xterm-256color:RGB:smcup@:rmcup@"
+      unbind C-c
+      bind C-v clock-mode
 
-      # Enable focus-events
-      set -g focus-events on
+      unbind h
+      unbind H
+      bind h split-window -h
+      bind H split-window -v
 
-      # Set default escape-time
-      set-option -sg escape-time 10
+      unbind C-c
+      bind C-c copy-mode
 
-      # Smart pane switching with awareness of Vim splits
-      is_vim="ps -o state= -o comm= -t '#{pane_tty}' | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?|fzf|atuin)(diff)?$'"
-      bind-key -n 'C-h' if-shell "$is_vim" 'send-keys C-h'  'select-pane -L'
-      bind-key -n 'C-j' if-shell "$is_vim" 'send-keys C-j'  'select-pane -D'
-      bind-key -n 'C-k' if-shell "$is_vim" 'send-keys C-k'  'select-pane -U'
-      bind-key -n 'C-l' if-shell "$is_vim" 'send-keys C-l'  'select-pane -R'
+      unbind r
+      bind r source-file ~/.config/tmux/tmux.conf
 
-      bind-key -T copy-mode-vi 'C-h' select-pane -L
-      bind-key -T copy-mode-vi 'C-j' select-pane -D
-      bind-key -T copy-mode-vi 'C-k' select-pane -U
-      bind-key -T copy-mode-vi 'C-l' select-pane -R
+      unbind ^S
+      bind -r s select-pane -Zt ":.{last}"
+      bind ^S set -g status
+      bind S choose-session
+
+      bind t
+      # unbind t
+      bind t choose-tree
+
+      unbind C-o
+      bind -r C-o rotate-window
+
+      unbind C-z
+      bind -n C-z resize-pane -Z
+
+      # List of plugins
+      set -g @plugin 'tmux-plugins/tpm'
+      set -g @plugin 'tmux-plugins/tmux-sensible'
+      set -g @plugin 'igor-semyonov/vim-tmux-navigator'
+
+      set -g @plugin 'dracula/tmux'
+      set -g @dracula-show-powerline true
+      set -g @dracula-show-flags true
+      set -g @dracula-refresh-rate 20
+      set -g @dracula-left-icon-padding 0
+      set -g @dracula-plugins "cpu-usage gpu-usage ram-usage"
+      set -g @dracula-border-contrast true
+      set -g @dracula-show-empty-plugins false
+      set -g @dracula-cpu-usage-colors "orange dark_gray"
+      set -g @dracula-gpu-usage-colors "light_purple dark_gray"
+      set -g @dracula-ram-usage-colors "orange dark_gray"
+
+      # Other examples:
+      # set -g @plugin 'github_username/plugin_name'
+      # set -g @plugin 'github_username/plugin_name#branch'
+      # set -g @plugin 'git@github.com:user/plugin'
+      # set -g @plugin 'git@bitbucket.com:user/plugin'
+
+      # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+      run '~/.config/tmux/plugins/tpm/tpm'
     '';
   };
 
   # Enable catppuccin theming for tmux.
-  catppuccin = {
-    tmux = {
-      enable = true;
-      extraConfig = ''
-        set -g @catppuccin_flavor "macchiato"
-        set -g @catppuccin_status_background "none"
-
-        set -g @catppuccin_window_current_number_color "#{@thm_peach}"
-        set -g @catppuccin_window_current_text " #W"
-        set -g @catppuccin_window_current_text_color "#{@thm_bg}"
-        set -g @catppuccin_window_number_color "#{@thm_blue}"
-        set -g @catppuccin_window_text " #W"
-        set -g @catppuccin_window_text_color "#{@thm_surface_0}"
-        set -g @catppuccin_status_left_separator "█"
-
-        set -g status-right "#{E:@catppuccin_status_host}#{E:@catppuccin_status_date_time}"
-        set -g status-left ""
-      '';
-    };
-  };
 }

@@ -32,7 +32,7 @@
     # ../programs/saml2aws
     ../programs/starship
     # ../programs/telegram
-    # ../programs/tmux
+    ../programs/tmux
     # ../programs/ulauncher
     # ../programs/zsh
     # ../programs/zoxide
