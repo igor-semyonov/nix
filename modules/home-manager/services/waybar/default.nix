@@ -5,7 +5,7 @@
     settings = {
       mainBar = {
         layer = "top";
-        position = "top";
+        position = "left";
         exclusive = true;
         passthrough = false;
         fixed-center = true;
@@ -13,13 +13,13 @@
         margin-top = 3;
         margin-left = 4;
         margin-right = 4;
+        spacing = 30;
 
         modules-left = [
           "hyprland/workspaces"
           "cpu"
           "temperature"
           "memory"
-          "backlight"
         ];
 
         modules-center = [
@@ -35,48 +35,48 @@
           "bluetooth"
           "pulseaudio"
           "pulseaudio#microphone"
-          "battery"
+          # "battery"
         ];
 
-        backlight = {
-          interval = 2;
-          align = 0;
-          rotate = 0;
-          format = "{icon} {percent}%";
-          format-icons = ["󰃞" "󰃟" "󰃝" "󰃠"];
-          icon-size = 10;
-          on-scroll-up = "brightnessctl set +5%";
-          on-scroll-down = "brightnessctl set 5%-";
-          smooth-scrolling-threshold = 1;
-        };
+        # backlight = {
+        #   interval = 2;
+        #   align = 0;
+        #   rotate = 0;
+        #   format = "{icon} {percent}%";
+        #   format-icons = ["󰃞" "󰃟" "󰃝" "󰃠"];
+        #   icon-size = 20;
+        #   on-scroll-up = "brightnessctl set +5%";
+        #   on-scroll-down = "brightnessctl set 5%-";
+        #   smooth-scrolling-threshold = 1;
+        # };
 
-        battery = {
-          interval = 60;
-          align = 0;
-          rotate = 0;
-          full-at = 100;
-          design-capacity = false;
-          states = {
-            good = 95;
-            warning = 30;
-            critical = 20;
-          };
-          format = "<big>{icon}</big>  {capacity}%";
-          format-charging = " {capacity}%";
-          format-plugged = " {capacity}%";
-          format-full = "{icon} Full";
-          format-alt = "{icon} {time}";
-          format-icons = [
-            ""
-            ""
-            ""
-            ""
-            ""
-          ];
-          format-time = "{H}h {M}min";
-          tooltip = true;
-          tooltip-format = "{timeTo} {power}w";
-        };
+        # battery = {
+        #   interval = 60;
+        #   align = 0;
+        #   rotate = 0;
+        #   full-at = 100;
+        #   design-capacity = false;
+        #   states = {
+        #     good = 95;
+        #     warning = 30;
+        #     critical = 20;
+        #   };
+        #   format = "<big>{icon}</big>  {capacity}%";
+        #   format-charging = " {capacity}%";
+        #   format-plugged = " {capacity}%";
+        #   format-full = "{icon} Full";
+        #   format-alt = "{icon} {time}";
+        #   format-icons = [
+        #     ""
+        #     ""
+        #     ""
+        #     ""
+        #     ""
+        #   ];
+        #   format-time = "{H}h {M}min";
+        #   tooltip = true;
+        #   tooltip-format = "{timeTo} {power}w";
+        # };
 
         bluetooth = {
           format = "";
@@ -88,6 +88,7 @@
         };
 
         clock = {
+          rotate = 90;
           format = "{:%b %d %H:%M}";
           format-alt = " {:%H:%M   %Y, %d %B, %A}";
           tooltip-format = "<tt><small>{calendar}</small></tt>";
@@ -124,17 +125,17 @@
         };
 
         memory = {
-          interval = 10;
+          interval = 2;
           format = "󰾆 {used:0.1f}G";
           format-alt = "󰾆 {percentage}%";
           format-alt-click = "click";
           tooltip = true;
           tooltip-format = "{used:0.1f}GB/{total:0.1f}G";
-          on-click-right = "foot --title btop sh -c 'btop'";
+          # on-click-right = "foot --title btop sh -c 'btop'";
         };
 
         privacy = {
-          icon-size = 14;
+          icon-size = 28;
           modules = [
             {
               type = "screenshare";

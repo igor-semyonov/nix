@@ -19,6 +19,7 @@ in {
     # "${nhModules}/services/kanshi"
     # "${nhModules}/services/swaync"
     "${nhModules}/services/waybar"
+    "${nhModules}/programs/anyrun"
   ];
 
   # Consistent cursor theme across all applications.
@@ -226,22 +227,22 @@ in {
           natural_scroll = false;
         };
 
-        sensitivity = 0;
+        sensitivity = 5;
         accel_profile = "flat";
       };
 
       # General settings
       general = {
         allow_tearing = "true";
-        border_size = 1;
+        border_size = 8;
         # "col.active_border" = "rgb(b7bdf8)";
         "col.active_border" = "rgba(80ff80ff) rgba(ff80ffff) 45deg";
         "col.inactive_border" = "rgba(802020ff) rgba(202080ff) 135deg";
         gaps_in = 3;
         gaps_out = 3;
 
-        # layout = "master";
-        layout = "dwindle";
+        layout = "master";
+        # layout = "dwindle";
 
         gaps_workspaces = 32;
 
@@ -278,6 +279,7 @@ in {
           "borderangle, 1, 8, default"
           "fade, 1, 7, default"
           "workspaces, 1, 6, default"
+          "zoomFactor, 1, 1, default"
         ];
       };
 
@@ -293,9 +295,9 @@ in {
       };
 
       # Mouse gestures settings
-      gestures = {
-        workspace_swipe = "false";
-      };
+      # gestures = {
+      #   workspace_swipe = "false";
+      # };
 
       binds = {
         scroll_event_delay = 0;
@@ -310,7 +312,7 @@ in {
       };
 
       debug = {
-        overlay = false;
+        overlay = true;
         disable_logs = true;
       };
 
@@ -321,129 +323,130 @@ in {
 
       # Window rules
       # Center specific windows
-      windowrule = [
-        "center 1, class:^(.blueman-manager-wrapped)$"
-        "windowrule = center 1, class:^(gnome-calculator|org\.gnome\.Calculator)$"
-        "windowrule = center 1, class:^(nm-connection-editor)$"
-        "windowrule = center 1, class:^(org.pulseaudio.pavucontrol)$"
-        "windowrule = center 1, initialTitle:^(Study Deck)$"
-        "windowrule = center 1, initialTitle:^(_crx_.*)$"
+      # windowrule = [
+      #   "center 1, class:^(.blueman-manager-wrapped)$"
+      #   "windowrule = center 1, class:^(gnome-calculator|org\.gnome\.Calculator)$"
+      #   "windowrule = center 1, class:^(nm-connection-editor)$"
+      #   "windowrule = center 1, class:^(org.pulseaudio.pavucontrol)$"
+      #   "windowrule = center 1, initialTitle:^(Study Deck)$"
+      #   "windowrule = center 1, initialTitle:^(_crx_.*)$"
 
-        # Float specific windows
-        "float, class:^(.blueman-manager-wrapped)$"
-        "float, class:^(gnome-calculator|org\.gnome\.Calculator)$"
-        "float, class:^(nm-connection-editor)$"
-        "float, class:^(org.pulseaudio.pavucontrol)$"
-        "float, class:^(ulauncher)$"
-        "float, initialTitle:^(_crx_.*)$"
-        "float, title:^(MainPicker)$"
+      #   # Float specific windows
+      #   "float, class:^(.blueman-manager-wrapped)$"
+      #   "float, class:^(gnome-calculator|org\.gnome\.Calculator)$"
+      #   "float, class:^(nm-connection-editor)$"
+      #   "float, class:^(org.pulseaudio.pavucontrol)$"
+      #   "float, class:^(ulauncher)$"
+      #   "float, initialTitle:^(_crx_.*)$"
+      #   "float, title:^(MainPicker)$"
 
-        # Remove border for specific applications
-        "noborder, class:^(ulauncher)$"
-        "noborder, title:^(.*is sharing (your screen|a window)\.)$"
+      #   # Remove border for specific applications
+      #   "noborder, class:^(ulauncher)$"
+      #   "noborder, title:^(.*is sharing (your screen|a window)\.)$"
 
-        # Set size for specific windows
-        "size 50%, class:^(.blueman-manager-wrapped)$"
-        "size 50%, class:^(nm-connection-editor)$"
-        "size 50%, class:^(org.pulseaudio.pavucontrol)$"
+      #   # Set size for specific windows
+      #   "size 50%, class:^(.blueman-manager-wrapped)$"
+      #   "size 50%, class:^(nm-connection-editor)$"
+      #   "size 50%, class:^(org.pulseaudio.pavucontrol)$"
 
-        # Keep focus on specific windows when they open
-        "stayfocused, class:^(.blueman-manager-wrapped)$"
-        "stayfocused, class:^(gnome-calculator|org\.gnome\.Calculator)$"
-        "stayfocused, class:^(org.pulseaudio.pavucontrol)$"
-        "stayfocused, class:^(swappy)$"
-        "stayfocused, class:^(ulauncher)$"
+      #   # Keep focus on specific windows when they open
+      #   "stayfocused, class:^(.blueman-manager-wrapped)$"
+      #   "stayfocused, class:^(gnome-calculator|org\.gnome\.Calculator)$"
+      #   "stayfocused, class:^(org.pulseaudio.pavucontrol)$"
+      #   "stayfocused, class:^(swappy)$"
+      #   "stayfocused, class:^(ulauncher)$"
 
-        # Assign applications to specific workspaces
-        "workspace 1, class:^(brave-browser)$"
-        "workspace 2, class:^(Alacritty)$"
-        "workspace 3, class:^(org\.telegram\.desktop)$"
-        "workspace 4, class:^(com\.obsproject\.Studio)$"
-        "workspace 4, class:^(steam)$"
-        "workspace 5 silent, class:^(zoom)$"
-        "workspace 5, class:^(steam_app_\d+)$"
-        "workspace special silent, title:^(.*is sharing (your screen|a window)\.)$"
-        "workspace special, class:^(gnome-pomodoro)$"
+      #   # Assign applications to specific workspaces
+      #   "workspace 1, class:^(brave-browser)$"
+      #   "workspace 2, class:^(Alacritty)$"
+      #   "workspace 3, class:^(org\.telegram\.desktop)$"
+      #   "workspace 4, class:^(com\.obsproject\.Studio)$"
+      #   "workspace 4, class:^(steam)$"
+      #   "workspace 5 silent, class:^(zoom)$"
+      #   "workspace 5, class:^(steam_app_\d+)$"
+      #   "workspace special silent, title:^(.*is sharing (your screen|a window)\.)$"
+      #   "workspace special, class:^(gnome-pomodoro)$"
 
-        # Show applications on all workspaces (pin)
-        "pin, title:^(as_toolbar)$"
-      ];
+      #   # Show applications on all workspaces (pin)
+      #   "pin, title:^(as_toolbar)$"
+      # ];
 
       # Bindings
-      "$mainMod" = "SUPER";
+      "$mainmod" = "SUPER";
       "cursor:zoom_rigid" = "true";
       bind = [
-        "$mainMod, T, exec, $terminal"
+        "$mainmod, T, exec, alacritty"
         "$mainmod, space, exec, anyrun"
         "CTRL ALT, P, exec, gnome-pomodoro --start-stop"
 
-        "CTRL $mainMod, mouse_up, exec, ${zoom-py} out 0.25"
-        "CTRL $mainMod, mouse_down, exec, ${zoom-py} in 0.25"
-        "$mainMod, minus, exec, ${zoom-py} out 0.5"
-        "$mainMod, equal, exec, ${zoom-py} in 0.5"
-        "$mainMod, escape, exec, ${zoom-py} out 100"
+        ''$mainMod CTRL, L, exec, hyprctl keyword general:layout "$(hyprctl getoption general:layout | grep -q 'dwindle' && echo 'master' || echo 'dwindle')"`''
+
+        "$mainmod, n, layoutmsg, swapwithmaster"
+
+        "CTRL $mainmod, mouse_up, exec, ${zoom-py} out 0.25"
+        "CTRL $mainmod, mouse_down, exec, ${zoom-py} in 0.25"
+        "$mainmod, minus, exec, ${zoom-py} out 0.5"
+        "$mainmod, equal, exec, ${zoom-py} in 0.5"
+        "$mainmod, escape, exec, ${zoom-py} out 100"
         "Ctrl Alt, I, exec, hyprctl getoption decoration:screen_shader |grep invert && hyprctl keyword decoration:screen_shader || hyprctl keyword decoration:screen_shader ~/.config/hypr/shaders/invert.frag"
         "CTRL SUPER, C, exec, tts-selection"
-        "$mainMod SHIFT, Return, exec, alacritty"
-        # "$mainMod SHIFT, B, exec, brave"
-        # "$mainMod SHIFT, F, exec, nautilus"
+        "$mainmod SHIFT, Return, exec, alacritty"
+        "$mainmod SHIFT, Return, exec, alacritty"
+        # "$mainmod SHIFT, B, exec, brave"
+        # "$mainmod SHIFT, F, exec, nautilus"
 
-        "$mainMod, Return, layoutmsg, swapwithmaster"
-        "$mainMod, R, layoutmsg, orientationcycle"
-        "$mainMod, Q, killactive,"
+        "$mainmod, Return, layoutmsg, swapwithmaster"
+        "$mainmod, R, layoutmsg, orientationcycle"
+        "$mainmod, Q, killactive,"
         "CTRL ALT, Q, exit"
-        "$mainMod, F, togglefloating"
-        "$mainMod, M, fullscreen"
-        "$mainMod SHIFT, M, movetoworkspacesilent, special"
-        "$mainMod SHIFT, P, togglespecialworkspace"
-        "$mainMod SHIFT, C, exec, hyprpicker -a"
+        "$mainmod, F, togglefloating"
+        "$mainmod, M, fullscreen"
+        "$mainmod SHIFT, M, movetoworkspacesilent, special"
+        "$mainmod SHIFT, P, togglespecialworkspace"
+        "$mainmod SHIFT, C, exec, hyprpicker -a"
 
-        # Move focus with mainMod + arrow keys
-        "$mainMod, l, movefocus, l"
-        "$mainMod, h, movefocus, r"
-        "$mainMod, k, movefocus, u"
-        "$mainMod, j, movefocus, d"
+        # Move focus with mainmod + arrow keys
+        "$mainmod, l, movefocus, r"
+        "$mainmod, h, movefocus, l"
+        "$mainmod, k, movefocus, u"
+        "$mainmod, j, movefocus, d"
 
         # Resize windows
-        "$mainMod SHIFT, left, resizeactive, -50 0"
-        "$mainMod SHIFT, right, resizeactive, 50 0"
-        "$mainMod SHIFT, up, resizeactive, 0 -50"
-        "$mainMod SHIFT, down, resizeactive, 0 50"
+        "$mainmod SHIFT, h, resizeactive, -50 0"
+        "$mainmod SHIFT, l, resizeactive, 50 0"
+        "$mainmod SHIFT, k, resizeactive, 0 -50"
+        "$mainmod SHIFT, j, resizeactive, 0 50"
 
-        # Switch workspaces with mainMod + [0-9]
-        "$mainMod, 1, workspace, 1"
-        "$mainMod, 2, workspace, 2"
-        "$mainMod, 3, workspace, 3"
-        "$mainMod, 4, workspace, 4"
-        "$mainMod, 5, workspace, 5"
-        "$mainMod, 6, workspace, 6"
-        "$mainMod, 7, workspace, 7"
-        "$mainMod, 8, workspace, 8"
-        "$mainMod, 9, workspace, 9"
-        "$mainMod, 0, workspace, 10"
+        # Switch workspaces with mainmod + [0-9]
+        "$mainmod, 1, workspace, 1"
+        "$mainmod, 2, workspace, 2"
+        "$mainmod, 3, workspace, 3"
+        "$mainmod, 4, workspace, 4"
+        "$mainmod, 5, workspace, 5"
+        "$mainmod, 6, workspace, 6"
+        "$mainmod, 7, workspace, 7"
+        "$mainmod, 8, workspace, 8"
+        "$mainmod, 9, workspace, 9"
+        "$mainmod, 0, workspace, 10"
 
-        # Move active window to a workspace with mainMod + SHIFT + [0-9]
-        "$mainMod SHIFT, 1, movetoworkspace, 1"
-        "$mainMod SHIFT, 2, movetoworkspace, 2"
-        "$mainMod SHIFT, 3, movetoworkspace, 3"
-        "$mainMod SHIFT, 4, movetoworkspace, 4"
-        "$mainMod SHIFT, 5, movetoworkspace, 5"
-        "$mainMod SHIFT, 6, movetoworkspace, 6"
-        "$mainMod SHIFT, 7, movetoworkspace, 7"
-        "$mainMod SHIFT, 8, movetoworkspace, 8"
-        "$mainMod SHIFT, 9, movetoworkspace, 9"
-        "$mainMod SHIFT, 0, movetoworkspace, 10"
+        # Move active window to a workspace with mainmod + SHIFT + [0-9]
+        "$mainmod SHIFT, 1, movetoworkspace, 1"
+        "$mainmod SHIFT, 2, movetoworkspace, 2"
+        "$mainmod SHIFT, 3, movetoworkspace, 3"
+        "$mainmod SHIFT, 4, movetoworkspace, 4"
+        "$mainmod SHIFT, 5, movetoworkspace, 5"
+        "$mainmod SHIFT, 6, movetoworkspace, 6"
+        "$mainmod SHIFT, 7, movetoworkspace, 7"
+        "$mainmod SHIFT, 8, movetoworkspace, 8"
+        "$mainmod SHIFT, 9, movetoworkspace, 9"
+        "$mainmod SHIFT, 0, movetoworkspace, 10"
 
-        # Scroll through existing workspaces with mainMod + scroll
-        # "$mainMod, mouse_down, workspace, e+1"
-        # "$mainMod, mouse_up, workspace, e-1"
-
-        # Move/resize windows with mainMod + LMB/RMB and dragging
-        "$mainMod, mouse:272, movewindow"
-        "$mainMod, mouse:273, resizewindow"
+        # Scroll through existing workspaces with mainmod + scroll
+        # "$mainmod, mouse_down, workspace, e+1"
+        # "$mainmod, mouse_up, workspace, e-1"
 
         # Application menu
-        "$mainMod, A, exec, wofi --show drun --allow-images"
+        "$mainmod, A, exec, wofi --show drun --allow-images"
 
         # Center focused window
         "CTRL ALT, C, centerwindow"
@@ -455,13 +458,13 @@ in {
         "CTRL, Space, exec, ulauncher-toggle"
 
         # Screenshot area
-        "$mainMod SHIFT, S, exec, $HOME/.local/bin/hyprshot --freeze --silent --raw --mode region | swappy -f -"
+        "$mainmod SHIFT, S, exec, $HOME/.local/bin/hyprshot --freeze --silent --raw --mode region | swappy -f -"
 
         # Screenshot entire screen
-        "$mainMod CTRL, S, exec, $HOME/.local/bin/hyprshot --freeze --silent --raw --mode output | swappy -f -"
+        "$mainmod CTRL, S, exec, $HOME/.local/bin/hyprshot --freeze --silent --raw --mode output | swappy -f -"
 
         # Screen recording
-        "$mainMod SHIFT, R, exec, $HOME/.local/bin/screen-recorder"
+        "$mainmod SHIFT, R, exec, $HOME/.local/bin/screen-recorder"
 
         # OCR
         "ALT SHIFT, 2, exec, $HOME/.local/bin/ocr"
@@ -474,7 +477,7 @@ in {
         # ", XF86MonBrightnessDown, exec, brightnessctl set 10%-"
 
         # Open notifications
-        "$mainMod, V, exec, swaync-client -t -sw"
+        "$mainmod, V, exec, swaync-client -t -sw"
 
         # Adjust  volume
         ", XF86AudioRaiseVolume, exec, pamixer --increase 10"
@@ -489,6 +492,12 @@ in {
         # Adjust keyboard backlight
         # "SHIFT, XF86MonBrightnessUp, exec, brightnessctl -d tpacpi::kbd_backlight set +33%"
         # "SHIFT, XF86MonBrightnessDown, exec, brightnessctl -d tpacpi::kbd_backlight set 33%-"
+      ];
+
+      bindm = [
+        # Move/resize windows with mainmod + LMB/RMB and dragging
+        "$mainmod, mouse:272, movewindow"
+        "$mainmod, mouse:273, resizewindow"
       ];
     };
     extraConfig = ''
@@ -605,68 +614,68 @@ in {
     };
   };
 
-  dconf.settings = {
-    "org/blueman/general" = {
-      "plugin-list" = lib.mkForce ["!StatusNotifierItem"];
-    };
+  # dconf.settings = {
+  #   "org/blueman/general" = {
+  #     "plugin-list" = lib.mkForce ["!StatusNotifierItem"];
+  #   };
 
-    "org/blueman/plugins/powermanager" = {
-      "auto-power-on" = true;
-    };
+  #   "org/blueman/plugins/powermanager" = {
+  #     "auto-power-on" = true;
+  #   };
 
-    "org/gnome/calculator" = {
-      "accuracy" = 9;
-      "angle-units" = "degrees";
-      "base" = 10;
-      "button-mode" = "basic";
-      "number-format" = "automatic";
-      "show-thousands" = false;
-      "show-zeroes" = false;
-      "source-currency" = "";
-      "source-units" = "degree";
-      "target-currency" = "";
-      "target-units" = "radian";
-      "window-maximized" = false;
-    };
+  #   "org/gnome/calculator" = {
+  #     "accuracy" = 9;
+  #     "angle-units" = "degrees";
+  #     "base" = 10;
+  #     "button-mode" = "basic";
+  #     "number-format" = "automatic";
+  #     "show-thousands" = false;
+  #     "show-zeroes" = false;
+  #     "source-currency" = "";
+  #     "source-units" = "degree";
+  #     "target-currency" = "";
+  #     "target-units" = "radian";
+  #     "window-maximized" = false;
+  #   };
 
-    "org/gnome/desktop/interface" = {
-      "color-scheme" = "prefer-dark";
-      "cursor-theme" = "Bibata-Original-Amber-Right";
-      "font-name" = "Roboto 14";
-      "icon-theme" = "Papirus-Dark";
-    };
+  #   "org/gnome/desktop/interface" = {
+  #     "color-scheme" = "prefer-dark";
+  #     "cursor-theme" = "Bibata-Original-Amber-Right";
+  #     "font-name" = "Roboto 14";
+  #     "icon-theme" = "Papirus-Dark";
+  #   };
 
-    "org/gnome/desktop/wm/preferences" = {
-      "button-layout" = lib.mkForce "";
-    };
+  #   "org/gnome/desktop/wm/preferences" = {
+  #     "button-layout" = lib.mkForce "";
+  #   };
 
-    "org/gnome/nautilus/preferences" = {
-      "default-folder-viewer" = "list-view";
-      "migrated-gtk-settings" = true;
-      "search-filter-time-type" = "last_modified";
-      "search-view" = "list-view";
-    };
+  #   "org/gnome/nautilus/preferences" = {
+  #     "default-folder-viewer" = "list-view";
+  #     "migrated-gtk-settings" = true;
+  #     "search-filter-time-type" = "last_modified";
+  #     "search-view" = "list-view";
+  #   };
 
-    "org/gnome/nm-applet" = {
-      "disable-connected-notifications" = true;
-      "disable-vpn-notifications" = true;
-    };
+  #   "org/gnome/nm-applet" = {
+  #     "disable-connected-notifications" = true;
+  #     "disable-vpn-notifications" = true;
+  #   };
 
-    "org/gtk/gtk4/settings/file-chooser" = {
-      "show-hidden" = true;
-    };
+  #   "org/gtk/gtk4/settings/file-chooser" = {
+  #     "show-hidden" = true;
+  #   };
 
-    "org/gtk/settings/file-chooser" = {
-      "date-format" = "regular";
-      "location-mode" = "path-bar";
-      "show-hidden" = true;
-      "show-size-column" = true;
-      "show-type-column" = true;
-      "sort-column" = "name";
-      "sort-directories-first" = false;
-      "sort-order" = "ascending";
-      "type-format" = "category";
-      "view-type" = "list";
-    };
-  };
+  #   "org/gtk/settings/file-chooser" = {
+  #     "date-format" = "regular";
+  #     "location-mode" = "path-bar";
+  #     "show-hidden" = true;
+  #     "show-size-column" = true;
+  #     "show-type-column" = true;
+  #     "sort-column" = "name";
+  #     "sort-directories-first" = false;
+  #     "sort-order" = "ascending";
+  #     "type-format" = "category";
+  #     "view-type" = "list";
+  #   };
+  # };
 }
