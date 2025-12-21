@@ -12,6 +12,8 @@
     ./hardware-configuration.nix
     "${nixosModules}/common"
     "${nixosModules}/desktop/kde"
+    # "${nixosModules}/desktop/cosmic"
+    "${nixosModules}/desktop/hyprland"
     "${nixosModules}/programs/steam"
     "${nixosModules}/programs/prismlauncher"
     # "${nixosModules}/programs/open-audible"
