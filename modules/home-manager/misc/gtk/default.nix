@@ -2,41 +2,56 @@
   userConfig,
   pkgs,
   ...
-}: {
-  # GTK theme configuration
-  gtk = {
-    enable = true;
-    theme = {
-      name = "Sweet";
-      package = pkgs.sweet;
-    };
-    iconTheme = {
-      # name = "Tela-circle-dark";
-      # package = pkgs.tela-circle-icon-theme;
-      name = "Papirus-Dark";
-      package = pkgs.papirus-nord;
-    };
-    cursorTheme = {
-      name = "Bibata-Original-Amber-Right";
-      package = pkgs.bibata-cursors;
-      size = 96;
-    };
-    font = {
-      name = "Roboto";
-      size = 14;
-    };
-    gtk3 = {
-      bookmarks = [
-        # "file:///home/${userConfig.name}/Documents"
-        "file:///home/${userConfig.name}/Downloads"
-        # "file:///home/${userConfig.name}/Pictures"
-        # "file:///home/${userConfig.name}/Videos"
-        # "file:///home/${userConfig.name}/Downloads/temp"
-        # "file:///home/${userConfig.name}/Documents/repositories"
-      ];
-    };
+}: let
+  theme = {
+    name = "Sweet-Dark";
+    package = pkgs.sweet;
   };
-
-  # Enable catppuccin theming for GTK apps.
-  # catppuccin.gtk.enable = true;
+  cursorTheme = {
+    name = "Bibata-Original-Amber-Right";
+    package = pkgs.bibata-cursors;
+    size = 96;
+  };
+  iconTheme = {
+    name = "Papirus-Dark";
+    package = pkgs.papirus-nord;
+  };
+  fullTheme = {
+    theme = theme;
+    cursorTheme = cursorTheme;
+    iconTheme = iconTheme;
+  };
+  bookmarks = [
+    "file:///home/${userConfig.name}/Documents"
+    "file:///home/${userConfig.name}/Downloads"
+    # "file:///home/${userConfig.name}/Pictures"
+    # "file:///home/${userConfig.name}/Videos"
+    # "file:///home/${userConfig.name}/Downloads/temp"
+    # "file:///home/${userConfig.name}/Documents/repositories"
+  ];
+in {
+  # GTK theme configuration
+  gtk =
+    fullTheme
+    // {
+      enable = true;
+      font = {
+        name = "Roboto";
+        size = 14;
+      };
+      gtk2 = fullTheme;
+      gtk4 =
+        fullTheme
+        // {
+          theme = {
+            package = pkgs.sweet;
+            name = "Sweet-Dark-v40";
+          };
+        };
+      gtk3 =
+        fullTheme
+        // {
+          bookmarks = bookmarks;
+        };
+    };
 }

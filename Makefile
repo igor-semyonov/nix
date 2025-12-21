@@ -16,4 +16,7 @@ home: .FORCE
 home-backup: .FORCE
 	home-manager  switch --flake . -b backup
 
+nh:
+	nh os switch . --cores $(NPROC) --max-jobs $(NPROC)
+
 .FORCE:
