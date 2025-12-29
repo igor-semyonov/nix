@@ -18,7 +18,7 @@
     ../programs/firefox
     ../programs/matplotlib
     # ../programs/btop
-    # ../programs/fastfetch
+    ../programs/fastfetch
     # ../programs/fzf
     # ../programs/git
     # ../programs/go
