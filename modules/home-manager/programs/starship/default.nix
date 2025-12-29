@@ -63,7 +63,4 @@
       right_format = "$kubernetes";
     };
   };
-
-  # Enable catppuccin theming for starship.
-  catppuccin.starship.enable = true;
 }

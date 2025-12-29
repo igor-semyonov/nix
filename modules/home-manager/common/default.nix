@@ -100,11 +100,4 @@
       tesseract
       unzip
     ];
-
-  # Catpuccin flavor and accent
-  catppuccin = {
-    # flavor = "macchiato";
-    flavor = "mocha";
-    accent = "pink";
-  };
 }
