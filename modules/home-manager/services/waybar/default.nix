@@ -89,7 +89,7 @@
 
         clock = {
           rotate = 90;
-          format = "{:%b %d %H:%M}";
+          format = "{:%b %d \n %H:%M}";
           format-alt = " {:%H:%M   %Y, %d %B, %A}";
           tooltip-format = "<tt><small>{calendar}</small></tt>";
           calendar = {

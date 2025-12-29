@@ -1,6 +1,7 @@
 {
   userConfig,
   pkgs,
+  config,
   ...
 }: let
   theme = {
@@ -39,7 +40,7 @@ in {
         name = "Roboto";
         size = 14;
       };
-      gtk2 = fullTheme;
+      gtk2 = fullTheme // {force = true;};
       gtk4 =
         fullTheme
         // {
