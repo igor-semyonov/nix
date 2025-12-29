@@ -21,8 +21,13 @@ It is structured to easily accommodate multiple machines and user configurations
 - **nixpkgs**: Points to the `nixos-unstable` channel for access to the latest packages
 - **nixpkgs-stable**: Points to the `nixos-25.05` channel, providing stable NixOS packages
 - **home-manager**: Manages user-specific configurations, following the `nixpkgs` input (release-25.05)
+- **plasma-manager**: declarative kde plasma configuration
 - **hardware**: Optimizes settings for different hardware configurations
 - **nix-flatpak**: Provides declarative way to manage flatpaks
+- **my-nvim**: [My neovim](https://github.com/igor-semyonov/nvim)
+- **nur**: Nix user repository
+- **hyperland**
+- **hyperland-plugins**
 
 ## Usage
 
@@ -192,53 +197,30 @@ nix flake update
 ### System Modules (in `modules/nixos/`)
 
 - **`common/`**: Common system space configurations
-- **`hyprland`**: Hyprland window manager
-- **`kde`**: KDE Desktop environment
-- **`steam`**: Steam gaming platform
-- **`tlp`**: Laptop power management
+- desktop/
+    - **`hyprland`**: Hyprland window manager
+    - **`kde`**: KDE Desktop environment
+    - **`cosmic`**
 
 ### Home Manager Modules (in `modules/home-manager/`)
 
 - **`common/`**: Common user space configurations
-- **`aerospace` (Darwin):** Tiling window manager for macOS with custom keybindings and workspace rules.
 - **`alacritty`:** GPU-accelerated terminal emulator, configured for tmux integration and platform-specific font sizes/decorations.
-- **`atuin`:** Enhanced shell history with cloud sync capabilities.
-- **`bat`:** Cat clone with syntax highlighting and Git integration.
-- **`brave`:** Web browser with XDG MIME type associations (Linux).
-- **`btop`:** Resource monitor with Vim keys.
-- **`cliphist` (Linux/Hyprland):** Clipboard manager.
 - **`easyeffects` (Linux):** Audio effects processor with a custom "mic" preset for input.
-- **`fastfetch`:** Customized system information tool.
 - **`fzf`:** Command-line fuzzy finder. **Note:** The `ctrl-y` clipboard binding needs to be conditional (`pbcopy` for macOS, `wl-copy` for Wayland/Linux) for cross-platform compatibility.
 - **`git`:** Version control system, configured with user details, GPG signing, and `delta` for diffs.
-- **`go`:** Golang development environment setup.
 - **`gpg`:** GnuPG settings and GPG agent configuration (with `pinentry-gnome3` on Linux).
-- **`gtk`:** GTK3/4 theming (Tela-circle icons, Yaru cursor, Roboto font) and Catppuccin theme.
+- **`gtk`:** GTK3/4 theming
 - **`hyprland`**: Hyprland window manager setup
 - **`kde`**: KDE Desktop environment user level configuration
-- **`k9s`:** Kubernetes CLI To Manage Your Clusters In Style, with custom hotkeys.
-- **`kanshi` (Linux/Hyprland):** Dynamic display output configuration based on connected monitors.
-- **`krew`:** Kubectl plugin manager with a predefined list of plugins.
-- **`lazygit`:** Terminal UI for Git.
-- **`neovim`:** Highly customized Neovim setup based on LazyVim, with numerous LSP and development tool integrations.
+- **`neovim`:** My custom neovim setup using nixcats
 - **`obs-studio` (Linux):** Streaming and screen recording software.
-- **`qt` (Linux):** Qt theming using Kvantum and Catppuccin.
-- **`saml2aws`:** For AWS authentication via SAML.
-- **`scripts/`**: Collection of development utilities
-- **`starship`:** Cross-shell prompt with custom configuration.
-- **`swaync` (Linux/Hyprland):** Notification daemon.
-- **`telegram`:** Desktop client for Telegram.
-- **`tmux`:** Terminal multiplexer with custom keybindings and Catppuccin theme.
-- **`ulauncher` (Linux):** Application launcher with custom shortcuts for Brave search, system actions (lock, suspend, shutdown, reboot), and launching work applications.
+- **`qt` (Linux):** Qt theming
+- **`tmux`:**
 - **`wallpaper`:** Defines the default wallpaper path.
 - **`waybar` (Linux/Hyprland):** Highly customized Wayland status bar with modules for workspaces, system stats, clock, tray, etc.
 - **`xdg`:** Manages XDG user directories and default MIME type associations for applications like Totem, Loupe, and TextEditor.
-- **`zsh`:** Zsh shell with extensive aliases (git, kubectl), completions, and custom keybindings.
-
-## Contributing
-
-Contributions are welcome! If you have improvements or suggestions, please open an issue or submit a pull request.
 
 ## License
 
-This repository is licensed under MIT License. Feel free to use, modify, and distribute according to the license terms.
+This repository is licensed under the MIT License. Feel free to use, modify, and distribute according to the license terms.
