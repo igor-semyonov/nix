@@ -32,6 +32,7 @@
         eval "$(${pkgs.zoxide}/bin/zoxide init bash)"
       '';
     shellAliases = {
+      ff = "fastfetch";
       ".." = "cd ..";
       ls = "eza --icons always"; # default view
       ll = "eza -bhl --icons --group-directories-first"; # long list
