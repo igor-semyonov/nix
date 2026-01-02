@@ -10,6 +10,9 @@ boot:
 clean:
 	nix-collect-garbage -d
 
+repl:
+	nixos-rebuild repl
+
 home: .FORCE
 	home-manager  switch --flake .
 
