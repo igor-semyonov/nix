@@ -10,6 +10,7 @@
     # ../misc/gtk
     # ../programs/aerospace
     ../programs/alacritty
+    ../programs/kitty
     # ../programs/atuin
     ../programs/bash
     ../programs/bat
