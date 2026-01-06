@@ -1,35 +1,50 @@
-{...}: {
+{pkgs, ...}: {
   xdg = {
     enable = true;
     mimeApps = {
       enable = true;
       associations.added = {
-        # "audio/mpeg" = ["org.gnome.Totem.desktop"];
-        # "image/jpeg" = ["org.gnome.Loupe.desktop"];
-        # "image/jpg" = ["org.gnome.Loupe.desktop"];
-        # "image/png" = ["org.gnome.Loupe.desktop"];
-        # "video/mp3" = ["org.gnome.Totem.desktop"];
-        # "video/mp4" = ["org.gnome.Totem.desktop"];
-        # "video/quicktime" = ["org.gnome.Totem.desktop"];
-        # "video/webm" = ["org.gnome.Totem.desktop"];
+        "audio/mpeg" = ["mpv.desktop"];
+        "image/jpeg" = ["org.kde.gwenview.desktop"];
+        "image/jpg" = ["org.kde.gwenview.desktop"];
+        "image/png" = ["org.kde.gwenview.desktop"];
+        "video/mp3" = ["mpv.desktop"];
+        "video/mp4" = ["mpv.desktop"];
+        "video/quicktime" = ["mpv.desktop"];
+        "video/webm" = ["mpv.desktop"];
       };
-      defaultApplications = {
-        # "application/json" = ["gnome-text-editor.desktop"];
-        "application/toml" = "org.gnome.TextEditor.desktop";
+      defaultApplications = let
+        text = "nvim.desktop";
+      in {
+        "application/json" = text;
+        "application/toml" = text;
         "application/x-gnome-saved-search" = ["org.gnome.Nautilus.desktop"];
-        "audio/*" = ["org.gnome.Totem.desktop"];
-        "audio/mp3" = ["org.gnome.Totem.desktop"];
-        "image/*" = ["org.gnome.Loupe.desktop"];
-        "image/jpg" = ["org.gnome.Loupe.desktop"];
-        "image/png" = ["org.gnome.Loupe.desktop"];
-        "text/plain" = "org.gnome.TextEditor.desktop";
-        "video/*" = ["org.gnome.Totem.desktop"];
-        "video/mp4" = ["org.gnome.Totem.desktop"];
+        "audio/*" = "mpv.desktop";
+        "image/*" = "org.kde.gwenview.desktop";
+        "text/*" = text;
+        "video/*" = "mpv.desktop";
       };
     };
     userDirs = {
       enable = true;
       createDirectories = true;
+    };
+    portal = {
+      # extraPortals = [
+      #   pkgs.kdePackages.xdg-desktop-portal-kde
+      #   pkgs.xdg-desktop-portal-gtk # Often needed as a fallback
+      # ];
+      configPackages = with pkgs; [
+        kdePackages.xdg-desktop-portal-kde
+      ];
+      config = {
+        common = {
+          # This tells xdg-desktop-portal to use the KDE backend for file picking
+          "org.freedesktop.impl.portal.FileChooser" = ["kde"];
+          # Sets the default for everything else to KDE, with GTK as a fallback
+          default = ["kde" "gtk"];
+        };
+      };
     };
   };
 }

@@ -7,7 +7,8 @@
 }: {
   imports = [
     ../misc/qt
-    # ../misc/gtk
+    ../misc/gtk
+    ../misc/xdg
     # ../programs/aerospace
     ../programs/alacritty
     ../programs/kitty

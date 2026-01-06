@@ -10,9 +10,7 @@
   } (builtins.readFile ./zoom.py);
 in {
   imports = [
-    "${nhModules}/misc/gtk"
     # "${nhModules}/misc/wallpaper"
-    # "${nhModules}/misc/xdg"
     # "${nhModules}/programs/swappy"
     # "${nhModules}/programs/wofi"
     # "${nhModules}/services/cliphist"
