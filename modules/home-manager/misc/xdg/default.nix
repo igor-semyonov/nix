@@ -16,13 +16,15 @@
       defaultApplications = let
         text = "nvim.desktop";
       in {
-        "application/json" = text;
-        "application/toml" = text;
+        "x-scheme-handler/http" = ["firefox.desktop"];
+        "x-scheme-handler/https" = ["firefox.desktop"];
+        "application/json" = [text];
+        "application/toml" = [text];
         "application/x-gnome-saved-search" = ["org.gnome.Nautilus.desktop"];
-        "audio/*" = "mpv.desktop";
-        "image/*" = "org.kde.gwenview.desktop";
-        "text/*" = text;
-        "video/*" = "mpv.desktop";
+        "audio/*" = ["mpv.desktop"];
+        "image/*" = ["org.kde.gwenview.desktop"];
+        "text/*" = [text];
+        "video/*" = ["mpv.desktop"];
       };
     };
     userDirs = {
