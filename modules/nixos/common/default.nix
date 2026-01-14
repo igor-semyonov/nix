@@ -132,7 +132,14 @@
   users = {
     users.${userConfig.name} = {
       description = userConfig.fullName;
-      extraGroups = ["networkmanager" "wheel" "docker" "i2c"];
+      extraGroups = [
+        "networkmanager"
+        "wheel"
+        "docker"
+        "i2c"
+        "kvm"
+        "libvirtd"
+      ];
       isNormalUser = true;
       shell = pkgs.bash;
       packages = with pkgs; [
@@ -189,10 +196,12 @@
       pinentryPackage = pkgs.pinentry-curses;
       enableSSHSupport = true;
     };
+    virt-manager.enable = true;
   };
 
   # System packages
   environment.systemPackages = with pkgs; [
+    dnsmasq
     tmux
     libreoffice-qt6-fresh
     file
@@ -289,12 +298,19 @@
   };
 
   # Docker configuration
-  virtualisation.docker = {
-    enable = true;
-    # rootless = {
-    #   enable = true;
-    #   setSocketVariable = true;
-    # };
+  virtualisation = {
+    docker = {
+      enable = true;
+      # rootless = {
+      #   enable = true;
+      #   setSocketVariable = true;
+      # };
+    };
+    libvirtd = {
+      enable = true;
+      qemu.vhostUserPackages = with pkgs; [virtiofsd];
+    };
+    # spiceUSBRedirection.enable = true;
   };
   hardware.nvidia-container-toolkit.enable = true;
 
