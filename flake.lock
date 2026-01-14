@@ -504,11 +504,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1766985089,
-        "narHash": "sha256-Shd5TKq84RgF2kLcxDtscoPWQK3Sw/2L7Wv4atq4V6w=",
+        "lastModified": 1768356669,
+        "narHash": "sha256-h6ib4F4y604yExkDRnW/n1FfDq5FjlUCZU1z1L4PfYs=",
         "owner": "igor-semyonov",
         "repo": "nvim",
-        "rev": "e09de69bae1b7f37e3e52bbddd1405e1175669ca",
+        "rev": "a233dd378d86ef48d95e5b468b09d9873b345546",
         "type": "github"
       },
       "original": {
