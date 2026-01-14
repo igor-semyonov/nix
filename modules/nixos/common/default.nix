@@ -202,6 +202,8 @@
   # System packages
   environment.systemPackages = with pkgs; [
     dnsmasq
+    swtpm
+    OVMFFull
     tmux
     libreoffice-qt6-fresh
     file
