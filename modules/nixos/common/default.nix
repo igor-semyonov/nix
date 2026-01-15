@@ -85,7 +85,6 @@
     # useXkbConfig = true; # use xkb.options in tty.
   };
 
-  # Networking
   networking = {
     hostName = hostname;
     networkmanager.enable = true;
@@ -137,8 +136,6 @@
         "wheel"
         "docker"
         "i2c"
-        "kvm"
-        "libvirtd"
       ];
       isNormalUser = true;
       shell = pkgs.bash;
@@ -201,9 +198,6 @@
 
   # System packages
   environment.systemPackages = with pkgs; [
-    dnsmasq
-    swtpm
-    OVMFFull
     tmux
     libreoffice-qt6-fresh
     file
@@ -308,11 +302,6 @@
       #   setSocketVariable = true;
       # };
     };
-    libvirtd = {
-      enable = true;
-      qemu.vhostUserPackages = with pkgs; [virtiofsd];
-    };
-    # spiceUSBRedirection.enable = true;
   };
   hardware.nvidia-container-toolkit.enable = true;
 
@@ -359,6 +348,7 @@
     ../services/unpatched
     ../scripts
     ../services/ai
+    ../services/virt
     ../hardware/nas
   ];
 }

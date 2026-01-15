@@ -60,9 +60,6 @@
   };
   hardware.nvidia-container-toolkit.enable = true;
 
-  networking = {
-  };
-
   mine = {
     nas = {
       enable = true;
@@ -74,6 +71,10 @@
     ai = {
       ollama.enable = true;
       open-webui.enable = false;
+    };
+    virtualisation = {
+      enable = true;
+      hardware-interfaces = ["eno2np1"];
     };
   };
 
