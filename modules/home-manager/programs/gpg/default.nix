@@ -33,12 +33,15 @@
   services.gpg-agent = lib.mkIf (!pkgs.stdenv.isDarwin) {
     enable = true;
     defaultCacheTtl = 86400;
-    # scdaemon-program = "${pkgs.gnupg-pkcs11-scd}/bin/gnupg-pkcs11-scd";
-    # default-cache-ttl = "34560000";
-    # max-cache-ttl = "34560000";
+    maxCacheTtl = 604800;
+    defaultCacheTtlSsh = 86400;
+    maxCacheTtlSsh = 604800;
     enableSshSupport = true;
     # pinentry.package = lib.mkDefault pkgs.pinentry-gnome3;
     # pinentry.package = lib.mkDefault pkgs.pinentry-qt;
     pinentry.package = pkgs.pinentry-curses;
+    extraConfig = ''
+      scdaemon-program = "${pkgs.gnupg-pkcs11-scd}/bin/gnupg-pkcs11-scd";
+    '';
   };
 }
