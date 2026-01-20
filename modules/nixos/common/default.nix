@@ -317,6 +317,7 @@
       fira
       garamond-libre
       eb-garamond
+      libertine
       helvetica-neue-lt-std
       noto-fonts-color-emoji
       noto-fonts-monochrome-emoji
@@ -328,7 +329,7 @@
       enable = true;
       defaultFonts = {
         sansSerif = ["Roboto"];
-        serif = ["Garamond Libre"];
+        serif = ["EB Garamond"];
         monospace = ["FiraCode Nerd Font"];
         emoji = ["Noto Color Emoji" "Openmoji Color"];
       };
