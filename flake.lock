@@ -527,11 +527,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1768797115,
-        "narHash": "sha256-TagrNsdgPLMObcIbTbAywpIy3LkmQlsObQgEibe3low=",
+        "lastModified": 1769055779,
+        "narHash": "sha256-sVKMYNtrsEXnbybbjhBzjIojHUky+W8bgu49sZ2h9hA=",
         "owner": "igor-semyonov",
         "repo": "nvim",
-        "rev": "e9387e51152715f55bb23f363699a1e98a90e543",
+        "rev": "d691ff3e9028c933677de1a2ce2eefa03d77a998",
         "type": "github"
       },
       "original": {
