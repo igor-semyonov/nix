@@ -231,6 +231,11 @@
     ];
   };
 
+  services.udev.extraRules = ''
+    # don't automount my bios save drive
+    SUBSYSTEM=="block", ENV{ID_SERIAL_SHORT}=="4C531001460105106550", ENV{UDISKS_IGNORE}="1"
+  '';
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
