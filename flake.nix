@@ -112,6 +112,7 @@
     nixosConfigurations = {
       tavore = mkNixosConfiguration "tavore" "igor";
       boxy = mkNixosConfiguration "boxy" "igor";
+      leto = mkNixosConfiguration "leto" "igor";
     };
 
     # darwinConfigurations = {
