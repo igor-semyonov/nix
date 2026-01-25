@@ -122,6 +122,7 @@
     homeConfigurations = {
       "igor@tavore" = mkHomeConfiguration "x86_64-linux" "igor" "tavore";
       "igor@boxy" = mkHomeConfiguration "x86_64-linux" "igor" "boxy";
+      "igor@leto" = mkHomeConfiguration "x86_64-linux" "igor" "leto";
     };
 
     overlays = import ./overlays {inherit inputs;};
