@@ -68,6 +68,13 @@
         gitKey = "C56C6E528F5A18A69B03FC721783BE487E6885DD";
         name = "igor";
       };
+      kaladin = {
+        avatar = ./files/avatar/face;
+        email = "kaladin@semyonov.xyz";
+        fullName = "Kaladin Semyonov";
+        gitKey = "C56C6E528F5A18A69B03FC721783BE487E6885DD";
+        name = "kaladin";
+      };
     };
 
     # Function for NixOS system configuration
@@ -123,6 +130,7 @@
       "igor@tavore" = mkHomeConfiguration "x86_64-linux" "igor" "tavore";
       "igor@boxy" = mkHomeConfiguration "x86_64-linux" "igor" "boxy";
       "igor@leto" = mkHomeConfiguration "x86_64-linux" "igor" "leto";
+      "kaladin@leto" = mkHomeConfiguration "x86_64-linux" "kaladin" "leto";
     };
 
     overlays = import ./overlays {inherit inputs;};
