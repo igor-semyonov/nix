@@ -27,14 +27,22 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  boot.initrd.luks.devices."luks-a478d497-5266-483f-b27e-5585b8035dfa".device = "/dev/disk/by-uuid/a478d497-5266-483f-b27e-5585b8035dfa";
-  boot.loader = {
-    efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot";
+  boot = {
+    initrd={
+      availableKernelModules = [ "xhci_pci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
+      systemd={
+        enable = true;
+        # emergencyAccess = true;
+      };
     };
-    timeout = 5;
-    systemd-boot.enable = true;
+    loader = {
+      efi = {
+        canTouchEfiVariables = true;
+        efiSysMountPoint = "/boot";
+      };
+      timeout = 5;
+      systemd-boot.enable = true;
+    };
   };
 
   hardware = {
