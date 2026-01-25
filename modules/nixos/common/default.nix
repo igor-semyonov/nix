@@ -303,7 +303,6 @@
       # };
     };
   };
-  hardware.nvidia-container-toolkit.enable = true;
 
   # Fonts configuration
   fonts = {
