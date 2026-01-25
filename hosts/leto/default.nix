@@ -6,8 +6,8 @@
 }: {
   imports = [
     inputs.hardware.nixosModules.apple-macbook-pro-11-5
-    inputs.hardware.nixosModules.common-gpu-amd-southern-islands
-    inputs.hardware.nixosModules.common-pc-ssd
+    # inputs.hardware.nixosModules.common-gpu-amd-southern-islands
+    # inputs.hardware.nixosModules.common-pc-ssd
 
     ./hardware-configuration.nix
     "${nixosModules}/common"
