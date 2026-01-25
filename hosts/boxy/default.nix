@@ -222,13 +222,16 @@
     };
   };
 
-  mine.nas = {
-    enable = true;
-    host = "synology";
-    shares = [
-      "share-1"
-      "share-2"
-    ];
+  mine={
+    btrbk.enable=true;
+    nas = {
+      enable = true;
+      host = "synology";
+      shares = [
+        "share-1"
+        "share-2"
+      ];
+    };
   };
 
   services.udev.extraRules = ''

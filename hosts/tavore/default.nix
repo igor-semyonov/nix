@@ -61,6 +61,7 @@
   hardware.nvidia-container-toolkit.enable = true;
 
   mine = {
+    btrbk.enable = true;
     nas = {
       enable = true;
       host = "synology";
