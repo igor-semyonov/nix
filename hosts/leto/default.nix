@@ -19,12 +19,6 @@
     # "${nixosModules}/programs/open-audible"
   ];
 
-  users.users.igors = {
-    isNormalUser = true;
-    description = "Igor Semyonov";
-    extraGroups = ["networkmanager" "wheel"];
-  };
-
   nix.settings = {
     download-buffer-size = 12 * 1024 * 1024 * 1024;
     cores = 8;
