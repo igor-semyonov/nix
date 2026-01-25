@@ -19,6 +19,12 @@
     # "${nixosModules}/programs/open-audible"
   ];
 
+  users.users.igors = {
+    isNormalUser = true;
+    description = "Igor Semyonov";
+    extraGroups = ["networkmanager" "wheel"];
+  };
+
   nix.settings = {
     download-buffer-size = 12 * 1024 * 1024 * 1024;
     cores = 8;
@@ -28,9 +34,9 @@
   nixpkgs.config.allowUnfree = true;
 
   boot = {
-    initrd={
-      availableKernelModules = [ "xhci_pci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
-      systemd={
+    initrd = {
+      availableKernelModules = ["xhci_pci" "nvme" "usbhid" "usb_storage" "sd_mod"];
+      systemd = {
         enable = true;
         # emergencyAccess = true;
       };
