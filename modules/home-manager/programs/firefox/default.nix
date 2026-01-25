@@ -94,7 +94,7 @@
               urls = [{template = "https://www.audible.com/search?keywords={searchTerms}";}];
               definedAliases = ["au"];
             };
-            "Google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
+            "google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
             "Rust Std" = {
               urls = [{template = "https://doc.rust-lang.org/stable/std/index.html?search={searchTerms}";}];
               definedAliases = ["rs"];
