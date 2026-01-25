@@ -25,6 +25,27 @@
     max-jobs = 9;
   };
 
+  users = {
+    users.kaladin = {
+      description = "Kaladin (The Red Frog) Semyonov";
+      extraGroups = [
+        "networkmanager"
+      ];
+      isNormalUser = true;
+      shell = pkgs.bash;
+      packages = with pkgs; [
+        zoxide
+        python313
+        unzip
+        starship
+        ripgrep
+        stable.wl-clipboard
+        vivaldi
+        vivaldi-ffmpeg-codecs
+      ];
+    };
+  };
+
   nixpkgs.config.allowUnfree = true;
 
   boot = {
