@@ -29,7 +29,6 @@
 
   boot = {
     initrd = {
-      availableKernelModules = ["xhci_pci" "nvme" "usbhid" "usb_storage" "sd_mod"];
       systemd = {
         enable = true;
         # emergencyAccess = true;
