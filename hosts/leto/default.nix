@@ -67,5 +67,7 @@
     # };
   };
 
+  services.xserver.libinput.enable = true;
+
   system.stateVersion = "25.11";
 }
