@@ -2,6 +2,7 @@
   pkgs,
   inputs,
   nixosModules,
+  lib,
   ...
 }: {
   imports = [
@@ -49,6 +50,16 @@
   nixpkgs.config.allowUnfree = true;
 
   boot = {
+    kernelParams = [
+      "quiet"
+      "splash"
+      "rd.udev.log_level=3"
+      "brcmfmac.feature_disable=0x82000"
+    ];
+    extraModprobeConfig = ''
+      options brcmfmac roamoff=1
+    '';
+    plymouth.enable = lib.mkForce true;
     initrd = {
       systemd = {
         enable = true;
@@ -66,12 +77,15 @@
   };
 
   hardware = {
+    enableAllFirmware = true;
+    enableAllHardware = true;
     graphics = {
       enable = true;
     };
   };
 
   networking = {
+    networkmanager.wifi.backend = "iwd";
     firewall = {
     };
     # wg-quick = {
