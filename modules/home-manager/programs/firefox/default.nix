@@ -81,6 +81,10 @@
               urls = [{template = "https://www.youtube.com/results?search_query={searchTerms}";}];
               definedAliases = ["y"];
             };
+            "Youtube Subscriptions" = {
+              urls = [{template = "https://www.youtube.com/feed/subscriptions";}];
+              definedAliases = ["ys"];
+            };
             "Amazon" = {
               urls = [{template = "https://www.amazon.com/s?k={searchTerms}";}];
               # icon = "https://www.amazon.com/favicon.png";
