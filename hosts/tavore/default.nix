@@ -1,6 +1,7 @@
 {
   inputs,
   nixosModules,
+  userConfig,
   ...
 }: {
   imports = [
@@ -20,7 +21,6 @@
     max-jobs = 96;
   };
 
-  boot.binfmt.emulatedSystems = ["aarch64-linux"];
   boot.loader = {
     efi = {
       canTouchEfiVariables = true;
@@ -80,9 +80,9 @@
     };
   };
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
+  # for jetson
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+  nix.trustedUsers = [userConfig.name];
+
   system.stateVersion = "25.05";
 }
