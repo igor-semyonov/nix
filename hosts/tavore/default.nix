@@ -20,6 +20,7 @@
     max-jobs = 96;
   };
 
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
   boot.loader = {
     efi = {
       canTouchEfiVariables = true;
