@@ -49,6 +49,7 @@
         cue = true;
       };
     };
+    services.sddm.u2fAuth = false;
   };
 
   # Boot settings
