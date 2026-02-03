@@ -12,7 +12,7 @@
         hostname = "10.0.0.1";
         user = "root";
       };
-      "boxy" = {
+      "box" = {
         hostname = "boxy";
         user = "igor";
       };
@@ -20,7 +20,7 @@
         hostname = "tavore";
         user = "igor";
       };
-      "leto" = {
+      "let" = {
         hostname = "leto";
         user = "igor";
       };
