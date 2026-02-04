@@ -139,6 +139,7 @@
       "igor@boxy" = mkHomeConfiguration "x86_64-linux" "igor" "boxy";
       "igor@leto" = mkHomeConfiguration "x86_64-linux" "igor" "leto";
       "kaladin@leto" = mkHomeConfiguration "x86_64-linux" "kaladin" "leto";
+      "kdcadet@vin" = mkHomeConfiguration "aarch64-darwin" "kdcadet" "vin";
     };
 
     overlays = import ./overlays {inherit inputs;};
