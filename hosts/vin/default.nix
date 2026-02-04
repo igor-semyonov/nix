@@ -15,6 +15,8 @@
     package = pkgs.nix;
   };
 
+  programs.bash.enable = true;
+
   environment.systemPackages = [
   ];
 
@@ -24,4 +26,5 @@
   # ];
 
   system.stateVersion = 6;
+  nixpkgs.hostPlatform = "aarch64-darwin";
 }
