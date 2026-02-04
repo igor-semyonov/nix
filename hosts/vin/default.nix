@@ -25,6 +25,16 @@
   #   nerd-fonts.meslo-lg
   # ];
 
+  nix.linux-builder = {
+    enable = true;
+    ephemeral = true; # Wipes the VM on restart (optional, keeps it clean)
+    maxJobs = 4;
+    config = {
+      virtualisation.cores = 4;
+      virtualisation.memorySize = 8192; # Give it 8GB+ RAM for CUDA builds!
+    };
+  };
+
   system.stateVersion = 6;
   nixpkgs.hostPlatform = "aarch64-darwin";
 }

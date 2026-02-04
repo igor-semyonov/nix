@@ -22,6 +22,9 @@ home-backup: .FORCE
 dhome: .FORCE
 	home-manager switch --flake .#kdcadet@vin
 
+d: .FORCE
+	sudo darwin-rebuild switch --flake .#vin
+
 nh:
 	nh os switch . --cores $(NPROC) --max-jobs $(NPROC)
 
