@@ -1,18 +1,19 @@
 {
   inputs,
   pkgs,
+nhModules,
   ...
 }: {
   imports = [
-    # ../programs/alacritty
-    ../programs/bash
-    ../programs/bat
-    # ../programs/matplotlib
-    ../programs/fastfetch
-    ../programs/gpg
-    ../programs/ssh
-    ../programs/starship
-    ../programs/tmux
+    # "${nhModules}/programs/alacritty"
+    "${nhModules}/programs/bash"
+    "${nhModules}/programs/bat"
+    # "${nhModules}/programs/matplotlib"
+    "${nhModules}/programs/fastfetch"
+    "${nhModules}/programs/gpg"
+    "${nhModules}/programs/ssh"
+    "${nhModules}/programs/starship"
+    "${nhModules}/programs/tmux"
   ];
 
   home = {
