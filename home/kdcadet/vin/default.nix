@@ -1,7 +1,8 @@
 {
   inputs,
   pkgs,
-nhModules,
+  nhModules,
+  userConfig,
   ...
 }: {
   imports = [
@@ -17,6 +18,11 @@ nhModules,
   ];
 
   home = {
+    username = "${userConfig.name}";
+    homeDirectory =
+      if pkgs.stdenv.isDarwin
+      then "/Users/${userConfig.name}"
+      else "/home/${userConfig.name}";
     packages = [
       inputs.my-nvim.packages.${pkgs.system}.nvim-nixcats
       pkgs.alacritty
