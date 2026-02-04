@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  inputs,
+  pkgs,
+  ...
+}: {
   imports = [
     # ../programs/alacritty
     ../programs/bash
@@ -14,6 +18,7 @@
   home = {
     packages = [
       inputs.my-nvim.packages.${pkgs.system}.nvim-nixcats
+      pkgs.alacritty
     ];
     sessionVariables = {
       EDITOR = "vim";
