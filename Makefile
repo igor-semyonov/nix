@@ -14,10 +14,13 @@ repl:
 	nixos-rebuild repl
 
 home: .FORCE
-	home-manager  switch --flake .
+	home-manager switch --flake .
 
 home-backup: .FORCE
-	home-manager  switch --flake . -b backup
+	home-manager switch --flake . -b backup
+
+dhome: .FORCE
+	home-manager switch --flake .#kdcadet@vin
 
 nh:
 	nh os switch . --cores $(NPROC) --max-jobs $(NPROC)
