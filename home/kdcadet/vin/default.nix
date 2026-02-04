@@ -20,6 +20,7 @@
       inputs.my-nvim.packages.${pkgs.system}.nvim-nixcats
       pkgs.alacritty
       pkgs.gnumake
+      pkgs.git
     ];
     sessionVariables = {
       EDITOR = "vim";
