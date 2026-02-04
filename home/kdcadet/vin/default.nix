@@ -33,7 +33,7 @@
       EDITOR = "vim";
       VISUAL = "vim";
       SYSTEMD_EDITOR = "vim";
-      TERM=xterm-256color
+      TERM = "xterm-256color";
     };
   };
 
