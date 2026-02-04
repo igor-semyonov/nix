@@ -68,6 +68,13 @@
         gitKey = "C56C6E528F5A18A69B03FC721783BE487E6885DD";
         name = "igor";
       };
+      kdcadet = {
+        avatar = ./files/avatar/face;
+        email = "igor@semyonov.xyz";
+        fullName = "Igor Semyonov";
+        gitKey = "C56C6E528F5A18A69B03FC721783BE487E6885DD";
+        name = "kdcadet";
+      };
       kaladin = {
         avatar = ./files/avatar/face;
         email = "kaladin@semyonov.xyz";
@@ -95,6 +102,7 @@
         specialArgs = {
           inherit inputs outputs hostname;
           userConfig = users.${username};
+          nixosModules = "${self}/modules/nixos";
         };
         modules = [
           ./hosts/${hostname}
@@ -122,9 +130,9 @@
       leto = mkNixosConfiguration "leto" "igor";
     };
 
-    # darwinConfigurations = {
-    #   "nabokikh-mac" = mkDarwinConfiguration "nabokikh-mac" "nabokikh";
-    # };
+    darwinConfigurations = {
+      "vin" = mkDarwinConfiguration "vin" "kdcadet";
+    };
 
     homeConfigurations = {
       "igor@tavore" = mkHomeConfiguration "x86_64-linux" "igor" "tavore";
