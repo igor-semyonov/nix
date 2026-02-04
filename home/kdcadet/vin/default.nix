@@ -23,11 +23,12 @@
       if pkgs.stdenv.isDarwin
       then "/Users/${userConfig.name}"
       else "/home/${userConfig.name}";
-    packages = [
+    packages = with pkgs; [
       inputs.my-nvim.packages.${pkgs.system}.nvim-nixcats
-      pkgs.alacritty
-      pkgs.gnumake
-      pkgs.git
+      alacritty
+      gnumake
+      git
+      eza
     ];
     sessionVariables = {
       EDITOR = "vim";
