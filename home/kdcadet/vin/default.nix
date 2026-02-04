@@ -1,4 +1,4 @@
-{nhModules, ...}: {
+{inputs, ...}: {
   imports = [
     # ../programs/alacritty
     ../programs/bash
@@ -10,6 +10,17 @@
     ../programs/starship
     ../programs/tmux
   ];
+
+  home = {
+    packages = [
+      inputs.my-nvim.packages.${pkgs.system}.nvim-nixcats
+    ];
+    sessionVariables = {
+      EDITOR = "vim";
+      VISUAL = "vim";
+      SYSTEMD_EDITOR = "vim";
+    };
+  };
 
   # Enable home-manager
   programs.home-manager.enable = true;
