@@ -11,7 +11,7 @@ clean:
 	nix-collect-garbage -d
 
 repl:
-	nixos-rebuild repl
+	nixos-rebuild repl --flake .
 
 home: .FORCE
 	home-manager switch --flake .
