@@ -21,7 +21,7 @@
         }
         "break"
         {
-          key = if pkgs.stdenv.isDarwin then "     OS           " else  "    ❄ OS           ";
+          key = if pkgs.stdenv.isDarwin then "     OS           " else  "     OS           ";
           keyColor = "red";
           type = "os";
         }
