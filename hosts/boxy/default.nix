@@ -16,6 +16,7 @@
     "${nixosModules}/desktop/hyprland"
     "${nixosModules}/programs/steam"
     "${nixosModules}/programs/prismlauncher"
+    "${nixosModules}/services/uxplay"
     # "${nixosModules}/programs/open-audible"
   ];
 
@@ -222,8 +223,8 @@
     };
   };
 
-  mine={
-    btrbk.enable=true;
+  mine = {
+    btrbk.enable = true;
     nas = {
       enable = true;
       host = "synology";
