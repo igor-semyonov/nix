@@ -34,7 +34,7 @@
           libxcb
           libdrm
         ]
-        ++ pkgs.pythonManylinuxPackages.manylinux1
+        ++ pythonManylinuxPackages.manylinux1
         ++ lib.optionals (pkgs.system == "x86_64-linux") (with pkgs.cudaPackages; [
           libcutensor
           nccl
