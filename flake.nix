@@ -26,7 +26,7 @@
 
     my-nvim = {
       url = "github:igor-semyonov/nvim";
-      # inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nur = {
