@@ -38,6 +38,8 @@
         ++ lib.optionals (pkgs.system == "x86_64-linux") (with pkgs.cudaPackages; [
           libcutensor
           nccl
+          libcusparse_lt
+          libnvshmem
         ]);
     };
   };
