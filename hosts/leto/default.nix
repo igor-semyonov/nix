@@ -109,6 +109,7 @@
     };
   };
 
+  programs.nix-ld.enable = lib.mkForce false;
   services.xserver.libinput.enable = true;
 
   system.stateVersion = "25.11";
