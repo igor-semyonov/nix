@@ -3,7 +3,7 @@
   config,
   nhModules,
   userConfig,
-inputs,
+  inputs,
   ...
 }: {
   imports = [

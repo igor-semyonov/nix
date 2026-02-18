@@ -1,20 +1,38 @@
 {
   self,
   inputs,
+  config,
+  lib,
+  usersToNixos,
   ...
-}: {
-  flake.nixosConfigurations = {
-    boxy = inputs.nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = with self.nixosModules; [
-        {
-          networking.hostName = "boxy";
-        }
-        common
+}: let
+  hostname = "boxy";
+  includedUsers = ["igor"];
+  users = lib.filterAttrs (n: v: lib.elem n includedUsers) config.users;
+  modules = with self.nixosModules; [
+    common
 
-        u2f
-        console-fonts
-        fonts
+    u2f
+    console-fonts
+    fonts
+  ];
+  groups = ["i2c"];
+  system = "x86_64-linux";
+in {
+  flake.nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {
+    system = system;
+    modules =
+      modules
+      ++ [
+        (
+          {pkgs, ...}: {
+            networking.hostName = hostname;
+            users = {
+              users = usersToNixos users pkgs;
+              groups = groups;
+            };
+          }
+        )
 
         # hardware configuration
         (
@@ -23,7 +41,7 @@
             lib,
             ...
           }: let
-            username = igor;
+            username = "igor";
             btrfs-options = ["noautodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
             btrfs-options-hdd = ["autodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
           in {
@@ -138,6 +156,5 @@
           }
         )
       ];
-    };
   };
 }

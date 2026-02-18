@@ -265,7 +265,6 @@
       };
     };
 
-
     # imports = [
     #   ./sound.nix
     #   ../programs/nvim
