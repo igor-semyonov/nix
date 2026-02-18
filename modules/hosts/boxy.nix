@@ -1,0 +1,143 @@
+{
+  self,
+  inputs,
+  ...
+}: {
+  flake.nixosConfigurations = {
+    boxy = inputs.nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = with self.nixosModules; [
+        {
+          networking.hostName = "boxy";
+        }
+        common
+
+        u2f
+        console-fonts
+        fonts
+
+        # hardware configuration
+        (
+          {
+            config,
+            lib,
+            ...
+          }: let
+            username = igor;
+            btrfs-options = ["noautodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
+            btrfs-options-hdd = ["autodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
+          in {
+            # imports = [
+            #   (modulesPath + "/installer/scan/not-detected.nix")
+            # ];
+
+            boot.initrd.availableKernelModules = [];
+            boot.initrd.kernelModules = [];
+            boot.kernelModules = ["kvm-amd"];
+            boot.extraModulePackages = [];
+
+            fileSystems = {
+              "/" = {
+                device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
+                fsType = "btrfs";
+                noCheck = true;
+                options = ["subvol=@"] ++ btrfs-options;
+              };
+              "/nix" = {
+                device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
+                fsType = "btrfs";
+                noCheck = true;
+                options = ["subvol=@nix"] ++ btrfs-options;
+              };
+              "/home" = {
+                device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
+                fsType = "btrfs";
+                noCheck = true;
+                options = ["subvol=@home"] ++ btrfs-options;
+              };
+              "/mnt/btrfs-pool" = {
+                device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
+                fsType = "btrfs";
+                noCheck = true;
+                options = ["subvolid=5"] ++ btrfs-options;
+              };
+              "/mnt/8tb" = {
+                device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
+                fsType = "btrfs";
+                noCheck = true;
+                options = ["subvolid=5"] ++ btrfs-options;
+              };
+              "/home/${username}/data" = {
+                device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
+                fsType = "btrfs";
+                noCheck = true;
+                options = ["subvol=@data"] ++ btrfs-options;
+              };
+              "/home/${username}/games" = {
+                device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
+                fsType = "btrfs";
+                noCheck = true;
+                options = ["subvol=@games"] ++ btrfs-options;
+              };
+              "/mnt/gentoo-btrfs-pool" = {
+                device = "/dev/disk/by-uuid/11a22b3d-fa0c-4821-8bf0-802b5d983c7e";
+                fsType = "btrfs";
+                noCheck = true;
+                options = ["subvolid=5"] ++ btrfs-options;
+              };
+              "/mnt/10tb" = {
+                device = "/dev/disk/by-uuid/a11033d4-a88b-4c02-8ba7-9a36ba9c6df8";
+                fsType = "btrfs";
+                noCheck = true;
+                options = ["subvolid=5"] ++ btrfs-options-hdd;
+              };
+              "/boot/efi" = {
+                device = "/dev/disk/by-uuid/A3CA-824C";
+                fsType = "vfat";
+                options = ["fmask=0022" "dmask=0022"];
+              };
+            };
+
+            swapDevices = [
+              {device = "/dev/disk/by-uuid/7164217e-8875-4bae-babe-e5907c62467c";}
+            ];
+
+            # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
+            # (the default) this is the recommended approach. When using systemd-networkd it's
+            # still possible to use this option, but it's recommended to use it in conjunction
+            # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
+            networking.useDHCP = lib.mkDefault true;
+            # networking.interfaces.br-99c977bb52ae.useDHCP = lib.mkDefault true;
+            # networking.interfaces.br-e70c0689d26d.useDHCP = lib.mkDefault true;
+            # networking.interfaces.br-f5c24df0f12b.useDHCP = lib.mkDefault true;
+            # networking.interfaces.docker0.useDHCP = lib.mkDefault true;
+            # networking.interfaces.dummy0.useDHCP = lib.mkDefault true;
+            # networking.interfaces.enp7s0.useDHCP = lib.mkDefault true;
+            # networking.interfaces.enp8s0.useDHCP = lib.mkDefault true;
+            # networking.interfaces.fidler.useDHCP = lib.mkDefault true;
+            # networking.interfaces.sit0.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth10460c8.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth366e19a.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth3af2356.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth40d738f.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth531d6bb.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth61afc6d.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth7d78d85.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth8137433.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth86c7325.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth88da642.useDHCP = lib.mkDefault true;
+            # networking.interfaces.veth8f1377c.useDHCP = lib.mkDefault true;
+            # networking.interfaces.vethb3808aa.useDHCP = lib.mkDefault true;
+            # networking.interfaces.vethde31624.useDHCP = lib.mkDefault true;
+            # networking.interfaces.vethe4a87ad.useDHCP = lib.mkDefault true;
+            # networking.interfaces.virbr0.useDHCP = lib.mkDefault true;
+            # networking.interfaces.wlp6s0.useDHCP = lib.mkDefault true;
+
+            nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+            hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+          }
+        )
+      ];
+    };
+  };
+}
