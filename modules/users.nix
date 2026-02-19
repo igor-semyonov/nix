@@ -1,6 +1,44 @@
 {lib, ...}: {
+  config = {
+    users = {
+      igor = pkgs: {
+        nixos = {
+          isNormalUser = true;
+          description = "Igor Semyonov";
+          extraGroups = [
+            "networkmanager"
+            "wheel"
+            "docker"
+            "i2c"
+          ];
+          packages = with pkgs; [
+            gh
+            pass
+            dropbox
+            dropbox-cli
+            cryptomator
+            zoxide
+            python313
+            unzip
+            starship
+            ripgrep
+            # stable.wl-clipboard
+            wl-clipboard
+            vivaldi
+            vivaldi-ffmpeg-codecs
+          ];
+        };
+      };
+    };
+
+    _module.args.usersToNixos = pkgs: users: (
+      lib.mapAttrs (n: v: (v pkgs).nixos)
+      users
+    );
+  };
+
   options = let
-    userModule = lib.types.submodule {
+    userNixosModule = lib.types.submodule {
       options = {
         description = lib.mkOption {
           type = lib.types.singleLineStr;
@@ -18,14 +56,22 @@
           default = true;
         };
         shell = lib.mkOption {
-          type = lib.types.functionTo lib.types.package;
+          type = lib.types.package;
           description = "User's shell";
-          default = pkgs: pkgs.bash;
         };
         packages = lib.mkOption {
-          type = lib.types.functionTo lib.types.listOf lib.types.package;
+          type = lib.types.listOf lib.types.package;
           description = "List of packages to be installed, not using home manager.";
-          default = pkgs: [];
+          default = [];
+        };
+      };
+    };
+    userModule = lib.types.submodule {
+      options = {
+        nixos = lib.mkOption {
+          description = "Nixos user options";
+          # type = lib.types.attrsOf userNixosModule;
+          type = lib.types.attrsOf lib.types.anything;
         };
       };
     };
@@ -33,55 +79,7 @@
     users = lib.mkOption {
       default = {};
       description = "Users";
-      type = lib.types.attrsOf userModule;
+      type = lib.types.attrsOf (lib.types.functionTo userModule);
     };
-  };
-
-  config = {
-    users = {
-      igor = {
-        description = "Igor Semyonov";
-        extraGroups = [
-          "networkmanager"
-          "wheel"
-          "docker"
-          "i2c"
-        ];
-        packages = pkgs:
-          with pkgs; [
-            gh
-            pass
-            dropbox
-            dropbox-cli
-            cryptomator
-            zoxide
-            python313
-            unzip
-            starship
-            ripgrep
-            stable.wl-clipboard
-            vivaldi
-            vivaldi-ffmpeg-codecs
-          ];
-      };
-      john = {
-        description = "Igor Semyonov";
-        extraGroups = [
-          "networkmanager"
-          "wheel"
-          "docker"
-          "i2c"
-        ];
-      };
-    };
-
-    _module.args.usersToNixos = users: pkgs: (
-      lib.mapAttrs (n: v: {
-        inherit (v) description isNormalUser extraGroups;
-        shell = v.shell pkgs;
-        packages = v.packages pkgs;
-      })
-      users
-    );
   };
 }
