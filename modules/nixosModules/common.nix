@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  inputs,
+  self,
+  ...
+}: {
   flake.nixosModules.common = {
     pkgs,
     lib,
@@ -7,6 +11,10 @@
   }: {
     # Nixpkgs configuration
     nixpkgs = {
+      overlays = [
+        self.overlays.stable-pkgs
+        # self.overlays.vivaldi
+      ];
       config = {
         allowUnfree = true;
       };

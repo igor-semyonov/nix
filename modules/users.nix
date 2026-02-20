@@ -22,8 +22,7 @@
             unzip
             starship
             ripgrep
-            # stable.wl-clipboard
-            wl-clipboard
+            stable.wl-clipboard
             vivaldi
             vivaldi-ffmpeg-codecs
           ];
