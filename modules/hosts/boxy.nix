@@ -1,8 +1,10 @@
 {
+  withSystem,
   buildNixos,
   inputs,
   self,
   config,
+  lib,
   ...
 }: let
   ns = config.namespace-specifier;
@@ -379,4 +381,19 @@ in {
   flake.nixosConfigurations.${hostname} = buildNixos {
     inherit system hostname includedUsers groups hardware-configuration modules;
   };
+  flake.homeConfigurations = withSystem system (
+    {pkgs, ...}:
+      builtins.listToAttrs (
+        map ({name, ...}: {
+          name = "${name}@${hostname}";
+          value = inputs.home-manager.lib.homeManagerConfiguration {
+            inherit pkgs;
+          };
+        })
+        (
+          lib.attrsToList
+          (lib.filterAttrs (n: v: lib.elem n includedUsers) config.users)
+        )
+      )
+  );
 }
