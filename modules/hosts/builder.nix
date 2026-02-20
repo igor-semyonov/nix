@@ -15,6 +15,7 @@
   }:
     inputs.nixpkgs.lib.nixosSystem {
       inherit system;
+      specialArgs = {inherit includedUsers;};
       modules =
         modules
         ++ [

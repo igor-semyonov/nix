@@ -1,11 +1,8 @@
 {inputs, ...}: {
   flake.nixosModules.common = {
     pkgs,
-    outputs,
     lib,
     config,
-    userConfig,
-    hostname,
     ...
   }: {
     # Nixpkgs configuration
@@ -186,20 +183,20 @@
       pcsc-tools
       opensc
       sxiv
-      ( # Wrapper script to tell to Chrome/Chromium to use p11-kit-proxy to load
-        # security devices, so they can be used for TLS client auth.
-        # Each user needs to run this themselves, it does not work on a system level
-        # due to a bug in Chromium:
-        #
-        # https://bugs.chromium.org/p/chromium/issues/detail?id=16387
-        (pkgs.writeShellScriptBin "setup-browser-eid" ''
-          NSSDB="''${HOME}/.pki/nssdb"
-          mkdir -p ''${NSSDB}
+      # Wrapper script to tell to Chrome/Chromium to use p11-kit-proxy to load
+      # security devices, so they can be used for TLS client auth.
+      # Each user needs to run this themselves, it does not work on a system level
+      # due to a bug in Chromium:
+      #
+      # https://bugs.chromium.org/p/chromium/issues/detail?id=16387
+      (pkgs.writeShellScriptBin "setup-browser-eid" ''
+        # shellcheck disable=all
+        NSSDB="''${HOME}/.pki/nssdb"
+        mkdir -p ''${NSSDB}
 
-          ${pkgs.nssTools}/bin/modutil -force -dbdir sql:$NSSDB -add p11-kit-proxy \
-          -libfile ${pkgs.p11-kit}/lib/p11-kit-proxy.so
-        '')
-      )
+        ${pkgs.nssTools}/bin/modutil -force -dbdir sql:$NSSDB -add p11-kit-proxy \
+        -libfile ${pkgs.p11-kit}/lib/p11-kit-proxy.so
+      '')
     ];
 
     services.udev = {
@@ -264,20 +261,5 @@
         # };
       };
     };
-
-    # imports = [
-    #   ./sound.nix
-    #   ../programs/nvim
-    #   ../programs/firefox
-    #   ../programs/thunderbird
-    #   ../programs/tts
-    #   ../programs/journal
-    #   ../services/btrbk
-    #   ../services/unpatched
-    #   ../scripts
-    #   ../services/ai
-    #   ../services/virt
-    #   ../hardware/nas
-    # ];
   };
 }
