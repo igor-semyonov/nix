@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  self,
+  lib,
+  ...
+}: {
   config = {
     users = {
       igor = pkgs: {
@@ -25,6 +29,19 @@
             stable.wl-clipboard
             vivaldi
             vivaldi-ffmpeg-codecs
+          ];
+        };
+        home = {
+          extraSpecialArgs = {
+            userConfig = {
+              email = "igor@semyonov.xyz";
+              fullName = "Igor Semyonov";
+              # gitKey = "C56C6E528F5A18A69B03FC721783BE487E6885DD";
+              name = "igor";
+            };
+          };
+          modules = with self.homeModules; [
+            common
           ];
         };
       };
@@ -69,6 +86,11 @@
       options = {
         nixos = lib.mkOption {
           description = "Nixos user options";
+          # type = lib.types.attrsOf userNixosModule;
+          type = lib.types.attrsOf lib.types.anything;
+        };
+        home = lib.mkOption {
+          description = "Home manager to be passed to homeConfiguration";
           # type = lib.types.attrsOf userNixosModule;
           type = lib.types.attrsOf lib.types.anything;
         };

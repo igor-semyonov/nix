@@ -3,7 +3,11 @@
   self,
   ...
 }: {
-  flake.homeModules.common = {pkgs, ...}: {
+  flake.homeModules.common = {
+    pkgs,
+    userConfig,
+    ...
+  }: {
     # imports = [
     #   ../misc/qt
     #   ../misc/gtk
@@ -46,7 +50,7 @@
     # Nixpkgs configuration
     nixpkgs = {
       overlays = [
-        self.overlays.stable-packages
+        self.overlays.stable-pkgs
         inputs.nur.overlays.default
       ];
       config.allowUnfree = true;
@@ -57,11 +61,11 @@
 
     # Home-Manager configuration for the user's home environment
     home = {
-      # username = "${userConfig.name}";
-      # homeDirectory =
-      # if pkgs.stdenv.isDarwin
-      # then "/Users/${userConfig.name}"
-      # else "/home/${userConfig.name}";
+      username = "${userConfig.name}";
+      homeDirectory =
+        if pkgs.pkgs.stdenv.isDarwin
+        then "/Users/${userConfig.name}"
+        else "/home/${userConfig.name}";
     };
 
     # Ensure common packages are installed
@@ -76,22 +80,22 @@
         eza
         fd
         jq
-        kubectl
+        # kubectl
         lazydocker
-        nh
-        openconnect
+        # nh
+        # openconnect
         pipenv
         python3
         ripgrep
         # terraform
       ]
-      ++ lib.optionals stdenv.isDarwin [
-        colima
-        docker
-        hidden-bar
-        raycast
+      ++ lib.optionals pkgs.stdenv.isDarwin [
+        # colima
+        # docker
+        # hidden-bar
+        # raycast
       ]
-      ++ lib.optionals (!stdenv.isDarwin) [
+      ++ lib.optionals (!pkgs.stdenv.isDarwin) [
         pavucontrol
         tesseract
         unzip

@@ -203,6 +203,7 @@
             bash
             */
             ''
+              # shellcheck disable=all
               # shellcheck disable=SC1089,1073,1009
               until "${pkgs.host}/bin/host" nalgor.net; do
                 sleep 1
@@ -384,11 +385,32 @@ in {
   flake.homeConfigurations = withSystem system (
     {pkgs, ...}:
       builtins.listToAttrs (
-        map ({name, ...}: {
+        map ({
+          name,
+          value,
+        }: {
           name = "${name}@${hostname}";
-          value = inputs.home-manager.lib.homeManagerConfiguration {
-            inherit pkgs;
-          };
+          value = inputs.home-manager.lib.homeManagerConfiguration ({
+              inherit pkgs;
+            }
+            // (
+              lib.zipAttrsWith (
+                n: v:
+                  if builtins.isList (builtins.head v)
+                  then builtins.concatLists v
+                  else lib.last v
+              ) [
+                {
+                  modules = [
+                    {
+                      programs.home-manager.enable = true;
+                      home.stateVersion = "25.05";
+                    }
+                  ];
+                }
+                (value pkgs).home
+              ]
+            ));
         })
         (
           lib.attrsToList
