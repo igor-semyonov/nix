@@ -9,6 +9,21 @@
     config,
     ...
   }: {
+    imports = with self.nixosModules; [
+      programs-tts
+      programs-journal
+      programs-firefox
+      programs-nvim
+      programs-thunderbird
+      scripts
+
+      ai
+      btrbk
+      virt
+      nas
+      console-fonts
+      fonts
+    ];
     # Nixpkgs configuration
     nixpkgs = {
       overlays = [

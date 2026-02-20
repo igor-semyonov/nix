@@ -11,7 +11,6 @@
   includedUsers = ["igor"];
   groups = {"i2c" = {};};
   modules = with self.nixosModules; [
-    inputs.home-manager.nixosModules.home-manager
     common
 
     kde
@@ -19,22 +18,10 @@
 
     programs-steam
     programs-prism-launcher
-    programs-tts
-    programs-journal
-    programs-firefox
-    programs-nvim
-    programs-thunderbird
-    scripts
 
-    ai
-    btrbk
     nix-ld
-    virt
     uxplay
-    nas
     u2f
-    console-fonts
-    fonts
     sound-fiio-k9
 
     inputs.hardware.nixosModules.common-cpu-amd-zenpower
