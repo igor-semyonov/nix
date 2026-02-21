@@ -3,50 +3,12 @@
   self,
   ...
 }: {
+  imports = [inputs.home-manager.flakeModules.home-manager];
   flake.homeModules.common = {
     pkgs,
     userConfig,
     ...
   }: {
-    # imports = [
-    #   ../misc/qt
-    #   ../misc/gtk
-    #   ../misc/xdg
-    #   ../programs/alacritty
-    #   ../programs/kitty
-    #   ../programs/bash
-    #   ../programs/bat
-    #   ../programs/vivaldi
-    #   ../programs/brave
-    #   ../programs/firefox
-    #   ../programs/matplotlib
-    #   # ../programs/btop
-    #   ../programs/fastfetch
-    #   # ../programs/fzf
-    #   # ../programs/git
-    #   # ../programs/go
-    #   ../programs/gpg
-    #   ../programs/ssh
-    #   # ../programs/k9s
-    #   # ../programs/krew
-    #   # ../programs/lazygit
-    #   # ../programs/neovim
-    #   # ../programs/obs-studio
-    #   # ../programs/saml2aws
-    #   ../programs/starship
-    #   # ../programs/telegram
-    #   ../programs/tmux
-    #   # ../programs/ulauncher
-    #   # ../programs/zsh
-    #   # ../programs/zoxide
-    #   # ../scripts
-    #   ../services/flatpak
-    #   ../services/xresources
-    #   ../programs/rustfmt
-    #   ../programs/clang-format
-    #   ../programs/easyeffects
-    # ];
-
     # Nixpkgs configuration
     nixpkgs = {
       overlays = [

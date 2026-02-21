@@ -42,6 +42,32 @@
           };
           modules = with self.homeModules; [
             common
+            qt
+            gtk
+            xdg
+            alacritty
+            kitty
+            bash
+            bat
+            vivaldi
+            brave
+            firefox
+            matplotlib
+            fastfetch
+            gpg
+            ssh
+            starship
+            tmux
+            flatpak
+            xresources
+            rustfmt
+            clang-format
+            easyeffects
+            btop
+            fzf
+
+            git
+            # zoxide
           ];
         };
       };
