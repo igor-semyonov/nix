@@ -29,7 +29,7 @@
     # inputs.hardware.nixosModules.common-gpu-nvidia
     inputs.hardware.nixosModules.common-pc-ssd
     (
-      {pkgs, ...}: {
+      {pkgs,config, ...}: {
         nix.settings = {
           download-buffer-size = 48 * 1024 * 1024 * 1024;
           cores = 32;
@@ -76,6 +76,7 @@
             enable = true;
           };
           nvidia = {
+            package = config.boot.kernelPackages.nvidiaPackages.latest;
             open = true;
             modesetting.enable = true;
             powerManagement = {
@@ -83,10 +84,6 @@
               finegrained = false;
             };
             nvidiaSettings = true;
-            # prime.offload = {
-            #   enable = false;
-            #   enableOffloadCmd = false;
-            # };
           };
           nvidia-container-toolkit.enable = true;
         };
