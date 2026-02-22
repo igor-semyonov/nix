@@ -41,6 +41,7 @@
             nccl
             libcusparse_lt
             libnvshmem
+            libcufile
           ]);
       };
     };
