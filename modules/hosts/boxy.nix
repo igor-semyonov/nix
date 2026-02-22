@@ -1,10 +1,9 @@
 {
-  withSystem,
   buildNixos,
+  buildHome,
   inputs,
   self,
   config,
-  lib,
   ...
 }: let
   ns = config.namespace-specifier;
@@ -80,7 +79,7 @@
             open = true;
             modesetting.enable = true;
             powerManagement = {
-              enable = true;
+              enable = false;
               finegrained = false;
             };
             nvidiaSettings = true;
@@ -382,40 +381,7 @@ in {
   flake.nixosConfigurations.${hostname} = buildNixos {
     inherit system hostname includedUsers groups hardware-configuration modules;
   };
-  flake.homeConfigurations = withSystem system (
-    {pkgs, ...}:
-      builtins.listToAttrs (
-        map ({
-          name,
-          value,
-        }: {
-          name = "${name}@${hostname}";
-          value = inputs.home-manager.lib.homeManagerConfiguration ({
-              inherit pkgs;
-            }
-            // (
-              lib.zipAttrsWith (
-                n: v:
-                  if builtins.isList (builtins.head v)
-                  then builtins.concatLists v
-                  else lib.last v
-              ) [
-                {
-                  modules = [
-                    {
-                      programs.home-manager.enable = true;
-                      home.stateVersion = "25.05";
-                    }
-                  ];
-                }
-                (value pkgs).home
-              ]
-            ));
-        })
-        (
-          lib.attrsToList
-          (lib.filterAttrs (n: v: lib.elem n includedUsers) config.users)
-        )
-      )
-  );
+  flake.homeConfigurations = buildHome {
+    inherit hostname system includedUsers;
+  };
 }
