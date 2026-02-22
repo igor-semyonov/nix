@@ -94,7 +94,7 @@
         };
 
         boot.binfmt.emulatedSystems = ["aarch64-linux"];
-        nix.trustedUsers = [userConfig.name];
+        nix.trustedUsers = ["igor"];
 
         system.stateVersion = "25.05";
       }
