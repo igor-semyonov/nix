@@ -42,6 +42,9 @@
           };
           modules = with self.homeModules; [
             common
+            kde
+            hyprland
+
             qt
             gtk
             xdg
