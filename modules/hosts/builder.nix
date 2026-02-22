@@ -13,6 +13,7 @@
     modules ? [],
     hardware-configuration ? {},
     groups ? {},
+    nixosHomeManagerModule ? false,
   }:
     inputs.nixpkgs.lib.nixosSystem {
       inherit system;
@@ -30,7 +31,23 @@
             }
           )
           hardware-configuration
-        ];
+        ]
+        ++ lib.optional nixosHomeManagerModule
+        (
+          {pkgs, ...}: {
+            imports = [inputs.home-manager.nixosModules.home-manager];
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              backupFileExtension = "bak";
+              users =
+                lib.mapAttrs (n: v: {
+                  imports = (v pkgs).home.modules;
+                })
+                (lib.filterAttrs (n: v: lib.elem n includedUsers) config.users);
+            };
+          }
+        );
     };
 
   _module.args.buildHome = {
@@ -42,10 +59,9 @@
       {pkgs, ...}:
         builtins.listToAttrs (
           map ({
-            name,
             value,
           }: {
-            name = "${( value pkgs).home.extraSpecialArgs.userConfig.name}@${hostname}";
+            name = "${(value pkgs).name}@${hostname}";
             value = inputs.home-manager.lib.homeManagerConfiguration ({
                 inherit pkgs;
               }

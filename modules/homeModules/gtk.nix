@@ -1,6 +1,6 @@
 {...}: {
   flake.homeModules.gtk = {
-    userConfig,
+    config,
     pkgs,
     ...
   }: let
@@ -23,15 +23,15 @@
       iconTheme = iconTheme;
     };
     bookmarks = [
-      "file:///home/${userConfig.name}/Documents"
-      "file:///home/${userConfig.name}/Downloads"
-      "file:///home/${userConfig.name}/nalgor"
-      "file:///home/${userConfig.name}/db"
-      "file:///home/${userConfig.name}/code"
-      # "file:///home/${userConfig.name}/Pictures"
-      # "file:///home/${userConfig.name}/Videos"
-      # "file:///home/${userConfig.name}/Downloads/temp"
-      # "file:///home/${userConfig.name}/Documents/repositories"
+      "file:///home/${config.userConfig.name}/Documents"
+      "file:///home/${config.userConfig.name}/Downloads"
+      "file:///home/${config.userConfig.name}/nalgor"
+      "file:///home/${config.userConfig.name}/db"
+      "file:///home/${config.userConfig.name}/code"
+      # "file:///home/${config.userConfig.name}/Pictures"
+      # "file:///home/${config.userConfig.name}/Videos"
+      # "file:///home/${config.userConfig.name}/Downloads/temp"
+      # "file:///home/${config.userConfig.name}/Documents/repositories"
     ];
   in {
     # GTK theme configuration

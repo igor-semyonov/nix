@@ -6,9 +6,10 @@
   imports = [inputs.home-manager.flakeModules.home-manager];
   flake.homeModules.common = {
     pkgs,
-    userConfig,
+    config,
     ...
   }: {
+    imports = [self.homeModules.users];
     # Nixpkgs configuration
     nixpkgs = {
       overlays = [
@@ -23,11 +24,11 @@
 
     # Home-Manager configuration for the user's home environment
     home = {
-      username = "${userConfig.name}";
+      username = config.userConfig.name;
       homeDirectory =
         if pkgs.pkgs.stdenv.isDarwin
-        then "/Users/${userConfig.name}"
-        else "/home/${userConfig.name}";
+        then "/Users/${config.userConfig.name}"
+        else "/home/${config.userConfig.name}";
     };
 
     # Ensure common packages are installed

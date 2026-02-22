@@ -5,9 +5,10 @@
 }: {
   config = {
     users = {
-      igor = pkgs: {
+      igor = pkgs: rec {
+        name = "igor";
         nixos = {
-          name = "igor";
+          name = name;
           isNormalUser = true;
           description = "Igor Semyonov";
           extraGroups = [
@@ -33,15 +34,15 @@
           ];
         };
         home = {
-          extraSpecialArgs = {
-            userConfig = {
-              name = "igor";
-              email = "igor@semyonov.xyz";
-              fullName = "Igor Semyonov";
-              gitKey = "C2E5A3AAF5F754F0";
-            };
-          };
           modules = with self.homeModules; [
+            {
+              userConfig = {
+                name = name;
+                email = "igor@semyonov.xyz";
+                fullName = "Igor Semyonov";
+                gitKey = "C2E5A3AAF5F754F0";
+              };
+            }
             common
             kde
             hyprland
@@ -75,9 +76,10 @@
           ];
         };
       };
-      igor-work = pkgs: {
+      igor-work = pkgs: rec {
+        name = "igor";
         nixos = {
-          name = "igor";
+          name = name;
           isNormalUser = true;
           description = "Igor Semyonov";
           extraGroups = [
@@ -103,15 +105,87 @@
           ];
         };
         home = {
-          extraSpecialArgs = {
-            userConfig = {
-              name = "igor";
-              email = "igor.semyonov.civ@army.mil";
-              fullName = "Igor Semyonov";
-              gitKey = "021B681D5415F152";
-            };
-          };
           modules = with self.homeModules; [
+            {
+              userConfig = {
+                name = name;
+                email = "igor.semyonov.civ@army.mil";
+                fullName = "Igor Semyonov";
+                gitKey = "021B681D5415F152";
+              };
+            }
+            common
+            kde
+            # hyprland
+
+            qt
+            gtk
+            xdg
+            alacritty
+            kitty
+            bash
+            bat
+            vivaldi
+            brave
+            firefox
+            matplotlib
+            fastfetch
+            gpg
+            ssh
+            starship
+            tmux
+            flatpak
+            xresources
+            rustfmt
+            clang-format
+            easyeffects
+            btop
+            fzf
+
+            git
+            # zoxide
+          ];
+        };
+      };
+      igor-leto = pkgs: rec {
+        name = "igor";
+        nixos = {
+          name = name;
+          isNormalUser = true;
+          description = "Igor Semyonov";
+          extraGroups = [
+            "networkmanager"
+            "wheel"
+            "docker"
+            "i2c"
+          ];
+          packages = with pkgs; [
+            gh
+            pass
+            dropbox
+            dropbox-cli
+            cryptomator
+            zoxide
+            python313
+            unzip
+            starship
+            ripgrep
+            stable.wl-clipboard
+            vivaldi
+            vivaldi-ffmpeg-codecs
+          ];
+        };
+        home = {
+          modules = with self.homeModules; [
+            {
+              userConfig = {
+                name = name;
+                email = "igor.semyonov.civ@army.mil";
+                fullName = "Igor Semyonov";
+                gitKey = "021B681D5415F152";
+              };
+              home.stateVersion = "25.11";
+            }
             common
             kde
             # hyprland
@@ -172,6 +246,27 @@
       lib.mapAttrs (n: v: (v pkgs).nixos)
       users
     );
+
+    flake.homeModules.users = {
+      options.userConfig = {
+        name = lib.mkOption {
+          type = lib.types.singleLineStr;
+          description = "Username";
+        };
+        fullName = lib.mkOption {
+          type = lib.types.singleLineStr;
+          description = "Long prettyprintable name";
+        };
+        email = lib.mkOption {
+          type = lib.types.singleLineStr;
+          description = "User email address";
+        };
+        gitKey = lib.mkOption {
+          type = lib.types.singleLineStr;
+          description = "GPG key id for git signing.";
+        };
+      };
+    };
   };
 
   options = let
@@ -205,6 +300,10 @@
     # };
     userModule = lib.types.submodule {
       options = {
+        name = lib.mkOption {
+          type = lib.types.singleLineStr ;
+          description = "The username for this user";
+        };
         nixos = lib.mkOption {
           description = "Nixos user options";
           # type = lib.types.attrsOf userNixosModule;

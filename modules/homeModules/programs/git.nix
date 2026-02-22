@@ -1,17 +1,17 @@
 {...}: {
-  flake.homeModules.git = {userConfig, ...}: {
+  flake.homeModules.git = {config, ...}: {
     programs = {
       git = {
         enable = true;
         settings = {
           user = {
-            name = userConfig.fullName;
-            email = userConfig.email;
+            name = config.userConfig.fullName;
+            email = config.userConfig.email;
           };
           pull.rebase = "true";
         };
         signing = {
-          key = userConfig.gitKey;
+          key = config.userConfig.gitKey;
           signByDefault = true;
         };
       };
