@@ -48,7 +48,7 @@
         # })
 
         plasmusic-toolbar
-        kde-rounded-corners
+        # kde-rounded-corners
         kdePackages.kcalc
         # kdePackages.krohnkite
         # kdotool
