@@ -7,6 +7,7 @@
     users = {
       igor = pkgs: {
         nixos = {
+          name = "igor";
           isNormalUser = true;
           description = "Igor Semyonov";
           extraGroups = [
@@ -34,10 +35,10 @@
         home = {
           extraSpecialArgs = {
             userConfig = {
+              name = "igor";
               email = "igor@semyonov.xyz";
               fullName = "Igor Semyonov";
-              # gitKey = "C56C6E528F5A18A69B03FC721783BE487E6885DD";
-              name = "igor";
+              gitKey = "C2E5A3AAF5F754F0";
             };
           };
           modules = with self.homeModules; [
@@ -74,6 +75,97 @@
           ];
         };
       };
+      igor-work = pkgs: {
+        nixos = {
+          name = "igor";
+          isNormalUser = true;
+          description = "Igor Semyonov";
+          extraGroups = [
+            "networkmanager"
+            "wheel"
+            "docker"
+            "i2c"
+          ];
+          packages = with pkgs; [
+            gh
+            pass
+            dropbox
+            dropbox-cli
+            cryptomator
+            zoxide
+            python313
+            unzip
+            starship
+            ripgrep
+            stable.wl-clipboard
+            vivaldi
+            vivaldi-ffmpeg-codecs
+          ];
+        };
+        home = {
+          extraSpecialArgs = {
+            userConfig = {
+              name = "igor";
+              email = "igor.semyonov.civ@army.mil";
+              fullName = "Igor Semyonov";
+              gitKey = "021B681D5415F152";
+            };
+          };
+          modules = with self.homeModules; [
+            common
+            kde
+            # hyprland
+
+            qt
+            gtk
+            xdg
+            alacritty
+            kitty
+            bash
+            bat
+            vivaldi
+            brave
+            firefox
+            matplotlib
+            fastfetch
+            gpg
+            ssh
+            starship
+            tmux
+            flatpak
+            xresources
+            rustfmt
+            clang-format
+            easyeffects
+            btop
+            fzf
+
+            git
+            # zoxide
+          ];
+        };
+      };
+      # igor-work = let
+      #   extraSpecialArgs =
+      #     lib.zipAttrsWith (n: v:
+      #       if n == "userConfig"
+      #       then (lib.head v) // (lib.last v)
+      #       else lib.head v)
+      #     [
+      #       igor.home.extraSpecialArgs.userConfig
+      #       {
+      #         email = "igor.semyonov.civ@army.mil";
+      #         gitKey = "021B681D5415F152";
+      #       }
+      #     ];
+      #   home = lib.zipAttrsWith (n: v:
+      #     if n == "extraSpecialArgs"
+      #     then lib.last v
+      #     else lib.head v) [igor.home {inherit extraSpecialArgs;}];
+      # in {
+      #   inherit (igor) nixos;
+      #   inherit home;
+      # };
     };
 
     _module.args.usersToNixos = pkgs: users: (
@@ -83,34 +175,34 @@
   };
 
   options = let
-    userNixosModule = lib.types.submodule {
-      options = {
-        description = lib.mkOption {
-          type = lib.types.singleLineStr;
-          description = "Description, often times full nname";
-          default = "";
-        };
-        extraGroups = lib.mkOption {
-          type = lib.types.listOf lib.types.singleLineStr;
-          description = "Groups to which the user will be added";
-          default = [];
-        };
-        isNormalUser = lib.mkOption {
-          type = lib.types.bool;
-          description = "Is normal user";
-          default = true;
-        };
-        shell = lib.mkOption {
-          type = lib.types.package;
-          description = "User's shell";
-        };
-        packages = lib.mkOption {
-          type = lib.types.listOf lib.types.package;
-          description = "List of packages to be installed, not using home manager.";
-          default = [];
-        };
-      };
-    };
+    # userNixosModule = lib.types.submodule {
+    #   options = {
+    #     description = lib.mkOption {
+    #       type = lib.types.singleLineStr;
+    #       description = "Description, often times full nname";
+    #       default = "";
+    #     };
+    #     extraGroups = lib.mkOption {
+    #       type = lib.types.listOf lib.types.singleLineStr;
+    #       description = "Groups to which the user will be added";
+    #       default = [];
+    #     };
+    #     isNormalUser = lib.mkOption {
+    #       type = lib.types.bool;
+    #       description = "Is normal user";
+    #       default = true;
+    #     };
+    #     shell = lib.mkOption {
+    #       type = lib.types.package;
+    #       description = "User's shell";
+    #     };
+    #     packages = lib.mkOption {
+    #       type = lib.types.listOf lib.types.package;
+    #       description = "List of packages to be installed, not using home manager.";
+    #       default = [];
+    #     };
+    #   };
+    # };
     userModule = lib.types.submodule {
       options = {
         nixos = lib.mkOption {
