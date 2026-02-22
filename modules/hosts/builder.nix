@@ -45,7 +45,7 @@
             name,
             value,
           }: {
-            name = "${name}@${hostname}";
+            name = "${( value pkgs).home.extraSpecialArgs.userConfig.name}@${hostname}";
             value = inputs.home-manager.lib.homeManagerConfiguration ({
                 inherit pkgs;
               }
