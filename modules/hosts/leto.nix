@@ -1,7 +1,5 @@
 {
-  config,
   buildNixos,
-  buildHome,
   inputs,
   self,
   lib,

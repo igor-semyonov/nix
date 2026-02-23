@@ -1,4 +1,8 @@
-{config, ...}: {
+{
+  config,
+  filterUsers,
+  ...
+}: {
   flake.nixosModules.programs-steam = {
     pkgs,
     lib,
@@ -27,6 +31,6 @@
         protonup-qt
         mangohud
       ];
-    }) (lib.filterAttrs (n: v: lib.elem n includedUsers) config.users);
+    }) (filterUsers config.users includedUsers);
   };
 }

@@ -4,6 +4,7 @@
   lib,
   config,
   usersToNixos,
+  filterUsers,
   ...
 }: {
   _module.args.buildNixos = {
@@ -25,7 +26,7 @@
             {pkgs, ...}: {
               networking.hostName = hostname;
               users = {
-                users = usersToNixos pkgs (lib.filterAttrs (n: v: lib.elem n includedUsers) config.users);
+                users = usersToNixos pkgs hostname (filterUsers config.users includedUsers);
                 groups = groups;
               };
             }
@@ -42,9 +43,9 @@
               backupFileExtension = "bak";
               users =
                 lib.mapAttrs (n: v: {
-                  imports = (v pkgs).home.modules;
+                  imports = (v pkgs hostname).home.modules;
                 })
-                (lib.filterAttrs (n: v: lib.elem n includedUsers) config.users);
+                (filterUsers config.users includedUsers);
             };
           }
         );
@@ -58,10 +59,8 @@
     withSystem system (
       {pkgs, ...}:
         builtins.listToAttrs (
-          map ({
-            value,
-          }: {
-            name = "${(value pkgs).name}@${hostname}";
+          map ({value, ...}: {
+            name = "${(value pkgs hostname).nixos.name}@${hostname}";
             value = inputs.home-manager.lib.homeManagerConfiguration ({
                 inherit pkgs;
               }
@@ -80,13 +79,13 @@
                       }
                     ];
                   }
-                  (value pkgs).home
+                  (value pkgs hostname).home
                 ]
               ));
           })
           (
             lib.attrsToList
-            (lib.filterAttrs (n: v: lib.elem n includedUsers) config.users)
+            (filterUsers config.users includedUsers)
           )
         )
     );

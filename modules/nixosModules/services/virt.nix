@@ -1,4 +1,8 @@
-{config, ...}: let
+{
+  config,
+  filterUsers,
+  ...
+}: let
   ns = config.namespace-specifier;
   users = config.users;
 in {
@@ -21,7 +25,7 @@ in {
       spiceUSBRedirection.enable = lib.mkEnableOption "Enable spice usb redirection";
     };
     config = lib.mkIf cfg.enable {
-      users.users = lib.mapAttrs (n: v: {extraGroups = ["kvm" "libvirtd"];}) (lib.filterAttrs (n: v: lib.elem n includedUsers) users);
+      users.users = lib.mapAttrs (n: v: {extraGroups = ["kvm" "libvirtd"];}) (filterUsers users includedUsers);
       virtualisation = {
         libvirtd = {
           enable = true;

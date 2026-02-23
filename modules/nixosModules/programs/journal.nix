@@ -1,6 +1,7 @@
 {
   inputs,
   config,
+  filterUsers,
   ...
 }: {
   flake.nixosModules.programs-journal = {
@@ -32,6 +33,6 @@
       '';
     };
   in {
-    users.users = lib.mapAttrs (n: v: {packages = [journal];}) (lib.filterAttrs (n: v: lib.elem n includedUsers) config.users);
+    users.users = lib.mapAttrs (n: v: {packages = [journal];}) (filterUsers config.users includedUsers);
   };
 }

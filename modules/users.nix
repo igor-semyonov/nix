@@ -1,251 +1,191 @@
 {
   self,
   lib,
+  config,
   ...
-}: {
+}: let
+  ns = config.namespace-specifier;
+in {
   config = {
     users = {
-      igor = pkgs: rec {
+      igor = let
         name = "igor";
-        nixos = {
-          name = name;
-          isNormalUser = true;
-          description = "Igor Semyonov";
-          extraGroups = [
-            "networkmanager"
-            "wheel"
-            "docker"
-            "i2c"
-          ];
-          packages = with pkgs; [
-            gh
-            pass
-            dropbox
-            dropbox-cli
-            cryptomator
-            zoxide
-            python313
-            unzip
-            starship
-            ripgrep
-            stable.wl-clipboard
-            vivaldi
-            vivaldi-ffmpeg-codecs
-          ];
+        fullName = "igor Semyonov";
+        email = hostname:
+          if hostname == "tavore"
+          then "igor.semyonov.civ@army.mil"
+          else "igor@semyonov.xyz";
+        gitKeys = {
+          boxy = "C2E5A3AAF5F754F0";
+          tavore = "021B681D5415F152";
+          leto = "place-holder";
         };
-        home = {
-          modules = with self.homeModules; [
-            {
-              userConfig = {
-                name = name;
-                email = "igor@semyonov.xyz";
-                fullName = "Igor Semyonov";
-                gitKey = "C2E5A3AAF5F754F0";
-              };
-            }
-            common
-            kde
-            hyprland
-
-            qt
-            gtk
-            xdg
-            alacritty
-            kitty
-            bash
-            bat
-            vivaldi
-            brave
-            firefox
-            matplotlib
-            fastfetch
-            gpg
-            ssh
-            starship
-            tmux
-            flatpak
-            xresources
-            rustfmt
-            clang-format
-            easyeffects
-            btop
-            fzf
-
-            git
-            # zoxide
-          ];
+        homeStateVersion = {
+          boxy = "25.05";
+          tavore = "25.05";
+          leto = "25.11";
         };
-      };
-      igor-work = pkgs: rec {
-        name = "igor";
-        nixos = {
-          name = name;
-          isNormalUser = true;
-          description = "Igor Semyonov";
-          extraGroups = [
-            "networkmanager"
-            "wheel"
-            "docker"
-            "i2c"
-          ];
-          packages = with pkgs; [
-            gh
-            pass
-            dropbox
-            dropbox-cli
-            cryptomator
-            zoxide
-            python313
-            unzip
-            starship
-            ripgrep
-            stable.wl-clipboard
-            vivaldi
-            vivaldi-ffmpeg-codecs
-          ];
-        };
-        home = {
-          modules = with self.homeModules; [
-            {
-              userConfig = {
-                name = name;
-                email = "igor.semyonov.civ@army.mil";
-                fullName = "Igor Semyonov";
-                gitKey = "021B681D5415F152";
-              };
-            }
-            common
-            kde
-            # hyprland
+      in
+        pkgs: hostname: {
+          nixos = {
+            name = name;
+            isNormalUser = true;
+            description = fullName;
+            extraGroups = [
+              "networkmanager"
+              "wheel"
+              "docker"
+              "i2c"
+            ];
+            packages = with pkgs; [
+              gh
+              pass
+              dropbox
+              dropbox-cli
+              cryptomator
+              zoxide
+              python313
+              unzip
+              starship
+              ripgrep
+              stable.wl-clipboard
+              vivaldi
+              vivaldi-ffmpeg-codecs
+            ];
+          };
+          home = {
+            modules = with self.homeModules;
+              [
+                {
+                  userConfig = {
+                    name = name;
+                    email = email hostname;
+                    fullName = fullName;
+                    gitKey = gitKeys.${hostname};
+                  };
+                  home.stateVersion = homeStateVersion.${hostname};
+                }
+                common
 
-            qt
-            gtk
-            xdg
-            alacritty
-            kitty
-            bash
-            bat
-            vivaldi
-            brave
-            firefox
-            matplotlib
-            fastfetch
-            gpg
-            ssh
-            starship
-            tmux
-            flatpak
-            xresources
-            rustfmt
-            clang-format
-            easyeffects
-            btop
-            fzf
+                alacritty
+                kitty
+                bash
+                bat
+                vivaldi
+                brave
+                firefox
+                matplotlib
+                fastfetch
+                gpg
+                ssh
+                starship
+                tmux
+                xresources
+                rustfmt
+                clang-format
+                btop
+                fzf
 
-            git
-            # zoxide
-          ];
-        };
-      };
-      igor-leto = pkgs: rec {
-        name = "igor";
-        nixos = {
-          name = name;
-          isNormalUser = true;
-          description = "Igor Semyonov";
-          extraGroups = [
-            "networkmanager"
-            "wheel"
-            "docker"
-            "i2c"
-          ];
-          packages = with pkgs; [
-            gh
-            pass
-            dropbox
-            dropbox-cli
-            cryptomator
-            zoxide
-            python313
-            unzip
-            starship
-            ripgrep
-            stable.wl-clipboard
-            vivaldi
-            vivaldi-ffmpeg-codecs
-          ];
-        };
-        home = {
-          modules = with self.homeModules; [
-            {
-              userConfig = {
-                name = name;
-                email = "igor.semyonov.civ@army.mil";
-                fullName = "Igor Semyonov";
-                gitKey = "021B681D5415F152";
-              };
-              home.stateVersion = "25.11";
-            }
-            common
-            kde
-            # hyprland
+                git
+                # zoxide
+              ]
+              ++ lib.optionals pkgs.stdenv.isLinux [
+                kde
+                hyprland
 
-            qt
-            gtk
-            xdg
-            alacritty
-            kitty
-            bash
-            bat
-            vivaldi
-            brave
-            firefox
-            matplotlib
-            fastfetch
-            gpg
-            ssh
-            starship
-            tmux
-            flatpak
-            xresources
-            rustfmt
-            clang-format
-            easyeffects
-            btop
-            fzf
-
-            git
-            # zoxide
-          ];
+                qt
+                gtk
+                xdg
+                flatpak
+                {
+                  ${ns}.flatpak.packages = [
+                    # "org.libreoffice.LibreOffice" # switched to nixpkgs version for better qt support
+                    "com.obsproject.Studio"
+                    # "org.prismlauncher.PrismLauncher"
+                    "com.discordapp.Discord"
+                  ];
+                }
+                easyeffects
+              ];
+          };
         };
-      };
-      # igor-work = let
-      #   extraSpecialArgs =
-      #     lib.zipAttrsWith (n: v:
-      #       if n == "userConfig"
-      #       then (lib.head v) // (lib.last v)
-      #       else lib.head v)
-      #     [
-      #       igor.home.extraSpecialArgs.userConfig
-      #       {
-      #         email = "igor.semyonov.civ@army.mil";
-      #         gitKey = "021B681D5415F152";
-      #       }
-      #     ];
-      #   home = lib.zipAttrsWith (n: v:
-      #     if n == "extraSpecialArgs"
-      #     then lib.last v
-      #     else lib.head v) [igor.home {inherit extraSpecialArgs;}];
-      # in {
-      #   inherit (igor) nixos;
-      #   inherit home;
-      # };
+      kaladin = let
+        name = "kaladin";
+        fullName = "Kaladin (the red From) Semyonov";
+        homeStateVersion = {
+          leto = "25.11";
+        };
+      in
+        pkgs: hostname: {
+          nixos = {
+            name = name;
+            isNormalUser = true;
+            description = fullName;
+            extraGroups = [
+              "networkmanager"
+            ];
+            packages = with pkgs; [
+              pass
+              dropbox
+              python313
+              unzip
+              ripgrep
+              stable.wl-clipboard
+              vivaldi
+              vivaldi-ffmpeg-codecs
+            ];
+          };
+          home = {
+            modules = with self.homeModules;
+              [
+                {
+                  userConfig = {
+                    name = name;
+                    fullName = fullName;
+                  };
+                  home.stateVersion = homeStateVersion.${hostname};
+                }
+                common
+
+                alacritty
+                bash
+                starship
+                bat
+                fastfetch
+              ]
+              ++ lib.optionals pkgs.stdenv.isLinux [
+                # kde
+                # hyprland
+
+                # qt
+                # gtk
+                # xdg
+                # easyeffects
+                flatpak
+                {
+                  ${ns}.flatpak.packages = [
+                    "org.kde.gcompris"
+                    "org.kde.ktuberling"
+                    "org.tuxpaint.Tuxpaint"
+                    "net.supertuxkart.SuperTuxKart"
+                    "org.supertuxproject.SuperTux"
+                    "party.supertux.supertuxparty"
+                    "io.github.retux_game.retux"
+                    "com.tux4kids.tuxmath"
+                    "com.tux4kids.tuxtype"
+                  ];
+                  services.flatpak.uninstallUnmanaged = lib.mkForce false;
+                }
+              ];
+          };
+        };
     };
 
-    _module.args.usersToNixos = pkgs: users: (
-      lib.mapAttrs (n: v: (v pkgs).nixos)
+    _module.args.usersToNixos = pkgs: hostname: users: (
+      lib.mapAttrs (n: v: (v pkgs hostname).nixos)
       users
     );
+    _module.args.filterUsers = users: includedUsers: (lib.filterAttrs (n: v: lib.elem n includedUsers) users);
 
     flake.homeModules.users = {
       options.userConfig = {
@@ -300,10 +240,10 @@
     # };
     userModule = lib.types.submodule {
       options = {
-        name = lib.mkOption {
-          type = lib.types.singleLineStr ;
-          description = "The username for this user";
-        };
+        # name = lib.mkOption {
+        #   type = lib.types.singleLineStr;
+        #   description = "The username for this user";
+        # };
         nixos = lib.mkOption {
           description = "Nixos user options";
           # type = lib.types.attrsOf userNixosModule;
@@ -320,7 +260,7 @@
     users = lib.mkOption {
       default = {};
       description = "Users";
-      type = lib.types.attrsOf (lib.types.functionTo userModule);
+      type = lib.types.attrsOf (lib.types.functionTo (lib.types.functionTo userModule));
     };
   };
 }
