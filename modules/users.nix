@@ -85,7 +85,7 @@ in {
                 clang-format
                 btop
                 fzf
-
+                mpv
                 git
                 # zoxide
               ]
