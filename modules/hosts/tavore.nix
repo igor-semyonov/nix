@@ -9,7 +9,7 @@
   ns = config.namespace-specifier;
   hostname = "tavore";
   system = "x86_64-linux";
-  includedUsers = ["igor-work"];
+  includedUsers = ["igor"];
   groups = {"i2c" = {};};
   modules = with self.nixosModules; [
     common
