@@ -18,7 +18,7 @@ in {
         gitKeys = {
           boxy = "C2E5A3AAF5F754F0";
           tavore = "021B681D5415F152";
-          leto = "place-holder";
+          leto = "EA59146CF56DCC27";
         };
         homeStateVersion = {
           boxy = "25.05";
