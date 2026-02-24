@@ -1,8 +1,5 @@
 {...}: {
-  flake.homeModules.firefox = {
-    pkgs,
-    ...
-  }: {
+  flake.homeModules.firefox = {pkgs, ...}: {
     programs.firefox = {
       enable = true;
       profiles = {
@@ -11,6 +8,7 @@
           name = "default";
           isDefault = true;
           settings = {
+            "gfx.wayland.hdr" = true;
             "browser.startup.homepage" = "https://google.com";
             "browser.search.defaultenginename" = "google";
             "browser.search.order.1" = "google";
