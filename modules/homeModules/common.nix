@@ -10,14 +10,6 @@
     ...
   }: {
     imports = [self.homeModules.users];
-    # Nixpkgs configuration
-    nixpkgs = {
-      overlays = [
-        self.overlays.stable-pkgs
-        inputs.nur.overlays.default
-      ];
-      config.allowUnfree = true;
-    };
 
     # Nicely reload system units when changing configs
     systemd.user.startServices = "sd-switch";

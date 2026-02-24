@@ -1,4 +1,5 @@
 {
+  self,
   inputs,
   withSystem,
   lib,
@@ -78,6 +79,7 @@
                         programs.home-manager.enable = true;
                         home.stateVersion = "25.05";
                       }
+                      self.homeModules.nixpkgs
                     ];
                   }
                   (value pkgs hostname).home
