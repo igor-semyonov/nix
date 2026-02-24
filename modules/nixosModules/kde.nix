@@ -1,4 +1,4 @@
-{self,...}: {
+{self, ...}: {
   flake.nixosModules.kde = {pkgs, ...}: let
     wallpaper = "${self}/assets/wallpaper.jpg";
   in {
