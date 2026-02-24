@@ -12,6 +12,9 @@
   nixosHomeManagerModule = true;
   modules = with self.nixosModules; [
     common
+    secrets
+    wifi
+    {igix.wifi.enable = true;}
 
     kde
 
@@ -71,7 +74,6 @@
         };
 
         networking = {
-          networkmanager.wifi.backend = "iwd";
           wg-quick = {
             interfaces = {
               fidler = {
