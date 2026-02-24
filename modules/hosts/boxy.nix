@@ -12,6 +12,7 @@
   includedUsers = ["igor"];
   groups = {"i2c" = {};};
   modules = with self.nixosModules; [
+    secrets
     common
 
     kde
@@ -29,7 +30,11 @@
     # inputs.hardware.nixosModules.common-gpu-nvidia
     inputs.hardware.nixosModules.common-pc-ssd
     (
-      {pkgs,config, ...}: {
+      {
+        pkgs,
+        config,
+        ...
+      }: {
         nix.settings = {
           download-buffer-size = 48 * 1024 * 1024 * 1024;
           cores = 32;
