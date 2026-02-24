@@ -14,7 +14,12 @@
     common
     secrets
     wifi
-    {igix.wifi.enable = true;}
+    {
+      igix.wifi = {
+        enable = true;
+        key-mgmt = "wpa-psk";
+      };
+    }
 
     kde
 
