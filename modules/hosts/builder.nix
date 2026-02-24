@@ -37,6 +37,7 @@
         (
           {pkgs, ...}: {
             imports = [inputs.home-manager.nixosModules.home-manager];
+            nixpkgs.overlays = [inputs.nur.overlays.default];
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
