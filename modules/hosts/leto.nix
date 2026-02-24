@@ -39,6 +39,8 @@
           max-jobs = 8;
         };
 
+        nix.trustedUsers = includedUsers;
+
         boot = {
           kernelParams = [
             "quiet"
