@@ -326,7 +326,14 @@
           device = "/dev/disk/by-uuid/a11033d4-a88b-4c02-8ba7-9a36ba9c6df8";
           fsType = "btrfs";
           noCheck = true;
-          options = ["subvolid=5"] ++ btrfs-options-hdd;
+          options =
+            [
+              "subvolid=5"
+              "noauto"
+              "x-systemd.automount"
+              # "x-systemd.idle-timeout=10m"
+            ]
+            ++ btrfs-options-hdd;
         };
         "/boot/efi" = {
           device = "/dev/disk/by-uuid/A3CA-824C";
