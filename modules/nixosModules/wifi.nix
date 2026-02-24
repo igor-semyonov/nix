@@ -50,7 +50,7 @@ in {
                 mode = "infrastructure";
               };
               wifi-security = {
-                key-mgmt = cfg.keymgmt; # WPA3
+                key-mgmt = cfg.key-mgmt; # WPA3
 
                 # The $ variable matches the key in the sops template
                 psk = "$WIFI_PSK";
