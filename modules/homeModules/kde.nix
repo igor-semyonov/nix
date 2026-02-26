@@ -174,20 +174,24 @@
           #   vendorId = "046d";
           # }
         ];
-        # touchpads = [
-        #   {
-        #     disableWhileTyping = true;
-        #     enable = true;
-        #     leftHanded = false;
-        #     middleButtonEmulation = true;
-        #     name = "ELAN06A0:00 04F3:3231 Touchpad";
-        #     naturalScroll = true;
-        #     pointerSpeed = 0;
-        #     productId = "3231";
-        #     tapToClick = true;
-        #     vendorId = "04f3";
-        #   }
-        # ];
+        touchpads = [
+          {
+            enable = true;
+            vendorId = "05ac";
+            productId = "0274";
+            name = "Apple Inc. Apple Internal Keyboard / Trackpad";
+            rightClickMethod = "twoFingers";
+            scrollMethod = "twoFingers";
+            disableWhileTyping = true;
+            leftHanded = false;
+            middleButtonEmulation = false;
+            naturalScroll = true;
+            pointerSpeed = 0;
+            tapToClick = true;
+            tapAndDrag = false;
+            tapDragLock = false;
+          }
+        ];
       };
 
       krunner = {
