@@ -1,6 +1,5 @@
 {
-  buildNixos,
-  buildHome,
+  buildNixosAndHomeManager,
   inputs,
   self,
   config,
@@ -11,7 +10,14 @@
   system = "x86_64-linux";
   includedUsers = ["igor"];
   groups = {"i2c" = {};};
-  modules = with self.nixosModules; [
+  homeModules = [
+    {
+      programs.home-manager.enable = true;
+      home.stateVersion = "25.05";
+    }
+    self.homeModules.nixpkgs
+  ];
+  nixosModules = with self.nixosModules; [
     secrets
     common
 
@@ -387,10 +393,15 @@
     }
   );
 in {
-  flake.nixosConfigurations.${hostname} = buildNixos {
-    inherit system hostname includedUsers groups hardware-configuration modules;
-  };
-  flake.homeConfigurations = buildHome {
-    inherit hostname system includedUsers;
+  flake = buildNixosAndHomeManager {
+    inherit
+      system
+      hostname
+      includedUsers
+      groups
+      hardware-configuration
+      nixosModules
+      homeModules
+      ;
   };
 }

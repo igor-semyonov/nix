@@ -1,5 +1,7 @@
 {
   self,
+  buildNixos,
+  buildHome,
   inputs,
   withSystem,
   lib,
@@ -8,11 +10,44 @@
   filterUsers,
   ...
 }: {
+  _module.args.buildNixosAndHomeManager = {
+    hostname,
+    system ? "x86_64-linux",
+    includedUsers ? ["igor"],
+    nixosModules ? [],
+    homeModules ? [],
+    hardware-configuration ? {},
+    groups ? {},
+    nixosHomeManagerModule ? false,
+  }: {
+    nixosConfigurations.${hostname} = buildNixos {
+      inherit
+        system
+        hostname
+        includedUsers
+        nixosModules
+        homeModules
+        hardware-configuration
+        groups
+        nixosHomeManagerModule
+        ;
+    };
+    homeConfigurations = buildHome {
+      inherit
+        system
+        hostname
+        includedUsers
+        homeModules
+        ;
+    };
+  };
+
   _module.args.buildNixos = {
     hostname,
     system ? "x86_64-linux",
     includedUsers ? ["igor"],
-    modules ? [],
+    nixosModules ? [],
+    homeModules ? [],
     hardware-configuration ? {},
     groups ? {},
     nixosHomeManagerModule ? false,
@@ -21,7 +56,7 @@
       inherit system;
       specialArgs = {inherit includedUsers;};
       modules =
-        modules
+        nixosModules
         ++ [
           (
             {pkgs, ...}: {
@@ -45,7 +80,7 @@
               backupFileExtension = "bak";
               users =
                 lib.mapAttrs (n: v: {
-                  imports = (v pkgs hostname).home.modules;
+                  imports = (v pkgs hostname).home.modules ++ homeModules;
                 })
                 (filterUsers config.users includedUsers);
             };
@@ -57,6 +92,7 @@
     hostname,
     system ? "x86_64-linux",
     includedUsers ? ["igor"],
+    homeModules ? [],
   }:
     withSystem system (
       {pkgs, ...}:
@@ -73,15 +109,7 @@
                     then builtins.concatLists v
                     else lib.last v
                 ) [
-                  {
-                    modules = [
-                      {
-                        programs.home-manager.enable = true;
-                        home.stateVersion = "25.05";
-                      }
-                      self.homeModules.nixpkgs
-                    ];
-                  }
+                  {modules = homeModules;}
                   (value pkgs hostname).home
                 ]
               ));
