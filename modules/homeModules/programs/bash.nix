@@ -15,17 +15,16 @@
           function start_agent {
               echo "Initialising new SSH agent..."
               # shellcheck disable=SC1054,1083,1009
-              /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "''${SSH_ENV}"
-              echo succeeded
+              ${pkgs.openssh}/bin/ssh-agent | sed 's/^echo/#echo/' > "''${SSH_ENV}"
               chmod 600 "''${SSH_ENV}"
               # shellcheck disable=SC1073
               source "''${SSH_ENV}" > /dev/null
-              /usr/bin/ssh-add;
+              ${pkgs.openssh}/bin/ssh-add;
+              echo Succeeded!
           }
           # Source SSH settings, if applicable
           if [ -f "''${SSH_ENV}" ]; then
               . "''${SSH_ENV}" > /dev/null
-              #ps ''${SSH_AGENT_PID} doesn't work under cywgin
               ps -ef | grep ''${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
                   start_agent;
               }
