@@ -47,6 +47,7 @@
             "splash"
             "rd.udev.log_level=3"
             "brcmfmac.feature_disable=0x82000"
+            "8250.nr_uarts=0"
           ];
           extraModprobeConfig = ''
             options brcmfmac roamoff=1
