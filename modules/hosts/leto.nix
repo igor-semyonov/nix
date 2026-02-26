@@ -58,6 +58,12 @@
               enable = true;
               # emergencyAccess = true;
             };
+            luks.devices =
+              lib.genAttrs [
+                "luks-4438f2b3-0e46-4942-8896-b8d984265655"
+                "luks-a478d497-5266-483f-b27e-5585b8035dfa"
+              ]
+              (_: {crypttabExtraOpts = ["fido2-device=auto"];});
           };
           loader = {
             efi = {
