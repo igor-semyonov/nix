@@ -10,7 +10,31 @@
   includedUsers = ["igor" "kaladin"];
   groups = {};
   nixosHomeManagerModule = true;
-  modules = with self.nixosModules; [
+  homeModules = [
+    {
+      programs.plasma.inputs = {
+        touchpads = [
+          {
+            enable = true;
+            vendorId = "05ac";
+            productId = "0274";
+            name = "Apple Inc. Apple Internal Keyboard / Trackpad";
+            rightClickMethod = "twoFingers";
+            scrollMethod = "twoFingers";
+            disableWhileTyping = true;
+            leftHanded = false;
+            middleButtonEmulation = false;
+            naturalScroll = true;
+            pointerSpeed = 0;
+            tapToClick = true;
+            tagAndDrag = false;
+            tapDragLock = false;
+          }
+        ];
+      };
+    }
+  ];
+  nixosModules = with self.nixosModules; [
     common
     secrets
     wifi
@@ -32,7 +56,7 @@
     # inputs.hardware.nixosModules.common-gpu-amd-southern-islands
     # inputs.hardware.nixosModules.common-pc-ssd
     (
-      {...}: {
+      {pkgs, ...}: {
         nix.settings = {
           download-buffer-size = 12 * 1024 * 1024 * 1024;
           cores = 8;
@@ -80,6 +104,34 @@
         };
 
         hardware = {
+          bluetooth = {
+            enable = true;
+            powerOnBoot = true;
+          };
+          firmware = [
+            (pkgs.stdenvNoCC.mkDerivation {
+              name = "broadcom-mac-wifi-firmware";
+              # Fetching a community-hosted copy of the Apple NVRAM text file
+              # src = pkgs.fetchurl {
+              #   url = "https://raw.githubusercontent.com/dali99/macbookpro11-4/master/brcmfmac43602-pcie.txt";
+              #   hash = "";
+              # };
+              src = pkgs.fetchurl {
+                url = "https://gist.githubusercontent.com/cristianmiranda/ba9d64b4324f0803d9422d765de62252/raw/brcmfmac43602-pcie.txt";
+                hash = "sha256-+86fiYd1nurBLjbXJjfQgJRRV6lcZsKc6C28nKobGKE=";
+              };
+              dontUnpack = true;
+              installPhase = ''
+                mkdir -p $out/lib/firmware/brcm
+
+                # The kernel specifically requested this file name in your dmesg logs
+                cp $src "$out/lib/firmware/brcm/brcmfmac43602-pcie.Apple Inc.-MacBookPro11,5.txt"
+
+                # Also create the generic fallback name just in case
+                cp $src $out/lib/firmware/brcm/brcmfmac43602-pcie.txt
+              '';
+            })
+          ];
           enableAllFirmware = true;
           enableAllHardware = true;
           graphics = {
@@ -153,6 +205,15 @@
   );
 in {
   flake.nixosConfigurations.${hostname} = buildNixos {
-    inherit system hostname includedUsers groups hardware-configuration modules nixosHomeManagerModule;
+    inherit
+      system
+      hostname
+      includedUsers
+      groups
+      hardware-configuration
+      nixosHomeManagerModule
+      nixosModules
+      homeModules
+      ;
   };
 }
