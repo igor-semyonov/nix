@@ -1,5 +1,4 @@
 {
-  self,
   buildNixos,
   buildHome,
   inputs,
