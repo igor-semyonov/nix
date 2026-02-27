@@ -3,7 +3,7 @@
   self,
   ...
 }: {
-  flake.homeModules.nixpkgs =  {
+  flake.homeModules.nixpkgs = {
     nixpkgs = {
       overlays = [
         self.overlays.stable-pkgs
