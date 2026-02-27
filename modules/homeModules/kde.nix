@@ -185,7 +185,7 @@
             disableWhileTyping = true;
             leftHanded = false;
             middleButtonEmulation = false;
-            naturalScroll = true;
+            naturalScroll = false;
             pointerSpeed = 0;
             tapToClick = true;
             tapAndDrag = false;
