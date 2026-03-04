@@ -93,6 +93,7 @@ in {
                 kde
                 hyprland
 
+                tts
                 qt
                 gtk
                 xdg
