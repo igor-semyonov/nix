@@ -182,8 +182,7 @@
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
     }
   );
-in {
-  flake.nixosConfigurations.${hostname} = buildNixos {
+  result = buildNixos {
     inherit
       system
       hostname
@@ -195,4 +194,4 @@ in {
       homeModules
       ;
   };
-}
+in {inherit (result) flake perSystem;}

@@ -19,33 +19,29 @@
     hardware-configuration ? {},
     groups ? {},
     nixosHomeManagerModule ? false,
-  }: {
-    perSystem = {...}: {
-      packages."${hostname}-vm" = self.outputs.nixosConfigurations.${hostname}.config.system.build.vm;
+  }: let
+    nixos = buildNixos {
+      inherit
+        system
+        hostname
+        includedUsers
+        nixosModules
+        homeModules
+        hardware-configuration
+        groups
+        nixosHomeManagerModule
+        ;
     };
-    flake = {
-      nixosConfigurations.${hostname} = buildNixos {
-        inherit
-          system
-          hostname
-          includedUsers
-          nixosModules
-          homeModules
-          hardware-configuration
-          groups
-          nixosHomeManagerModule
-          ;
-      };
-      homeConfigurations = buildHome {
-        inherit
-          system
-          hostname
-          includedUsers
-          homeModules
-          ;
-      };
+    home = buildHome {
+      inherit
+        system
+        hostname
+        includedUsers
+        homeModules
+        ;
     };
-  };
+  in
+    lib.recursiveUpdate nixos home;
 
   _module.args.buildNixos = {
     hostname,
@@ -56,50 +52,56 @@
     hardware-configuration ? {},
     groups ? {},
     nixosHomeManagerModule ? false,
-  }:
-    inputs.nixpkgs.lib.nixosSystem {
-      inherit system;
-      specialArgs = {inherit includedUsers;};
-      modules =
-        nixosModules
-        ++ [
+  }: {
+    perSystem = {...}: {
+      packages."${hostname}-vm" = self.outputs.nixosConfigurations.${hostname}.config.system.build.vm;
+    };
+    flake = {
+      nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {inherit includedUsers;};
+        modules =
+          nixosModules
+          ++ [
+            (
+              {pkgs, ...}: {
+                networking.hostName = hostname;
+                users = {
+                  users = usersToNixos pkgs hostname (filterUsers config.users includedUsers);
+                  groups = groups;
+                };
+              }
+            )
+            hardware-configuration
+          ]
+          ++ lib.optional nixosHomeManagerModule
           (
             {pkgs, ...}: {
-              networking.hostName = hostname;
-              users = {
-                users = usersToNixos pkgs hostname (filterUsers config.users includedUsers);
-                groups = groups;
+              imports = [inputs.home-manager.nixosModules.home-manager];
+              nixpkgs.overlays = [inputs.nur.overlays.default];
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                backupFileExtension = "bak";
+                users =
+                  lib.mapAttrs (n: v: {
+                    imports = (v pkgs hostname).home.modules ++ homeModules;
+                  })
+                  (filterUsers config.users includedUsers);
               };
             }
-          )
-          hardware-configuration
-        ]
-        ++ lib.optional nixosHomeManagerModule
-        (
-          {pkgs, ...}: {
-            imports = [inputs.home-manager.nixosModules.home-manager];
-            nixpkgs.overlays = [inputs.nur.overlays.default];
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              backupFileExtension = "bak";
-              users =
-                lib.mapAttrs (n: v: {
-                  imports = (v pkgs hostname).home.modules ++ homeModules;
-                })
-                (filterUsers config.users includedUsers);
-            };
-          }
-        );
+          );
+      };
     };
+  };
 
   _module.args.buildHome = {
     hostname,
     system ? "x86_64-linux",
     includedUsers ? ["igor"],
     homeModules ? [],
-  }:
-    withSystem system (
+  }: {
+    flake.homeConfigurations = withSystem system (
       {pkgs, ...}:
         builtins.listToAttrs (
           map ({value, ...}: {
@@ -125,4 +127,5 @@
           )
         )
     );
+  };
 }
