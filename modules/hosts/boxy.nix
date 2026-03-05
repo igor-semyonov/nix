@@ -18,6 +18,11 @@
     self.homeModules.nixpkgs
   ];
   nixosModules = with self.nixosModules; [
+    {
+      services.actual = {
+        enable = true;
+      };
+    }
     secrets
     common
 
