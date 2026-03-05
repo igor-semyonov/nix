@@ -254,6 +254,10 @@
               "share-2"
             ];
           };
+          virtualisation = {
+            enable = true;
+            hardware-interfaces = ["enp8s0"];
+          };
         };
 
         services.udev.extraRules = ''
