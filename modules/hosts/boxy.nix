@@ -3,6 +3,7 @@
   inputs,
   self,
   config,
+  lib,
   ...
 }: let
   ns = config.namespace-specifier;
@@ -274,6 +275,9 @@
       }
     )
   ];
+  nixosVmModules = [
+    {config.hardware.nvidia-container-toolkit.enable = lib.mkForce false;}
+  ];
   hardware-configuration = (
     {
       config,
@@ -409,6 +413,7 @@
       groups
       hardware-configuration
       nixosModules
+      nixosVmModules
       homeModules
       ;
   };

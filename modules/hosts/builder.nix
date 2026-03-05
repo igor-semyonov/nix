@@ -15,6 +15,7 @@
     system ? "x86_64-linux",
     includedUsers ? ["igor"],
     nixosModules ? [],
+    nixosVmModules ? [],
     homeModules ? [],
     hardware-configuration ? {},
     groups ? {},
@@ -26,6 +27,7 @@
         hostname
         includedUsers
         nixosModules
+        nixosVmModules
         homeModules
         hardware-configuration
         groups
@@ -48,13 +50,17 @@
     system ? "x86_64-linux",
     includedUsers ? ["igor"],
     nixosModules ? [],
+    nixosVmModules ? [],
     homeModules ? [],
     hardware-configuration ? {},
     groups ? {},
     nixosHomeManagerModule ? false,
   }: {
     perSystem = {...}: {
-      packages."${hostname}-vm" = self.outputs.nixosConfigurations.${hostname}.config.system.build.vm;
+      packages."${hostname}-vm" = let
+        vm = self.outputs.nixosConfigurations.${hostname}.extendModules {modules = nixosVmModules;};
+      in
+        vm.config.system.build.vm;
     };
     flake = {
       nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {

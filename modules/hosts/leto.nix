@@ -144,6 +144,7 @@
       }
     )
   ];
+  nixosVmModules = [];
   hardware-configuration = (
     {
       config,
@@ -191,6 +192,7 @@
       hardware-configuration
       nixosHomeManagerModule
       nixosModules
+      nixosVmModules
       homeModules
       ;
   };
