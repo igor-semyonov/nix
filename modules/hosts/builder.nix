@@ -1,4 +1,5 @@
 {
+  self,
   buildNixos,
   buildHome,
   inputs,
@@ -19,25 +20,30 @@
     groups ? {},
     nixosHomeManagerModule ? false,
   }: {
-    nixosConfigurations.${hostname} = buildNixos {
-      inherit
-        system
-        hostname
-        includedUsers
-        nixosModules
-        homeModules
-        hardware-configuration
-        groups
-        nixosHomeManagerModule
-        ;
+    perSystem = {...}: {
+      packages."${hostname}-vm" = self.outputs.nixosConfigurations.${hostname}.config.system.build.vm;
     };
-    homeConfigurations = buildHome {
-      inherit
-        system
-        hostname
-        includedUsers
-        homeModules
-        ;
+    flake = {
+      nixosConfigurations.${hostname} = buildNixos {
+        inherit
+          system
+          hostname
+          includedUsers
+          nixosModules
+          homeModules
+          hardware-configuration
+          groups
+          nixosHomeManagerModule
+          ;
+      };
+      homeConfigurations = buildHome {
+        inherit
+          system
+          hostname
+          includedUsers
+          homeModules
+          ;
+      };
     };
   };
 
