@@ -26,6 +26,7 @@
     nix-ld
     uxplay
     u2f
+    {igix.u2f.enable = true;}
     sound-fiio-k9
 
     inputs.hardware.nixosModules.common-cpu-intel

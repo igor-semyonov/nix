@@ -30,6 +30,7 @@
 
     uxplay
     u2f
+    {igix.u2f.enable = true;}
 
     inputs.hardware.nixosModules.apple-macbook-pro-11-5
     # inputs.hardware.nixosModules.common-gpu-amd-southern-islands
