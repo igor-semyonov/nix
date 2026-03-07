@@ -36,6 +36,7 @@ in {
               "wheel"
               "docker"
               "i2c"
+              "dialout"
             ];
             packages = with pkgs; [
               gh
