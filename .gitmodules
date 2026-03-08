@@ -1,3 +1,0 @@
-[submodule ".secrets"]
-	path = .secrets
-	url = git@github.com:igor-semyonov/nix-secrets.git
