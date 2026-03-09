@@ -10,13 +10,14 @@
   hostname = "boxy";
   system = "x86_64-linux";
   includedUsers = ["igor"];
+  nixosHomeManagerModule = true;
   groups = {"i2c" = {};};
   homeModules = [
     {
       programs.home-manager.enable = true;
       home.stateVersion = "25.05";
     }
-    self.homeModules.nixpkgs
+    # self.homeModules.nixpkgs # only if home manager is used standalone
   ];
   nixosModules = with self.nixosModules; [
     {
@@ -413,6 +414,7 @@
       includedUsers
       groups
       hardware-configuration
+      nixosHomeManagerModule
       nixosModules
       nixosVmModules
       homeModules
