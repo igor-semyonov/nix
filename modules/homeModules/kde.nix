@@ -34,6 +34,7 @@
     imports = [
       inputs.plasma-manager.homeModules.plasma-manager
       self.homeModules.wallpaper
+      self.homeModules.anyrun
     ];
 
     home = {
@@ -120,6 +121,11 @@
           name = "Launch Alacritty";
           key = "Meta+T";
           command = "alacritty";
+        };
+        launch-anyrun = {
+          name = "Launch ulauncher";
+          key = "Meta+Space";
+          command = "anyrun";
         };
         # launch-brave = {
         #   name = "Launch Brave";
