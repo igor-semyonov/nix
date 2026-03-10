@@ -24,6 +24,7 @@
           do
             qdbus org.kde.kglobalaccel /component/kwin invokeShortcut "view_zoom_out"
           done
+          # shellcheck disable=SC2154
           for ((i=0; i<zoom_factor; i++))
           do
             qdbus org.kde.kglobalaccel /component/kwin invokeShortcut "view_zoom_in"
@@ -274,6 +275,25 @@
             };
           };
         }
+        {
+          digitalClock = {
+              position = {
+                horizontal = 202;
+                vertical = 620;
+              };
+              size = {
+                width = 700;
+                height = 400;
+              };
+            time = {
+              format = "24h";
+              showSeconds = "always";
+            };
+            date = {
+              enable = true;
+            };
+          };
+        }
       ];
 
       panels = [
@@ -350,6 +370,7 @@
               digitalClock = {
                 calendar.firstDayOfWeek = "sunday";
                 time.format = "24h";
+                date.enable = false;
               };
             }
             # {
