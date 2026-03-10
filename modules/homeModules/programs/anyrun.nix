@@ -11,7 +11,7 @@
     programs.anyrun = {
       enable = true;
       config = {
-        x.fraction = 0.5;
+        x.fraction = 0.45;
         y.fraction = 0.5;
         width.fraction = 0.8;
         height.fraction = 0.7;
@@ -36,7 +36,7 @@
         ''
           @define-color accent #5599d2;
           @define-color bg-color #161616;
-          @define-color bg-color-match #FF8C00;
+          @define-color bg-color-match #206020;
           @define-color fg-color #eeeeee;
           @define-color desc-color #cccccc;
 
@@ -58,7 +58,7 @@
             padding: 5px;
             border-radius: 5px;
             color: @fg-color;
-            font-size: 48px;
+            font-size: 42px;
           }
 
           .matches {
@@ -71,8 +71,9 @@
           }
 
           box.plugin.info {
-            min-width: 440px;
-            margin-right: 20px;
+            font-size: 42px;
+            # min-width: 440px;
+            margin-right: 21px;
           }
 
           list.plugin {
@@ -101,7 +102,7 @@
           }
 
           label.plugin.info {
-            font-size: 64px;
+            # font-size: 64px;
             color: @fg-color;
           }
 
@@ -117,15 +118,15 @@
 
           @keyframes fade {
             0% {
-              opacity: 0;
+              # opacity: 0;
               transform: scale(1.0);
             }
             50% {
-              opacity: 0.5;
-              transform: scale(1.05);
+              # opacity: 0.5;
+              transform: scale(1.1);
             }
             100% {
-              opacity: 1;
+              # opacity: 1;
               transform: scale(1.0);
             }
           }
