@@ -123,39 +123,6 @@
     # PATH configuration
     environment.localBinInPath = true;
 
-    # User configuration
-    # users = {
-    #   users.${userConfig.name} = {
-    #     description = userConfig.fullName;
-    #     extraGroups = [
-    #       "networkmanager"
-    #       "wheel"
-    #       "docker"
-    #       "i2c"
-    #     ];
-    #     isNormalUser = true;
-    #     shell = pkgs.bash;
-    #     packages = with pkgs; [
-    #       gh
-    #       pass
-    #       dropbox
-    #       dropbox-cli
-    #       cryptomator
-    #       zoxide
-    #       python313
-    #       unzip
-    #       starship
-    #       ripgrep
-    #       stable.wl-clipboard
-    #       vivaldi
-    #       vivaldi-ffmpeg-codecs
-    #     ];
-    #   };
-    #   groups = {
-    #     i2c = {};
-    #   };
-    # };
-
     programs = {
       # nh = {
       #   enable = true;
@@ -174,7 +141,6 @@
         pinentryPackage = pkgs.pinentry-curses;
         enableSSHSupport = true;
       };
-      virt-manager.enable = true;
     };
 
     # System packages

@@ -26,6 +26,7 @@ in {
     };
     config = lib.mkIf cfg.enable {
       users.users = lib.mapAttrs (n: v: {extraGroups = ["kvm" "libvirtd"];}) (filterUsers users includedUsers);
+      programs.virt-manager.enable = true;
       virtualisation = {
         libvirtd = {
           enable = true;
