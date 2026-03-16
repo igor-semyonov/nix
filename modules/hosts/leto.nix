@@ -12,6 +12,7 @@
   groups = {};
   nixosHomeManagerModule = true;
   homeModules = [
+    {programs.alacritty.settings.font.size = lib.mkForce 56.0;}
   ];
   nixosModules = with self.nixosModules; [
     common
