@@ -49,7 +49,7 @@ in {
               unzip
               starship
               ripgrep
-              stable.wl-clipboard
+              wl-clipboard
               vivaldi
               vivaldi-ffmpeg-codecs
             ];
@@ -132,7 +132,7 @@ in {
               python313
               unzip
               ripgrep
-              stable.wl-clipboard
+              wl-clipboard
               vivaldi
               vivaldi-ffmpeg-codecs
             ];

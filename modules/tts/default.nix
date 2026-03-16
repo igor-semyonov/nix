@@ -8,7 +8,7 @@
       };
       tts-selection = pkgs.writeShellApplication {
         name = "tts-selection";
-        runtimeInputs = [tts pkgs.stable.wl-clipboard];
+        runtimeInputs = [tts pkgs.wl-clipboard];
         text = builtins.readFile ./tts-selection.sh;
       };
       tts-screen = pkgs.writeShellApplication {
