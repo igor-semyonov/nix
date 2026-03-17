@@ -132,7 +132,10 @@
                 peers = [
                   {
                     publicKey = "yPTvlsTZnzAxfn2GxrvSQX5/ymcsSFqSLtHiJ7zJITc=";
-                    allowedIPs = ["10.0.0.0/24"];
+                    allowedIPs = [
+                      "10.0.0.0/24"
+                      "192.168.50.0/24"
+                    ];
                     endpoint = "nalgor.net:41883";
                     persistentKeepalive = 25;
                   }
