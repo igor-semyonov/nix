@@ -224,7 +224,10 @@
           X11Forwarding = true;
         };
       };
-      libinput.enable = true;
+      libinput = {
+        enable = true;
+        touchpad.naturalScrolling = false;
+      };
       xserver = {
         enable = true;
         xkb = {
