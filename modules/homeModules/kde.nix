@@ -297,11 +297,11 @@
       ];
 
       panels = [
-        # Windows-like panel at the bottom
+        # Windows-like panel on the left
         {
           height = 128;
           location = "left";
-          hiding = "none";
+          hiding = "dodgewindows";
           floating = true;
           opacity = "translucent";
           widgets = [
