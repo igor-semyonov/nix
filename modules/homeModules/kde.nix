@@ -277,14 +277,14 @@
         }
         {
           digitalClock = {
-              position = {
-                horizontal = 202;
-                vertical = 620;
-              };
-              size = {
-                width = 700;
-                height = 400;
-              };
+            position = {
+              horizontal = 202;
+              vertical = 620;
+            };
+            size = {
+              width = 700;
+              height = 400;
+            };
             time = {
               format = "24h";
               showSeconds = "always";
@@ -336,6 +336,13 @@
                 launchers = [
                   "applications:firefox.desktop"
                 ];
+                appearance = {
+                  showTooltips = false;
+                  rows.multirowView = "never"; 
+                };
+                behavior = {
+                  unhideOnAttentionNeeded = false;
+                };
               };
             }
             # Or you can do it manually, for example:
@@ -344,9 +351,10 @@
             #   config = {
             #     General = {
             #       launchers = [
-            #         "applications:org.kde.dolphin.desktop"
-            #         "applications:org.kde.konsole.desktop"
+            #         "applications:firefox.desktop"
             #       ];
+            #       showToolTips = false;
+            #       unhideOnAttention = false;
             #     };
             #   };
             # }
