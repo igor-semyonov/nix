@@ -63,6 +63,7 @@
       };
       sessionVariables = {
         _ZO_DOCTOR = 0;
+        LIBVIRT_DEFAULT_URI = "qemu:///system";
       };
     };
   };
