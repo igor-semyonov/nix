@@ -25,6 +25,39 @@
       };
     }
 
+    # power management
+    {
+      services = {
+        # Disable the default power profiles daemon (conflicts with TLP)
+        power-profiles-daemon.enable = false;
+        tlp = {
+          # Enable TLP for aggressive power management
+          enable = true;
+          settings = {
+            CPU_SCALING_GOVERNOR_ON_AC = "performance";
+            CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+
+            CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+            CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+
+            # Optional: Help with Broadcom Wi-Fi power drain
+            WIFI_PWR_ON_BAT = "on";
+          };
+        };
+      };
+
+      # Enable PowerTop auto-tuning on boot
+      powerManagement.powertop.enable = true;
+
+      # intel internal graphics
+      boot.kernelParams = [
+        "i915.enable_fbc=1"
+        "i915.enable_guc=2"
+        "pcie_aspm=force"
+        "nmi_watchdog=0"
+      ];
+    }
+
     kde
 
     programs-prism-launcher
