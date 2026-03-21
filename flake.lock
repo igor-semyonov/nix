@@ -565,11 +565,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1774037139,
-        "narHash": "sha256-fTnHGVQQLQr9SQ1GZvdFgOr7AHpFMf3L09fNAPsfroA=",
+        "lastModified": 1774060118,
+        "narHash": "sha256-Rv4eoTXmRP1Uxq2FignRj515auH8c+uaaqmFjpSd5Ro=",
         "owner": "igor-semyonov",
         "repo": "nvim",
-        "rev": "9a1714414b1f942eb4f67ad87fc8836a0bee5c9e",
+        "rev": "2a96edf7379127a110e653ab76f35827e2054dfe",
         "type": "github"
       },
       "original": {
