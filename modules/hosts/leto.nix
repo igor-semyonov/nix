@@ -27,6 +27,25 @@
 
     # power management
     {
+      # Ensure the debugfs is mounted (required for vgaswitcheroo)
+      fileSystems."/sys/kernel/debug" = {
+        device = "debugfs";
+        fsType = "debugfs";
+      };
+
+      # Create a service to power off the dGPU on boot
+      systemd.services.disable-dgpu = {
+        description = "Power off the AMD dGPU via vga_switcheroo";
+        wantedBy = ["multi-user.target"];
+        after = ["sys-kernel-debug.mount"];
+        serviceConfig = {
+          Type = "oneshot";
+          # Echo OFF disables the discrete GPU
+          ExecStart = "${pkgs.bash}/bin/bash -c 'echo OFF > /sys/kernel/debug/vgaswitcheroo/switch'";
+          RemainAfterExit = "yes";
+        };
+      };
+
       services = {
         # Disable the default power profiles daemon (conflicts with TLP)
         power-profiles-daemon.enable = false;
@@ -37,11 +56,27 @@
             CPU_SCALING_GOVERNOR_ON_AC = "performance";
             CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
-            CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
             CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+            CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+
+            # Enable PCIe runtime power management (helps power down unused devices)
+            RUNTIME_PM_ON_AC = "auto";
+            RUNTIME_PM_ON_BAT = "auto";
 
             # Optional: Help with Broadcom Wi-Fi power drain
             WIFI_PWR_ON_BAT = "on";
+          };
+        };
+        thernald.enable = true;
+        mbpfan = {
+          enable = true;
+          settings = {
+            general = {
+              polling_interval = 1;
+              low_temp = 55;
+              high_temp = 80;
+              max_temp = 85;
+            };
           };
         };
       };
@@ -52,9 +87,10 @@
       # intel internal graphics
       boot.kernelParams = [
         "i915.enable_fbc=1"
-        "i915.enable_guc=2"
-        "pcie_aspm=force"
+        "pcie_aspm=force" # disable this if bluetooth or wifi is unstable
         "nmi_watchdog=0"
+        "coretemp"
+        "applesmc"
       ];
     }
 
