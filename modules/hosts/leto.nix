@@ -26,73 +26,79 @@
     }
 
     # power management
-    {
-      # Ensure the debugfs is mounted (required for vgaswitcheroo)
-      fileSystems."/sys/kernel/debug" = {
-        device = "debugfs";
-        fsType = "debugfs";
-      };
+    (
+      {pkgs, ...}: {
+        # Ensure the debugfs is mounted (required for vgaswitcheroo)
+        # fileSystems."/sys/kernel/debug" = {
+        #   device = "debugfs";
+        #   fsType = "debugfs";
+        # };
 
-      # Create a service to power off the dGPU on boot
-      systemd.services.disable-dgpu = {
-        description = "Power off the AMD dGPU via vga_switcheroo";
-        wantedBy = ["multi-user.target"];
-        after = ["sys-kernel-debug.mount"];
-        serviceConfig = {
-          Type = "oneshot";
-          # Echo OFF disables the discrete GPU
-          ExecStart = "${pkgs.bash}/bin/bash -c 'echo OFF > /sys/kernel/debug/vgaswitcheroo/switch'";
-          RemainAfterExit = "yes";
-        };
-      };
+        # # Create a service to power off the dGPU on boot
+        # systemd.services.disable-dgpu = {
+        #   description = "Power off the AMD dGPU via vga_switcheroo";
+        #   wantedBy = ["multi-user.target"];
+        #   after = ["sys-kernel-debug.mount"];
+        #   before = ["display-manager.service"];
+        #   serviceConfig = {
+        #     Type = "oneshot";
+        #     # ExecStart = "${pkgs.bash}/bin/bash -c 'echo OFF > /sys/kernel/debug/vgaswitcheroo/switch'";
+        #     ExecStart = "${pkgs.bash}/bin/bash -c 'echo IGD > /sys/kernel/debug/vgaswitcheroo/switch && echo OFF > /sys/kernel/debug/vgaswitcheroo/switch'";
+        #     RemainAfterExit = "yes";
+        #   };
+        # };
 
-      services = {
-        # Disable the default power profiles daemon (conflicts with TLP)
-        power-profiles-daemon.enable = false;
-        tlp = {
-          # Enable TLP for aggressive power management
-          enable = true;
-          settings = {
-            CPU_SCALING_GOVERNOR_ON_AC = "performance";
-            CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+        services = {
+          # Disable the default power profiles daemon (conflicts with TLP)
+          power-profiles-daemon.enable = false;
+          tlp = {
+            # Enable TLP for aggressive power management
+            enable = true;
+            settings = {
+              CPU_SCALING_GOVERNOR_ON_AC = "performance";
+              CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
-            CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-            CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+              CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+              CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_performance";
 
-            # Enable PCIe runtime power management (helps power down unused devices)
-            RUNTIME_PM_ON_AC = "auto";
-            RUNTIME_PM_ON_BAT = "auto";
+              CPU_BOOST_ON_AC = 1;
+              CPU_BOOST_ON_BAT = 1;
 
-            # Optional: Help with Broadcom Wi-Fi power drain
-            WIFI_PWR_ON_BAT = "on";
+              # Enable PCIe runtime power management (helps power down unused devices)
+              RUNTIME_PM_ON_AC = "auto";
+              RUNTIME_PM_ON_BAT = "auto";
+
+              # Optional: Help with Broadcom Wi-Fi power drain
+              WIFI_PWR_ON_BAT = "on";
+            };
           };
-        };
-        thernald.enable = true;
-        mbpfan = {
-          enable = true;
-          settings = {
-            general = {
-              polling_interval = 1;
-              low_temp = 55;
-              high_temp = 80;
-              max_temp = 85;
+          thermald.enable = true;
+          mbpfan = {
+            enable = true;
+            settings = {
+              general = {
+                polling_interval = 1;
+                low_temp = 55;
+                high_temp = 80;
+                max_temp = 85;
+              };
             };
           };
         };
-      };
 
-      # Enable PowerTop auto-tuning on boot
-      powerManagement.powertop.enable = true;
+        # Enable PowerTop auto-tuning on boot
+        powerManagement.powertop.enable = true;
 
-      # intel internal graphics
-      boot.kernelParams = [
-        "i915.enable_fbc=1"
-        "pcie_aspm=force" # disable this if bluetooth or wifi is unstable
-        "nmi_watchdog=0"
-        "coretemp"
-        "applesmc"
-      ];
-    }
+        # intel internal graphics
+        boot.kernelParams = [
+          "i915.enable_fbc=1"
+          "pcie_aspm=force" # disable this if bluetooth or wifi is unstable
+          "nmi_watchdog=0"
+          "coretemp"
+          "applesmc"
+        ];
+      }
+    )
 
     kde
 
