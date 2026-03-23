@@ -26,12 +26,12 @@
             dbus
             kdePackages.wayland
             kdePackages.qtwayland
-            xorg.xcbutil
-            xorg.xcbutilcursor
-            xorg.xcbutilwm
-            xorg.xcbutilkeysyms
-            xorg.xcbutilrenderutil
-            xorg.xcbutilimage
+            libxcb-util
+            libxcb-cursor
+            libxcb-wm
+            libxcb-keysyms
+            libxcb-render-util
+            libxcb-image
             libxcb
             libdrm
           ]
