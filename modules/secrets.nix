@@ -8,7 +8,7 @@
     environment.systemPackages = with pkgs; [sops ssh-to-age];
 
     sops = {
-      sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+      gnupg.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
       defaultSopsFile = "${self}/.secrets/default.yaml";
       defaultSopsFormat = "yaml";
       secrets = {
