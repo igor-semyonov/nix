@@ -6,7 +6,7 @@ text="''$(</dev/stdin)"
 export WINEARCH=win32
 export WINEPREFIX=$HOME/.wine32-tts
 
-text=$(echo "$text" | iconv -f utf-8 -t ascii//translit)
+# text=$(echo "$text" | iconv -f utf-8 -t ascii//translit//IGNORE)
 # text=$(echo "$text" | tr -d "<>")
 text=''${text//>/rangle}
 text=''${text//</langle}

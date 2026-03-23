@@ -3,8 +3,17 @@
     nixosModules.programs-tts = {pkgs, ...}: let
       tts = pkgs.writeShellApplication {
         name = "tts";
-        runtimeInputs = [pkgs.stable.wine-staging];
-        text = builtins.readFile ./tts.sh;
+        runtimeInputs = with pkgs; [
+          stable.wine-staging
+          glibcLocales
+        ];
+        text = ''
+          # shellcheck disable=all
+          export LOCALE_ARCHIVE="${pkgs.glibcLocales}/lib/locale/locale-archive"
+          export LANG="en_US.UTF-8"
+          export LC_ALL="en_US.UTF-8"
+          ${builtins.readFile ./tts.sh}
+        '';
       };
       tts-selection = pkgs.writeShellApplication {
         name = "tts-selection";
