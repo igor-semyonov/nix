@@ -775,7 +775,8 @@
         "nixpkgs-stable": "nixpkgs-stable",
         "nur": "nur",
         "plasma-manager": "plasma-manager",
-        "sops-nix": "sops-nix"
+        "sops-nix": "sops-nix",
+        "sops-secrets": "sops-secrets"
       }
     },
     "sops-nix": {
@@ -796,6 +797,22 @@
         "owner": "Mic92",
         "repo": "sops-nix",
         "type": "github"
+      }
+    },
+    "sops-secrets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1774279083,
+        "narHash": "sha256-FcDFDMcuk9H7xgnVinH/I9Q8cksSkR+M4euQaw5HKy8=",
+        "ref": "refs/heads/main",
+        "rev": "b596e8ce4d99cd333aaabc3d101730e7f59e8396",
+        "revCount": 4,
+        "type": "git",
+        "url": "ssh://git@github.com/igor-semyonov/nix-secrets.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/igor-semyonov/nix-secrets.git"
       }
     },
     "systems": {
