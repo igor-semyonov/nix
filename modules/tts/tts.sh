@@ -6,6 +6,13 @@ text="''$(</dev/stdin)"
 export WINEARCH=win32
 export WINEPREFIX=$HOME/.wine32-tts
 
+text=$(echo "$text" | python3 -c "
+    import sys, unicodedata
+    text = sys.stdin.read()
+    # Normalize to decompose characters and diacritics, then drop non-ASCII
+    transliterated = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
+    sys.stdout.write(transliterated)
+    ")
 # text=$(echo "$text" | iconv -f utf-8 -t ascii//translit//IGNORE)
 # text=$(echo "$text" | tr -d "<>")
 text=''${text//>/rangle}

@@ -5,15 +5,17 @@
         name = "tts";
         runtimeInputs = with pkgs; [
           stable.wine-staging
-          glibcLocales
+          python314
+          # glibcLocales
         ];
-        text = ''
-          # shellcheck disable=all
-          export LOCALE_ARCHIVE="${pkgs.glibcLocales}/lib/locale/locale-archive"
-          export LANG="en_US.UTF-8"
-          export LC_ALL="en_US.UTF-8"
-          ${builtins.readFile ./tts.sh}
-        '';
+        text = builtins.readFile ./tts.sh;
+        # text = ''
+        #   # shellcheck disable=all
+        #   export LOCALE_ARCHIVE="${pkgs.glibcLocales}/lib/locale/locale-archive"
+        #   export LANG="en_US.UTF-8"
+        #   export LC_ALL="en_US.UTF-8"
+        #   ${builtins.readFile ./tts.sh}
+        # '';
       };
       tts-selection = pkgs.writeShellApplication {
         name = "tts-selection";
