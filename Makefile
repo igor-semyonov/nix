@@ -1,7 +1,7 @@
 NPROC := $(shell nproc)
 
 update:
-	sudo nixos-rebuild switch --flake . --cores $(NPROC) --max-jobs $(NPROC) --log-format bar-with-logs
+	sudo --preserve-env=SSH_AUTH_SOCK nixos-rebuild switch --flake . --cores $(NPROC) --max-jobs $(NPROC) --log-format bar-with-logs
 trace:
 	sudo nixos-rebuild switch --flake . --show-trace
 boot:
