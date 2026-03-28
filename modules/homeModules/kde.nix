@@ -36,6 +36,7 @@
       inputs.plasma-manager.homeModules.plasma-manager
       self.homeModules.wallpaper
       self.homeModules.anyrun
+      self.homeModules.tofi
     ];
 
     home = {
@@ -124,9 +125,14 @@
           command = "alacritty";
         };
         launch-anyrun = {
-          name = "Launch ulauncher";
+          name = "Launch Anyrun";
           key = "Meta+Space";
           command = "anyrun";
+        };
+        launch-tofi-drun = {
+          name = "Launch Tofi";
+          key = "Ctrl+Space";
+          command = "tofi-drun";
         };
         # launch-brave = {
         #   name = "Launch Brave";
@@ -338,7 +344,7 @@
                 ];
                 appearance = {
                   showTooltips = false;
-                  rows.multirowView = "never"; 
+                  rows.multirowView = "never";
                 };
                 behavior = {
                   unhideOnAttentionNeeded = false;
