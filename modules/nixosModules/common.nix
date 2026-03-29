@@ -253,5 +253,21 @@
         # };
       };
     };
+
+    # iincrease open file limits to avoid issues when rebuilding
+    security.pam.loginLimits = [
+      {
+        domain = "*";
+        type = "soft";
+        item = "nofile";
+        value = "8192";
+      }
+      {
+        domain = "*";
+        type = "hard";
+        item = "nofile";
+        value = "65536";
+      }
+    ];
   };
 }
