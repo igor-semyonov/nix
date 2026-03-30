@@ -132,7 +132,7 @@
         launch-tofi-drun = {
           name = "Launch Tofi";
           key = "Ctrl+Space";
-          command = "tofi-drun";
+          command = "tofi-drun --drun-launch=true";
         };
         # launch-brave = {
         #   name = "Launch Brave";
