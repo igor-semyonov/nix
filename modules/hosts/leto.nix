@@ -119,7 +119,7 @@
           max-jobs = 8;
         };
 
-        nix.trustedUsers = includedUsers;
+        nix.settings.trusted-users = includedUsers;
 
         boot = {
           kernelParams = [
