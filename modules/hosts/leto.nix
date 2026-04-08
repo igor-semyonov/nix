@@ -15,7 +15,7 @@
     {programs.alacritty.settings.font.size = lib.mkForce 56.0;}
   ];
   nixosModules = with self.nixosModules; [
-    common
+    common-desktop
     secrets
     wifi
     {

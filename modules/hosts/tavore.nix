@@ -20,7 +20,7 @@
     # self.homeModules.nixpkgs # only if home manager is used standalone
   ];
   nixosModules = with self.nixosModules; [
-    common
+    common-desktop
 
     kde
 

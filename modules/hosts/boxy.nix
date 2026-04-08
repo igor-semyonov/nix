@@ -26,7 +26,7 @@
       };
     }
     secrets
-    common
+    common-desktop
 
     kde
     hyprland
