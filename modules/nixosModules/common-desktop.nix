@@ -3,7 +3,7 @@
   self,
   ...
 }: {
-  flake.nixosModules.common = {
+  flake.nixosModules.common-desktop = {
     pkgs,
     lib,
     config,
