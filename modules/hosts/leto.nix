@@ -136,6 +136,7 @@
           initrd = {
             systemd = {
               enable = true;
+              configurationLimit = 10;
               # emergencyAccess = true;
             };
             luks.devices =
