@@ -111,6 +111,64 @@ in {
               ];
           };
         };
+      igor-headless = let
+        name = "igor";
+        fullName = "igor Semyonov";
+        email = "igor@semyonov.xyz";
+        gitKeys = {
+          billy = "placeholder";
+        };
+        homeStateVersion = {
+          billy = "25.11";
+        };
+      in
+        pkgs: hostname: {
+          nixos = {
+            name = name;
+            isNormalUser = true;
+            description = fullName;
+            extraGroups = [
+              "networkmanager"
+              "wheel"
+              "docker"
+              "i2c"
+              "dialout"
+            ];
+            packages = with pkgs; [
+              gh
+              pass
+              zoxide
+              unzip
+              starship
+              ripgrep
+            ];
+          };
+          home = {
+            modules = with self.homeModules; [
+              {
+                userConfig = {
+                  name = name;
+                  email = email;
+                  fullName = fullName;
+                  gitKey = gitKeys.${hostname};
+                };
+                home.stateVersion = homeStateVersion.${hostname};
+              }
+              common
+
+              bash
+              bat
+              gpg
+              ssh
+              starship
+              tmux
+              btop
+              fzf
+              git
+              # zoxide
+            ];
+          };
+        };
       kaladin = let
         name = "kaladin";
         fullName = "Kaladin (the red From) Semyonov";

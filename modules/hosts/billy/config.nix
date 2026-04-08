@@ -9,7 +9,7 @@
   ns = config.namespace-specifier;
   hostname = "billy";
   system = "x86_64-linux";
-  includedUsers = ["igor"];
+  includedUsers = ["igor-headless"];
   nixosHomeManagerModule = true;
   groups = {};
   homeModules = [
