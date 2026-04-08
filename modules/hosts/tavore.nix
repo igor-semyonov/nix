@@ -50,6 +50,7 @@
           systemd-boot = {
             enable = true;
             memtest86.enable = true;
+            configurationLimit = 10;
             extraEntries = {
               "fedora.conf" = ''
                 title Fedora
