@@ -14,6 +14,7 @@
       defaultSopsFormat = "yaml";
       secrets = {
         wifi-turtle-reef = {};
+        igor-pw = {neededForUsers = true;};
       };
     };
   };

@@ -30,6 +30,8 @@
         config,
         ...
       }: {
+        users.users.igor-headless.hashedPasswordFile = config.sops.secrets.igor-pw.path;
+
         nix.settings = {
           download-buffer-size = 1 * 1024 * 1024 * 1024;
           cores = 2;

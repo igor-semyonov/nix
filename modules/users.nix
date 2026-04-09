@@ -127,6 +127,7 @@ in {
             name = name;
             isNormalUser = true;
             description = fullName;
+            openssh.authorizedKeys.keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH5gmBdZsP86dXIL7P/Wb+mBtXO/1xqqKMNKKqLr8SJZ igor@boxy"];
             extraGroups = [
               "networkmanager"
               "wheel"
