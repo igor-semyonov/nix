@@ -154,6 +154,7 @@
                   igor@synology.local:/volume4/share-2/audiobookshelf/audiobooks/.
                   rsync \
                   -ahP \
+                  --delete \
                   /var/lib/audiobookshelf/* \
                   igor@synology.local:/volume4/share-2/audiobookshelf/.
                 '';
