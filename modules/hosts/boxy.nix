@@ -329,25 +329,61 @@
           device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
           fsType = "btrfs";
           noCheck = true;
-          options = ["subvolid=5"] ++ btrfs-options;
+          options =
+            [
+              "subvolid=5"
+              "nofail"
+              "noauto"
+              "x-systemd.automount"
+              "x-systemd.idle-timeout=60s"
+              "x-systemd.device-timeout=5s"
+            ]
+            ++ btrfs-options;
         };
         "/home/${username}/data" = {
           device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
           fsType = "btrfs";
           noCheck = true;
-          options = ["subvol=@data"] ++ btrfs-options;
+          options =
+            [
+              "subvol=@data"
+              "nofail"
+              "noauto"
+              "x-systemd.automount"
+              "x-systemd.idle-timeout=60s"
+              "x-systemd.device-timeout=5s"
+            ]
+            ++ btrfs-options;
         };
         "/home/${username}/games" = {
           device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
           fsType = "btrfs";
           noCheck = true;
-          options = ["subvol=@games"] ++ btrfs-options;
+          options =
+            [
+              "subvol=@games"
+              "nofail"
+              "noauto"
+              "x-systemd.automount"
+              "x-systemd.idle-timeout=60s"
+              "x-systemd.device-timeout=5s"
+            ]
+            ++ btrfs-options;
         };
         "/mnt/gentoo-btrfs-pool" = {
           device = "/dev/disk/by-uuid/11a22b3d-fa0c-4821-8bf0-802b5d983c7e";
           fsType = "btrfs";
           noCheck = true;
-          options = ["subvolid=5"] ++ btrfs-options;
+          options =
+            [
+              "subvolid=5"
+              "nofail"
+              "noauto"
+              "x-systemd.automount"
+              "x-systemd.idle-timeout=60s"
+              "x-systemd.device-timeout=5s"
+            ]
+            ++ btrfs-options;
         };
         "/mnt/10tb" = {
           device = "/dev/disk/by-uuid/a11033d4-a88b-4c02-8ba7-9a36ba9c6df8";
@@ -356,9 +392,11 @@
           options =
             [
               "subvolid=5"
+              "nofail"
               "noauto"
               "x-systemd.automount"
-              # "x-systemd.idle-timeout=10m"
+              "x-systemd.idle-timeout=10m"
+              "x-systemd.device-timeout=5s"
             ]
             ++ btrfs-options-hdd;
         };
