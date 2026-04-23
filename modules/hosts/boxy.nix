@@ -180,25 +180,25 @@
             };
           };
         };
-        services.btrbk.instances.fidler = {
-          onCalendar = "12:00";
-          settings = {
-            timestamp_format = "long";
-            preserve_day_of_week = "monday";
-            preserve_hour_of_day = "0";
-            volume = {
-              "/mnt/btrfs-pool" = {
-                snapshot_preserve_min = "latest";
-                snapshot_preserve = "14d 8w 6m";
-                snapshot_create = "always";
-                snapshot_dir = "fidler-snapshots";
-                subvolume = {
-                  "@fidler" = {};
-                };
-              };
-            };
-          };
-        };
+        # services.btrbk.instances.fidler = {
+        #   onCalendar = "12:00";
+        #   settings = {
+        #     timestamp_format = "long";
+        #     preserve_day_of_week = "monday";
+        #     preserve_hour_of_day = "0";
+        #     volume = {
+        #       "/mnt/btrfs-pool" = {
+        #         snapshot_preserve_min = "latest";
+        #         snapshot_preserve = "14d 8w 6m";
+        #         snapshot_create = "always";
+        #         snapshot_dir = "fidler-snapshots";
+        #         subvolume = {
+        #           "@fidler" = {};
+        #         };
+        #       };
+        #     };
+        #   };
+        # };
 
         systemd.services = {
           # dns-available = {
@@ -254,7 +254,15 @@
         };
 
         ${ns} = {
-          btrbk.enable = true;
+          btrbk = {
+            enable = true;
+            snapshots.subvolumes = ["@" "@home" "@fidler"];
+            target = {
+              enable = true;
+              subvolumes = ["@" "@home" "@fidler"];
+              location = "/mnt/8tb/btrbk-snapshots/";
+            };
+          };
           nas = {
             enable = true;
             host = "synology";
