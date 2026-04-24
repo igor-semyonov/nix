@@ -264,12 +264,7 @@
             };
           };
           nas = {
-            enable = true;
-            host = "synology";
-            shares = [
-              "share-1"
-              "share-2"
-            ];
+            enable = false;
           };
           virtualisation = {
             enable = true;
