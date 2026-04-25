@@ -2,10 +2,12 @@ NPROC := $(shell nproc)
 
 update:
 	sudo --preserve-env=SSH_AUTH_SOCK nixos-rebuild switch --flake . --cores $(NPROC) --max-jobs $(NPROC) --log-format bar-with-logs
+boot:
+	sudo --preserve-env=SSH_AUTH_SOCK nixos-rebuild boot --flake . --cores $(NPROC) --max-jobs $(NPROC) --log-format bar-with-logs
+build:
+	sudo --preserve-env=SSH_AUTH_SOCK nixos-rebuild build --flake . --cores $(NPROC) --max-jobs $(NPROC) --log-format bar-with-logs
 trace:
 	sudo nixos-rebuild switch --flake . --show-trace
-boot:
-	j=$(nproc) && sudo nixos-rebuild boot --flake . --cores $(NPROC) --max-jobs $(NPROC) --log-format bar-with-logs
 
 clean:
 	nix-collect-garbage -d
