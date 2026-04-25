@@ -10,6 +10,7 @@
     ...
   }: {
     # Steam gaming platform configuration
+    hardware.steam-hardware.enable = lib.mkForce false;
     programs.steam = {
       enable = true;
       package = pkgs.steam.override {
