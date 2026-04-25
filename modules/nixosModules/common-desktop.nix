@@ -116,7 +116,7 @@
     };
 
     services = {
-      brltty.enable = true;
+      # brltty.enable = true;
       ddccontrol.enable = true;
       pcscd = {
         enable = true;
