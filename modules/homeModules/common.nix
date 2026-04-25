@@ -11,6 +11,9 @@
   }: {
     imports = [self.homeModules.users];
 
+    # adopt new behavior as of HM 26.05
+    xdg.userDirs.setSessionVariables = false;
+
     # Nicely reload system units when changing configs
     systemd.user.startServices = "sd-switch";
 
