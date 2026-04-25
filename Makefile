@@ -1,6 +1,6 @@
 NPROC := $(shell nproc)
 
-update:
+switch:
 	sudo --preserve-env=SSH_AUTH_SOCK nixos-rebuild switch --flake . --cores $(NPROC) --max-jobs $(NPROC) --log-format bar-with-logs
 boot:
 	sudo --preserve-env=SSH_AUTH_SOCK nixos-rebuild boot --flake . --cores $(NPROC) --max-jobs $(NPROC) --log-format bar-with-logs
