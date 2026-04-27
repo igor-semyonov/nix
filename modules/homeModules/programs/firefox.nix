@@ -1,5 +1,9 @@
 {...}: {
   flake.homeModules.firefox = {pkgs, ...}: {
+    services.psd = {
+      enable = true;
+      resyncTimer = "1h";
+    };
     programs.firefox = {
       enable = true;
       configPath = ".mozilla/firefox";
