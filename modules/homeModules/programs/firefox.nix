@@ -4,6 +4,10 @@
       enable = true;
       resyncTimer = "1h";
     };
+    # overlayfs is more complicated with btrfs and I have plenty of ram. Choosing not to use overlayfs, maybe for leto it would make sense.
+    # xdg.configFile."psd/psd.conf".text = ''
+    #   USE_OVERLAYFS="yes"
+    # '';
     programs.firefox = {
       enable = true;
       configPath = ".mozilla/firefox";
