@@ -29,6 +29,10 @@
           hostname = "urithiru";
           user = "root";
         };
+        hass = {
+          hostname = "homeassistant.local";
+          user = "root";
+        };
       };
     };
     services.ssh-agent.enable = true;
