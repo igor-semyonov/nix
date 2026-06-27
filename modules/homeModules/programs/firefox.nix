@@ -136,7 +136,6 @@
               bitwarden
               darkreader
               vimium
-              tabliss
             ];
             settings = {
             };
