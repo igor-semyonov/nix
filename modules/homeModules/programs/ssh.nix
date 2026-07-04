@@ -33,6 +33,11 @@
           hostname = "homeassistant.local";
           user = "root";
         };
+        asano = {
+          # hostname = "asano.home.nalgor.net";
+          hostname = "192.168.50.48";
+          user = "root";
+        };
       };
     };
     services.ssh-agent.enable = true;
