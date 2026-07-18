@@ -39,6 +39,8 @@ in {
               "dialout"
             ];
             packages = with pkgs; [
+              nmap
+              pciutils
               gh
               pass
               dropbox
