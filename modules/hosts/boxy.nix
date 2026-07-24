@@ -20,6 +20,20 @@
     # self.homeModules.nixpkgs # only if home manager is used standalone
   ];
   nixosModules = with self.nixosModules; [
+    {
+      networking.firewall.allowedTCPPorts = [2049];
+      services.nfs.server = {
+        enable = true;
+        exports = ''
+          # Format: /path/to/share clientIP(options) subnet(options)
+          # Example 1: Give a specific Proxmox host full read/write access
+          /mnt/8tb/nfs/@no-cow  10.10.20.10(rw,sync,no_subtree_check,no_root_squash)
+
+          # Example 2: Give an entire VLAN/subnet read-only access
+          # /mnt/storage/media_share    10.0.20.0/24(ro,sync,no_subtree_check)
+        '';
+      };
+    }
     secrets
     common-desktop
 
