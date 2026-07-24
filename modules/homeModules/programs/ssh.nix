@@ -30,7 +30,7 @@
           user = "root";
         };
         hass = {
-          hostname = "homeassistant.local";
+          hostname = "homeassistant.internal";
           user = "root";
         };
         asano = {

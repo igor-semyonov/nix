@@ -20,11 +20,6 @@
     # self.homeModules.nixpkgs # only if home manager is used standalone
   ];
   nixosModules = with self.nixosModules; [
-    {
-      services.actual = {
-        enable = true;
-      };
-    }
     secrets
     common-desktop
 
