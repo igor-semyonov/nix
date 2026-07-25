@@ -13,7 +13,7 @@
     journal = pkgs.writeShellApplication {
       name = "journal";
       runtimeInputs = [
-        inputs.my-nvim.packages.${pkgs.stdenv.hostPlatform.system}.nvim-nixcats
+        inputs.my-nvim.packages.${pkgs.stdenv.hostPlatform.system}.default
       ];
       text = ''
         # shellcheck disable=SC1056,1072

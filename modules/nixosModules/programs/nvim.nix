@@ -25,7 +25,7 @@ in {
       };
       package = lib.mkOption {
         type = lib.types.package;
-        default = inputs.my-nvim.packages.${pkgs.stdenv.hostPlatform.system}.nvim-nixcats;
+        default = inputs.my-nvim.packages.${pkgs.stdenv.hostPlatform.system}.default;
         description = "The neovim package to be used";
       };
     };

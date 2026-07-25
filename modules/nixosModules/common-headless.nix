@@ -5,8 +5,6 @@
 }: {
   flake.nixosModules.common-headless = {
     pkgs,
-    lib,
-    config,
     ...
   }: {
     imports = with self.nixosModules; [
@@ -15,7 +13,7 @@
       programs-journal
       programs-firefox
     ];
-    igix.nvim.package = inputs.my-nvim.packages.${pkgs.stdenv.hostPlatform.system}.nvim-nixcats-minimal;
+    igix.nvim.package = inputs.my-nvim.packages.${pkgs.stdenv.hostPlatform.system}.minimal;
 
     # Boot settings
     boot = {
