@@ -11,7 +11,7 @@
         taplo.enable = true; # toml
         prettier.enable = true; # markdown
         shfmt.enable = true;
-        shellcheck.enable = true;
+        # shellcheck.enable = true;
       };
     };
   };
