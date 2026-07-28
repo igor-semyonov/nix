@@ -10,12 +10,15 @@
     ];
     # Consistent cursor theme across all applications.
     home.pointerCursor = {
+      enable = true;
       gtk.enable = true;
       x11.enable = true;
       package = pkgs.bibata-cursors;
       name = "Bibata-Original-Amber-Right";
       size = 96;
     };
+
+    wayland.windowManager.hyprland.configType = "lua";
 
     # Source hyprland config from the home-manager store
     xdg.configFile = {
