@@ -21,6 +21,15 @@
   ];
   nixosModules = with self.nixosModules; [
     {
+      nixpkgs.overlays = [
+        (
+          final: prev: {
+            onnxruntime = prev.onnxruntime.override {
+              cudaSupport = false;
+            };
+          }
+        )
+      ];
       networking.firewall.allowedTCPPorts = [2049];
       services.nfs.server = {
         enable = true;
