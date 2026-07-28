@@ -3,7 +3,7 @@
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;
-      matchBlocks = {
+      settings = {
         "*".addKeysToAgent = "yes";
         "fid" = {
           hostname = "10.0.0.1";
