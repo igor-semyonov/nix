@@ -8,8 +8,8 @@ It is structured to easily accommodate multiple machines and user configurations
 
 - `flake.nix`: The flake itself, defining inputs and importing all modules.
 - `modules/`: All the modules. All `*.nix` files are automatically imported from here, regardless of where they appear. File location does not matter.
-    - `users.nix`: User level NixOS and Home options.
-    - `hosts/`: NixOS, nix-darwin, and home-manager configurations for each machine, and which users to include.
+  - `users.nix`: User level NixOS and Home options.
+  - `hosts/`: NixOS, nix-darwin, and home-manager configurations for each machine, and which users to include.
   - `nixosModules/`: NixOS-specific modules
   - `homeModules/`: User-space configuration modules
   - `overlays.nix`: Custom Nix overlays for package modifications or additions
@@ -28,7 +28,7 @@ Add the new user to the `users` attribute set. Best to copy an existing user.
 
 2. **Create System Configuration**:
 
-Copy an existing system in `modules/hosts/`, for example `boxy.nix`. Change the variables defined at the top as needed. 
+Copy an existing system in `modules/hosts/`, for example `boxy.nix`. Change the variables defined at the top as needed.
 Only change things in the top let-in block.
 
 - `hostname`: The hostname

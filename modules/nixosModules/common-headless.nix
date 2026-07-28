@@ -3,10 +3,7 @@
   self,
   ...
 }: {
-  flake.nixosModules.common-headless = {
-    pkgs,
-    ...
-  }: {
+  flake.nixosModules.common-headless = {pkgs, ...}: {
     imports = with self.nixosModules; [
       common
       programs-tts
