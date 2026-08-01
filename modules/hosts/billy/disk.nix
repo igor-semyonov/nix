@@ -32,23 +32,34 @@
                   type = "btrfs";
                   # Overwrite existing partitions if repurposing a drive
                   extraArgs = ["-f"];
-                  subvolumes = {
-                    # Root subvolume
+                  subvolumes = let
+                    sharedMountOptions = [
+                      "compress-force=zstd:3"
+                      "noatime"
+                      "noautodefrag"
+                      "commit=45"
+                    ];
+                  in {
                     "@" = {
                       mountpoint = "/";
-                      mountOptions = ["compress=zstd" "noatime"];
+                      mountOptions = sharedMountOptions;
                     };
-                    # Home subvolume
                     "@home" = {
                       mountpoint = "/home";
-                      mountOptions = ["compress=zstd" "noatime"];
+                      mountOptions = sharedMountOptions;
                     };
-                    # Nix store subvolume
+                    "@var" = {
+                      mountpoint = "/var";
+                      mountOptions = sharedMountOptions;
+                    };
                     "@nix" = {
                       mountpoint = "/nix";
-                      mountOptions = ["compress=zstd" "noatime"];
+                      mountOptions = sharedMountOptions;
                     };
-                    # Swap subvolume
+                    "/" = {
+                      mountpoint = "/mnt/btrfs-pool";
+                      mountOptions = sharedMountOptions;
+                    };
                     "@swap" = {
                       mountpoint = "/swap";
                       # Disko automatically disables CoW (chattr +C) for this file

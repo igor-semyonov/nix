@@ -64,8 +64,28 @@
         };
 
         ${ns} = {
-          btrbk.enable = true;
+          btrbk = {
+            enable = true;
+            snapshots.subvolumes = [
+              "@"
+              "@home"
+              "@var"
+            ];
+          };
         };
+
+        # Apply No-CoW to database and mail directories to prevent BTRFS fragmentation
+        systemd.tmpfiles.rules = [
+          # "h" means set extended attributes.
+          # +C disables CoW.
+
+          # For Vaultwarden (assuming default NixOS state directory)
+          "h /var/lib/bitwarden_rs - - - - +C"
+
+          # For Mail (example for standard vmail/dovecot spools)
+          "h /var/vmail - - - - +C"
+          "h /var/lib/postfix - - - - +C"
+        ];
 
         system.stateVersion = "26.11";
       }
