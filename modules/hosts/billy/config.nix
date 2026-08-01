@@ -85,6 +85,10 @@
           # For Mail (example for standard vmail/dovecot spools)
           "h /var/vmail - - - - +C"
           "h /var/lib/postfix - - - - +C"
+
+          # Create the snapshot directory (Type 'd')
+          # Format: Type  Path  Mode  User  Group  Age  Argument
+          "d /mnt/btrfs-pool/btrbk-snapshots 0750 root root - -"
         ];
 
         system.stateVersion = "26.11";
