@@ -68,7 +68,7 @@ in {
                   };
                   home.stateVersion = homeStateVersion.${hostname};
                 }
-                common
+                common-desktop
 
                 alacritty
                 kitty
@@ -138,7 +138,7 @@ in {
               "dialout"
             ];
             packages = with pkgs; [
-              gh
+              just
               pass
               zoxide
               unzip
@@ -157,7 +157,7 @@ in {
                 };
                 home.stateVersion = homeStateVersion.${hostname};
               }
-              common
+              common-headless
 
               bash
               bat

@@ -29,10 +29,6 @@
     # Ensure common packages are installed
     home.packages = with pkgs;
       [
-        bibata-cursors
-        papirus-nord
-        anki-bin
-        awscli2
         dig
         dust
         eza
@@ -40,23 +36,11 @@
         jq
         # kubectl
         lazydocker
-        # nh
-        # openconnect
-        pipenv
-        python3
         ripgrep
-        # terraform
       ]
       ++ lib.optionals pkgs.stdenv.isDarwin [
-        # colima
-        # docker
-        # hidden-bar
-        # raycast
       ]
       ++ lib.optionals (!pkgs.stdenv.isDarwin) [
-        pavucontrol
-        tesseract
-        unzip
       ];
   };
 }
