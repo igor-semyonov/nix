@@ -139,7 +139,6 @@ in {
             ];
             packages = with pkgs; [
               just
-              pass
               zoxide
               unzip
               starship

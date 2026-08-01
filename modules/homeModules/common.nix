@@ -34,6 +34,7 @@
         eza
         fd
         jq
+        just
         # kubectl
         lazydocker
         ripgrep
