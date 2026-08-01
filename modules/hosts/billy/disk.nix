@@ -7,7 +7,7 @@
           type = "disk";
           # NOTE: Hetzner Cloud VMs (CX/CPX) usually use /dev/sda
           # Hetzner ARM VMs (CAX) and Dedicated Servers often use /dev/nvme0n1
-          device = "/dev/sda";
+          device = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi0-0-0-0";
           content = {
             type = "gpt";
             partitions = {
@@ -21,7 +21,7 @@
                 content = {
                   type = "filesystem";
                   format = "vfat";
-                  mountpoint = "/boot/efi";
+                  mountpoint = "/boot";
                   mountOptions = ["umask=0077"];
                 };
               };

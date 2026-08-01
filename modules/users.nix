@@ -121,7 +121,7 @@ in {
           billy = "placeholder";
         };
         homeStateVersion = {
-          billy = "25.11";
+          billy = "26.11";
         };
       in
         pkgs: hostname: {
