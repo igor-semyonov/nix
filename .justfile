@@ -11,18 +11,18 @@ build target_hostname=actual_hostname:
     nixos-rebuild build --flake .#{{ target_hostname }} --cores {{ nproc }} --max-jobs {{ nproc }} --log-format bar-with-logs
 
 switch-remote target_hostname target_host:
-    nixos-rebuild switch --flake .#{{ target_hostname }} --target-host {{ target_host }} --use-remote-sudo --cores {{ nproc }} --max-jobs {{ nproc }} --log-format bar-with-logs
+    nixos-rebuild switch --flake .#{{ target_hostname }} --target-host {{ target_host }} --cores {{ nproc }} --max-jobs {{ nproc }} -L
 
 test-remote target_hostname target_host:
-    nixos-rebuild test --flake .#{{ target_hostname }} --target-host {{ target_host }} --use-remote-sudo --cores {{ nproc }} --max-jobs {{ nproc }} --log-format bar-with-logs
+    nixos-rebuild test --flake .#{{ target_hostname }} --target-host {{ target_host }} --cores {{ nproc }} --max-jobs {{ nproc }} --log-format bar-with-logs
 
 # build and switch billy
 billy:
-    just switch-remote billy root@nalgor.com
+    just switch-remote billy root@ssh.nalgor.com
 
 # build and test billy
 billy-test:
-    just test-remote billy root@nalgor.com
+    just test-remote billy root@ssh.nalgor.com
 
 billy-build:
     just build billy

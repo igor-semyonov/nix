@@ -30,24 +30,6 @@
           cores = 2;
           max-jobs = 2;
         };
-        networking = {
-          networkmanager.enable = false;
-          useNetworkd = true;
-          useDHCP = false;
-        };
-        systemd.network = {
-          enable = true;
-          networks."10-wan" = {
-            # Match the name of your Hetzner interface (check with `ip a` or `ifconfig`)
-            matchConfig.Name = "ens3";
-
-            # Hetzner Cloud provides IPv4 via DHCP
-            networkConfig.DHCP = "ipv4";
-
-            # Accept Router Advertisements for IPv6
-            networkConfig.IPv6AcceptRA = true;
-          };
-        };
 
         boot.loader = {
           efi = {
@@ -63,23 +45,22 @@
         };
 
         networking = {
-          # wg-quick = {
-          #   interfaces = {
-          #     main = {
-          #       autostart = true;
-          #       address = ["10.1.0.0/32"];
-          #       listenPort = 46734;
-          #       privateKeyFile = "/etc/wireguard/privatekey";
-          #       # postUp = "wg set %i private-key /etc/wireguard/privatekey";
-          #       peers = [
-          #         {
-          #           publicKey = "c6VN95sqkyoogYpDzSGCs7NnacEId5EoVsUIUlB19Cw=";
-          #           allowedIPs = ["10.1.0.0/24"];
-          #         }
-          #       ];
-          #     };
-          #   };
-          # };
+          networkmanager.enable = false;
+          useNetworkd = true;
+          useDHCP = false;
+        };
+        systemd.network = {
+          enable = true;
+          networks."10-wan" = {
+            matchConfig.Name = "ens3";
+            networkConfig = {
+              DHCP = "ipv4";
+              IPv6AcceptRA = false;
+            };
+
+            address = ["2604:2dc0:121::6c9/64"];
+            routes = [{Gateway = "2604:2dc0:121::1";}];
+          };
         };
 
         ${ns} = {
