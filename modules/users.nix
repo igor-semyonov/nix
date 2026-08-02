@@ -59,7 +59,7 @@ in {
           home = {
             modules = with self.homeModules;
               [
-                {
+                ({pkgs, ...}: {
                   userConfig = {
                     name = name;
                     email = email hostname;
@@ -67,7 +67,9 @@ in {
                     gitKey = gitKeys.${hostname};
                   };
                   home.stateVersion = homeStateVersion.${hostname};
-                }
+
+                  home.packages = [pkgs.antigravity-cli];
+                })
                 common-desktop
 
                 alacritty

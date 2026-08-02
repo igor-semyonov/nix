@@ -1,11 +1,9 @@
 {
-  inputs,
   self,
   ...
 }: {
   flake.nixosModules.common-desktop = {
     pkgs,
-    lib,
     config,
     ...
   }: {

@@ -1,6 +1,5 @@
 {
   buildNixosAndHomeManager,
-  inputs,
   self,
   config,
   lib,
@@ -18,82 +17,96 @@
     common-headless
     billy-disks
 
-    (
-      {config, ...}: {
-        users.users = {
-          # igor-headless.hashedPasswordFile = config.sops.secrets.igor-pw.path;
-          root.openssh.authorizedKeys.keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH5gmBdZsP86dXIL7P/Wb+mBtXO/1xqqKMNKKqLr8SJZ igor@boxy"];
-        };
+    {
+      users.users = {
+        # igor-headless.hashedPasswordFile = config.sops.secrets.igor-pw.path;
+        root.openssh.authorizedKeys.keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH5gmBdZsP86dXIL7P/Wb+mBtXO/1xqqKMNKKqLr8SJZ igor@boxy"];
+      };
 
-        nix.settings = {
-          download-buffer-size = 2 * 1024 * 1024 * 1024;
-          cores = 2;
-          max-jobs = 2;
-        };
+      nix.settings = {
+        download-buffer-size = 2 * 1024 * 1024 * 1024;
+        cores = 2;
+        max-jobs = 2;
+      };
 
-        boot.loader = {
-          efi = {
-            canTouchEfiVariables = true;
-            # efiSysMountPoint = "/boot/efi"; #  defaults to /boot
-          };
-          timeout = 5;
-          systemd-boot = {
-            enable = true;
-            memtest86.enable = false;
-            configurationLimit = 8;
-          };
+      boot.loader = {
+        efi = {
+          canTouchEfiVariables = true;
+          # efiSysMountPoint = "/boot/efi"; #  defaults to /boot
         };
-
-        networking = {
-          networkmanager.enable = false;
-          useNetworkd = true;
-          useDHCP = false;
-        };
-        systemd.network = {
+        timeout = 5;
+        systemd-boot = {
           enable = true;
-          networks."10-wan" = {
-            matchConfig.Name = "ens3";
-            networkConfig = {
-              DHCP = "ipv4";
-              IPv6AcceptRA = false;
-            };
-
-            address = ["2604:2dc0:121::6c9/64"];
-            routes = [{Gateway = "2604:2dc0:121::1";}];
-          };
+          memtest86.enable = false;
+          configurationLimit = 8;
         };
+      };
 
-        ${ns} = {
-          btrbk = {
-            enable = true;
-            snapshots.subvolumes = [
-              "@"
-              "@home"
-              "@var"
-            ];
+      networking = {
+        networkmanager.enable = false;
+        useNetworkd = true;
+        useDHCP = false;
+      };
+      systemd.network = {
+        enable = true;
+        networks."10-wan" = {
+          matchConfig.Name = "en*";
+          networkConfig = {
+            IPv6AcceptRA = false;
           };
+
+          address = [
+            "207.246.88.247/23"
+            "2001:19f0:4000:2c4b:5400:06ff:fe79:e305/64"
+          ];
+          routes = [
+            {
+              Gateway = "207.246.88.1";
+              GatewayOnLink = true;
+            }
+            {
+              Gateway = "fe80::1";
+              GatewayOnLink = true;
+            }
+          ];
         };
+      };
 
-        # Apply No-CoW to database and mail directories to prevent BTRFS fragmentation
-        systemd.tmpfiles.rules = [
-          # "h" means set extended attributes.
-          # +C disables CoW.
+      zramSwap.enable = true;
+      services.journald.extraConfig = ''
+        SystemMaxUse=1G
+        SystemKeepFree=2G
+      '';
 
-          # For Vaultwarden (assuming default NixOS state directory)
-          "h /var/lib/bitwarden_rs - - - - +C"
+      # ${ns} = {
+      #   btrbk = {
+      #     enable = true;
+      #     snapshots.subvolumes = [
+      #       "@"
+      #       "@home"
+      #     ];
+      #   };
+      # };
 
-          # For Mail (example for standard vmail/dovecot spools)
-          "h /var/vmail - - - - +C"
-          "h /var/lib/postfix - - - - +C"
+      # Apply No-CoW to database and mail directories to prevent BTRFS fragmentation
+      systemd.tmpfiles.rules = [
+        # "h" means set extended attributes.
+        # +C disables CoW.
 
-          # Create the snapshot directory (Type 'd')
-          # Format: Type  Path  Mode  User  Group  Age  Argument
-          "d /mnt/btrfs-pool/btrbk-snapshots 0750 root root - -"
-        ];
+        # For Vaultwarden (assuming default NixOS state directory)
+        "h /var/lib/bitwarden_rs - - - - +C"
 
-        system.stateVersion = "26.11";
-      }
-    )
+        # For Mail (example for standard vmail/dovecot spools)
+        "h /var/vmail - - - - +C"
+        "h /var/lib/postfix - - - - +C"
+
+        # Create the snapshot directory (Type 'd')
+        # Format: Type  Path  Mode  User  Group  Age  Argument
+        "d /mnt/btrfs-pool/btrbk-snapshots 0750 root root - -"
+      ];
+
+      system.stateVersion = "26.11";
+    }
   ];
   nixosVmModules = [
     {config.hardware.nvidia-container-toolkit.enable = lib.mkForce false;}

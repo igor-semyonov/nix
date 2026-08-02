@@ -10,6 +10,9 @@ boot:
 build target_hostname=actual_hostname:
     nixos-rebuild build --flake .#{{ target_hostname }} --cores {{ nproc }} --max-jobs {{ nproc }} --log-format bar-with-logs
 
+size target_hostname=actual_hostname:
+    nix path-info -Sh .#nixosConfigurations.{{ target_hostname }}.config.system.build.toplevel
+
 switch-remote target_hostname target_host:
     nixos-rebuild switch --flake .#{{ target_hostname }} --target-host {{ target_host }} --cores {{ nproc }} --max-jobs {{ nproc }} -L
 

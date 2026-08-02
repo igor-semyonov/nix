@@ -5,9 +5,7 @@
       disk = {
         main = {
           type = "disk";
-          # NOTE: Hetzner Cloud VMs (CX/CPX) usually use /dev/sda
-          # Hetzner ARM VMs (CAX) and Dedicated Servers often use /dev/nvme0n1
-          device = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi0-0-0-0";
+          device = "/dev/vda";
           content = {
             type = "gpt";
             partitions = {
@@ -48,8 +46,8 @@
                       mountpoint = "/home";
                       mountOptions = sharedMountOptions;
                     };
-                    "@var" = {
-                      mountpoint = "/var";
+                    "@root" = {
+                      mountpoint = "/root";
                       mountOptions = sharedMountOptions;
                     };
                     "@nix" = {
@@ -57,13 +55,51 @@
                       mountOptions = sharedMountOptions;
                     };
                     "/" = {
-                      mountpoint = "/mnt/btrfs-pool";
+                      mountpoint = "/mnt/btrfs-pool-root";
                       mountOptions = sharedMountOptions;
                     };
                     "@swap" = {
                       mountpoint = "/swap";
                       # Disko automatically disables CoW (chattr +C) for this file
-                      swap.swapfile.size = "2G";
+                      swap.swapfile.size = "3G";
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
+        data = {
+          type = "disk";
+          device = "/dev/vdb";
+          content = {
+            type = "gpt";
+            partitions = {
+              data = {
+                size = "100%";
+                content = {
+                  type = "btrfs";
+                  # Overwrite existing partitions if repurposing a drive
+                  extraArgs = ["-f"];
+                  subvolumes = let
+                    sharedMountOptions = [
+                      "compress-force=zstd:3"
+                      "noatime"
+                      "noautodefrag"
+                      "commit=45"
+                    ];
+                  in {
+                    "@var-lib" = {
+                      mountpoint = "/var/lib";
+                      mountOptions = sharedMountOptions;
+                    };
+                    "@var-log" = {
+                      mountpoint = "/var/log";
+                      mountOptions = sharedMountOptions;
+                    };
+                    "/" = {
+                      mountpoint = "/mnt/btrfs-pool-data";
+                      mountOptions = sharedMountOptions;
                     };
                   };
                 };

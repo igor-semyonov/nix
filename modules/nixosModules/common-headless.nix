@@ -6,9 +6,6 @@
   flake.nixosModules.common-headless = {pkgs, ...}: {
     imports = with self.nixosModules; [
       common
-      programs-tts
-      programs-journal
-      programs-firefox
     ];
     igix.nvim.package = inputs.my-nvim.packages.${pkgs.stdenv.hostPlatform.system}.minimal;
 
