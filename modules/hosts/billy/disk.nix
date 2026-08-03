@@ -60,8 +60,7 @@
                     };
                     "@swap" = {
                       mountpoint = "/swap";
-                      # Disko automatically disables CoW (chattr +C) for this file
-                      swap.swapfile.size = "3G";
+                      swap.swapfile.size = "8G";
                     };
                   };
                 };
