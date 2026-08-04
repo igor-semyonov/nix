@@ -54,6 +54,10 @@
                       mountpoint = "/nix";
                       mountOptions = sharedMountOptions;
                     };
+                    "@var-log" = {
+                      mountpoint = "/var/log";
+                      mountOptions = sharedMountOptions;
+                    };
                     "/" = {
                       mountpoint = "/mnt/btrfs-pool-root";
                       mountOptions = sharedMountOptions;
@@ -90,10 +94,6 @@
                   in {
                     "@var-lib" = {
                       mountpoint = "/var/lib";
-                      mountOptions = sharedMountOptions;
-                    };
-                    "@var-log" = {
-                      mountpoint = "/var/log";
                       mountOptions = sharedMountOptions;
                     };
                     "/" = {
