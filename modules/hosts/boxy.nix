@@ -309,8 +309,6 @@
       ...
     }: let
       username = "igor";
-      btrfs-options = ["noautodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
-      btrfs-options-hdd = ["autodefrag" "noatime" "compress-force=zstd:7" "commit=60"];
     in {
       # imports = [
       #   (modulesPath + "/installer/scan/not-detected.nix")
@@ -321,108 +319,95 @@
       boot.kernelModules = ["kvm-amd"];
       boot.extraModulePackages = [];
 
-      fileSystems = {
+      fileSystems = let
+        btrfs-options = [
+          "noautodefrag"
+          "noatime"
+          "compress-force=zstd:7"
+          "commit=60"
+        ];
+        btrfs-nonprimary-options =
+          btrfs-options
+          ++ btrfs-delay-options
+          ++ [
+            "x-systemd.idle-timeout=60s"
+          ];
+        btrfs-delay-options = [
+          "nofail"
+          "noauto"
+          "x-systemd.automount"
+          "x-systemd.device-timeout=5s"
+        ];
+        btrfs-options-hdd =
+          [
+            "autodefrag"
+            "noatime"
+            "compress-force=zstd:11"
+            "commit=60"
+            "x-systemd.idle-timeout=120s"
+          ]
+          ++ btrfs-delay-options;
+        disk-main = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
+        disk-8tb = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
+        disk-gentoo = "/dev/disk/by-uuid/11a22b3d-fa0c-4821-8bf0-802b5d983c7e";
+        disk-10tb = "/dev/disk/by-uuid/a11033d4-a88b-4c02-8ba7-9a36ba9c6df8";
+        disk-esp = "/dev/disk/by-uuid/A3CA-824C";
+
+        fsType = "btrfs";
+        noCheck = true;
+      in {
         "/" = {
-          device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
-          fsType = "btrfs";
-          noCheck = true;
+          inherit fsType noCheck;
+          device = disk-main;
           options = ["subvol=@"] ++ btrfs-options;
         };
         "/nix" = {
-          device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
-          fsType = "btrfs";
-          noCheck = true;
+          inherit fsType noCheck;
+          device = disk-main;
           options = ["subvol=@nix"] ++ btrfs-options;
         };
         "/home" = {
-          device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
-          fsType = "btrfs";
-          noCheck = true;
+          inherit fsType noCheck;
+          device = disk-main;
           options = ["subvol=@home"] ++ btrfs-options;
         };
         "/mnt/btrfs-pool" = {
-          device = "/dev/disk/by-uuid/081a7b33-1e90-4885-90b7-7611d38f04dd";
-          fsType = "btrfs";
-          noCheck = true;
+          inherit fsType noCheck;
+          device = disk-main;
           options = ["subvolid=5"] ++ btrfs-options;
         };
         "/mnt/8tb" = {
-          device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
-          fsType = "btrfs";
-          noCheck = true;
-          options =
-            [
-              "subvolid=5"
-              "nofail"
-              "noauto"
-              "x-systemd.automount"
-              "x-systemd.idle-timeout=60s"
-              "x-systemd.device-timeout=5s"
-            ]
-            ++ btrfs-options;
+          inherit fsType noCheck;
+          device = disk-8tb;
+          options = ["subvolid=5"] ++ btrfs-nonprimary-options;
         };
         "/home/${username}/data" = {
-          device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
-          fsType = "btrfs";
-          noCheck = true;
-          options =
-            [
-              "subvol=@data"
-              "nofail"
-              "noauto"
-              "x-systemd.automount"
-              "x-systemd.idle-timeout=60s"
-              "x-systemd.device-timeout=5s"
-            ]
-            ++ btrfs-options;
+          inherit fsType noCheck;
+          device = disk-8tb;
+          options = ["subvol=@data"] ++ btrfs-nonprimary-options;
         };
         "/home/${username}/games" = {
-          device = "/dev/disk/by-uuid/2d0abc72-8189-41f4-bf6a-990a20bcadd1";
-          fsType = "btrfs";
-          noCheck = true;
-          options =
-            [
-              "subvol=@games"
-              "nofail"
-              "noauto"
-              "x-systemd.automount"
-              "x-systemd.idle-timeout=60s"
-              "x-systemd.device-timeout=5s"
-            ]
-            ++ btrfs-options;
+          inherit fsType noCheck;
+          device = disk-8tb;
+          options = ["subvol=@games"] ++ btrfs-nonprimary-options;
+        };
+        "/var/lib/libvirt/images" = {
+          inherit fsType noCheck;
+          device = disk-8tb;
+          options = ["subvol=@vm-images"] ++ btrfs-nonprimary-options;
         };
         "/mnt/gentoo-btrfs-pool" = {
-          device = "/dev/disk/by-uuid/11a22b3d-fa0c-4821-8bf0-802b5d983c7e";
-          fsType = "btrfs";
-          noCheck = true;
-          options =
-            [
-              "subvolid=5"
-              "nofail"
-              "noauto"
-              "x-systemd.automount"
-              "x-systemd.idle-timeout=60s"
-              "x-systemd.device-timeout=5s"
-            ]
-            ++ btrfs-options;
+          inherit fsType noCheck;
+          device = disk-gentoo;
+          options = ["subvolid=5"] ++ btrfs-nonprimary-options;
         };
         "/mnt/10tb" = {
-          device = "/dev/disk/by-uuid/a11033d4-a88b-4c02-8ba7-9a36ba9c6df8";
-          fsType = "btrfs";
-          noCheck = true;
-          options =
-            [
-              "subvolid=5"
-              "nofail"
-              "noauto"
-              "x-systemd.automount"
-              "x-systemd.idle-timeout=10m"
-              "x-systemd.device-timeout=5s"
-            ]
-            ++ btrfs-options-hdd;
+          inherit fsType noCheck;
+          device = disk-10tb;
+          options =["subvolid=5"]++ btrfs-options-hdd;
         };
         "/boot/efi" = {
-          device = "/dev/disk/by-uuid/A3CA-824C";
+          device = disk-esp;
           fsType = "vfat";
           options = ["fmask=0022" "dmask=0022"];
         };
