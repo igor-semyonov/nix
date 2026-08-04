@@ -5,8 +5,8 @@
     ...
   }: let
     theme = {
-      name = "Sweet-Dark";
-      package = pkgs.sweet;
+      name = "Dracula";
+      package = pkgs.dracula-theme;
     };
     cursorTheme = {
       name = "Bibata-Original-Amber-Right";
@@ -17,11 +17,9 @@
       name = "Papirus-Dark";
       package = pkgs.papirus-nord;
     };
-    fullTheme = {
-      theme = theme;
-      cursorTheme = cursorTheme;
-      iconTheme = iconTheme;
-    };
+    # fullTheme = {
+    #   inherit theme iconTheme cursorTheme;
+    # };
     bookmarks = [
       "file:///home/${config.userConfig.name}/Documents"
       "file:///home/${config.userConfig.name}/Downloads"
@@ -34,29 +32,21 @@
       # "file:///home/${config.userConfig.name}/Documents/repositories"
     ];
   in {
-    # GTK theme configuration
-    gtk =
-      fullTheme
-      // {
-        enable = true;
-        font = {
-          name = "Roboto";
-          size = 14;
-        };
-        gtk2 = fullTheme // {force = true;};
-        gtk4 =
-          fullTheme
-          // {
-            theme = {
-              package = pkgs.sweet;
-              name = "Sweet-Dark-v40";
-            };
-          };
-        gtk3 =
-          fullTheme
-          // {
-            bookmarks = bookmarks;
-          };
-      };
+    # # GTK theme configuration
+    # gtk = {
+    #   enable = true;
+    #   inherit theme cursorTheme iconTheme;
+    #   font = {
+    #     name = "Roboto";
+    #     size = 14;
+    #   };
+    #   gtk2 = {force = true;};
+    #   gtk3 = {inherit bookmarks;};
+
+    #   # probably don't need this
+    #   # gtk2 = fullTheme // {force = true;};
+    #   # gtk3 = fullTheme // {inherit bookmarks;};
+    #   # gtk4 = fullTheme;
+    # };
   };
 }
