@@ -9,22 +9,28 @@
           content = {
             type = "gpt";
             partitions = {
-              # EFI System Partition
-              ESP = {
+              boot = {
+                size = "1MiB";
+                type = "EF02";
                 priority = 1;
-                name = "ESP";
-                start = "1M";
-                end = "512M";
+              };
+              # EFI System Partition
+              esp = {
+                priority = 2;
+                name = "esp";
+                size = "256MiB";
                 type = "EF00";
                 content = {
                   type = "filesystem";
                   format = "vfat";
+                  mkfsOptions = ["-F" "32"];
                   mountpoint = "/boot";
                   mountOptions = ["umask=0077"];
                 };
               };
               # BTRFS Root Partition
               root = {
+                name = "root";
                 size = "100%";
                 content = {
                   type = "btrfs";
@@ -79,6 +85,7 @@
             type = "gpt";
             partitions = {
               data = {
+                name = "data";
                 size = "100%";
                 content = {
                   type = "btrfs";

@@ -23,10 +23,17 @@
         root.openssh.authorizedKeys.keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH5gmBdZsP86dXIL7P/Wb+mBtXO/1xqqKMNKKqLr8SJZ igor@boxy"];
       };
 
-      nix.settings = {
-        download-buffer-size = 2 * 1024 * 1024 * 1024;
-        cores = 2;
-        max-jobs = 2;
+      nix = {
+        settings = {
+          download-buffer-size = 2 * 1024 * 1024 * 1024;
+          cores = 2;
+          max-jobs = 2;
+        };
+        # gc = {
+        #   automatic = true;
+        #   dates = "weekly";
+        #   options = "--delete-older-than "; # Deletes generations older than 14 days
+        # };
       };
 
       boot.loader = {
@@ -35,10 +42,15 @@
           # efiSysMountPoint = "/boot/efi"; #  defaults to /boot
         };
         timeout = 5;
-        systemd-boot = {
+        systemd-boot.enable = false;
+        grub = {
           enable = true;
-          memtest86.enable = false;
-          configurationLimit = 8;
+          efiSupport = true;
+          # Tells GRUB to write to /boot/EFI/BOOT/BOOTX64.EFI
+          efiInstallAsRemovable = true;
+          # Set to "nodev" for UEFI, or point to "/dev/vda" if handling BIOS hybrid fallback
+          device = "/dev/vda";
+          configurationLimit = 10;
         };
       };
 
