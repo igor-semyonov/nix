@@ -10,7 +10,7 @@
             type = "gpt";
             partitions = {
               boot = {
-                size = "1MiB";
+                size = "1024K";
                 type = "EF02";
                 priority = 1;
               };
@@ -19,11 +19,12 @@
                 priority = 2;
                 name = "esp";
                 size = "256MiB";
+                size = "${toString (256 * 1024)}K";
                 type = "EF00";
                 content = {
                   type = "filesystem";
                   format = "vfat";
-                  mkfsOptions = ["-F" "32"];
+                  extraArgs = ["-F" "32"];
                   mountpoint = "/boot";
                   mountOptions = ["umask=0077"];
                 };
