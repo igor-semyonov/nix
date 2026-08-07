@@ -82,7 +82,7 @@
         # tela-circle-icon-theme
         papirus-nord
         zoom-to-factor
-        tokyo-night-kde
+        # tokyo-night-kde
       ];
     };
 
@@ -94,33 +94,6 @@
 
     programs.plasma = {
       enable = true;
-
-      fonts = {
-        fixedWidth = {
-          family = "FiraCode Nerd Font Mono";
-          pointSize = 14;
-        };
-        general = {
-          family = "Roboto";
-          pointSize = 14;
-        };
-        menu = {
-          family = "Roboto";
-          pointSize = 14;
-        };
-        small = {
-          family = "Roboto";
-          pointSize = 11;
-        };
-        toolbar = {
-          family = "Roboto";
-          pointSize = 14;
-        };
-        windowTitle = {
-          family = "Roboto";
-          pointSize = 14;
-        };
-      };
 
       hotkeys.commands = {
         tts-selection = {
@@ -713,24 +686,24 @@
       workspace = {
         enableMiddleClickPaste = true;
         clickItemTo = "select";
-        lookAndFeel = "TokyoNight";
-        theme = "TokyoNight";
-        colorScheme = "TokyoNight";
+        # lookAndFeel = "TokyoNight";
+        # theme = "TokyoNight";
+        # colorScheme = "TokyoNight";
         iconTheme = "Papirus-Dark";
-        cursor = {
-          theme = "Bibata-Original-Amber-Right";
-          size = 96;
-        };
-        splashScreen = {
-          engine = "KSplashQML";
-          theme = "TokyoNight";
-        };
+        # cursor = {
+        #   theme = "Bibata-Original-Amber-Right";
+        #   size = 96;
+        # };
+        # splashScreen = {
+        #   engine = "KSplashQML";
+        #   theme = "TokyoNight";
+        # };
         tooltipDelay = 1;
-        wallpaper = "${config.wallpaper}";
-        windowDecorations = {
-          library = "org.kde.kwin.aurorae";
-          theme = "__aurorae__svg__TokyoNight";
-        };
+        # wallpaper = "${config.wallpaper}";
+        # windowDecorations = {
+        #   library = "org.kde.kwin.aurorae";
+        #   theme = "__aurorae__svg__TokyoNight";
+        # };
       };
 
       configFile = {

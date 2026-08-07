@@ -73,8 +73,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    tokyonight = {
-      url = "github:mrjones2014/tokyonight.nix";
+    stylix = {
+      url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

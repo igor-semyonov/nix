@@ -1,5 +1,9 @@
 {self, ...}: {
-  flake.homeModules.hyprland = {pkgs, ...}: let
+  flake.homeModules.hyprland = {
+    pkgs,
+    lib,
+    ...
+  }: let
     zoom-py = pkgs.writers.writePython3 "zoom-py" {
       flakeIgnore = ["E501" "W191"]; # Add "E501" to ignore line length errors
     } (builtins.readFile ./zoom.py);
@@ -8,15 +12,6 @@
       waybar
       anyrun
     ];
-    # Consistent cursor theme across all applications.
-    home.pointerCursor = {
-      enable = true;
-      gtk.enable = true;
-      x11.enable = true;
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Original-Amber-Right";
-      size = 96;
-    };
 
     wayland.windowManager.hyprland.configType = "lua";
 
@@ -393,7 +388,7 @@
 
           background = {
             monitor = "";
-            path = "screenshot";
+            path = lib.mkForce "screenshot";
             blur_passes = 3;
           };
 
@@ -401,17 +396,17 @@
             monitor = "";
             size = "20%, 5%";
             outline_thickness = 3;
-            inner_color = "rgba(0, 0, 0, 0.0) # no fill";
+            inner_color = lib.mkDefault "rgba(0, 0, 0, 0.0) # no fill";
 
-            outer_color = "rgba(33ccffee) rgba(00ff99ee) 45deg";
-            check_color = "rgba(00ff99ee) rgba(ff6633ee) 120deg";
-            fail_color = "rgba(ff6633ee) rgba(ff0066ee) 40deg";
+            outer_color = lib.mkDefault "rgba(33ccffee) rgba(00ff99ee) 45deg";
+            check_color = lib.mkDefault "rgba(00ff99ee) rgba(ff6633ee) 120deg";
+            fail_color = lib.mkDefault "rgba(ff6633ee) rgba(ff0066ee) 40deg";
 
-            font_color = "rgb(143, 143, 143)";
+            font_color = lib.mkDefault "rgb(143, 143, 143)";
             fade_on_empty = false;
             rounding = 15;
 
-            font_family = "$font";
+            font_family = lib.mkDefault "$font";
             placeholder_text = "Input password...";
             fail_text = "$PAMFAIL";
 

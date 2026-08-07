@@ -7,7 +7,7 @@
       enable = true;
       # enableHidpi = true;
       # settings.Theme.CursorTheme = "Yaru";
-      settings.Theme.CursorTheme = "Bibata-Original-Amber-Right";
+      # settings.Theme.CursorTheme = "Bibata-Original-Amber-Right";
       wayland.enable = true;
     };
     services.desktopManager.plasma6.enable = true;

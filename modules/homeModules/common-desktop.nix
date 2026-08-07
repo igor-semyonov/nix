@@ -6,13 +6,7 @@
   flake.homeModules.common-desktop = {pkgs, ...}: {
     imports = [
       self.homeModules.common
-      inputs.tokyonight.homeManagerModules.default
     ];
-
-    tokyonight = {
-      enable = true;
-      style = "storm"; # Options: "night", "storm", "moon", or "day"
-    };
 
     home.packages = with pkgs;
       [

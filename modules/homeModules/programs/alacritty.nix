@@ -1,5 +1,9 @@
 {...}: {
-  flake.homeModules.alacritty = {pkgs, ...}: {
+  flake.homeModules.alacritty = {
+    pkgs,
+    lib,
+    ...
+  }: {
     # Install alacritty via home-manager module
     programs.alacritty = {
       enable = true;
@@ -47,23 +51,24 @@
         };
 
         font = {
-          size =
+          size = lib.mkForce (
             if pkgs.stdenv.isDarwin
             then 36
-            else 41.5;
-          normal = {
+            else 41.5
+          );
+          normal = lib.mkDefault {
             family = "FiraCode Nerd Font";
             style = "Regular";
           };
-          bold = {
+          bold = lib.mkDefault {
             family = "FiraCode Nerd Font";
             style = "Bold";
           };
-          italic = {
+          italic = lib.mkDefault {
             family = "FiraCode Nerd Font";
             style = "Italic";
           };
-          bold_italic = {
+          bold_italic = lib.mkDefault {
             family = "FiraCode Nerd Font";
             style = "Bold";
           };
@@ -76,7 +81,7 @@
           save_to_clipboard = true;
         };
 
-        colors = {
+        colors = lib.mkDefault {
           draw_bold_text_with_bright_colors = true;
           primary = {
             background = "#000000";

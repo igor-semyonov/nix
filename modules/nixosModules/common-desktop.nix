@@ -1,7 +1,4 @@
-{
-  self,
-  ...
-}: {
+{self, ...}: {
   flake.nixosModules.common-desktop = {
     pkgs,
     config,
@@ -9,6 +6,7 @@
   }: {
     imports = with self.nixosModules; [
       common
+      stylix
       programs-tts
       programs-journal
       programs-firefox

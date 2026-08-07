@@ -96,7 +96,7 @@ in {
               ]
               ++ lib.optionals pkgs.stdenv.isLinux [
                 kde
-                hyprland
+                # hyprland
 
                 tts
                 qt

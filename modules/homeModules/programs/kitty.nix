@@ -10,11 +10,6 @@
       enable = true;
       # package = kitty;
       enableGitIntegration = true;
-      font = {
-        name = "FiraCode Nerd Font";
-        package = pkgs.nerd-fonts.fira-code;
-        size = 42;
-      };
       keybindings = {
         "ctrl+c" = "copy_or_interrupt";
         # "ctrl+f>2" = "set_font_size 20";

@@ -5,14 +5,6 @@
     ...
   }: {
     config = lib.mkIf (!pkgs.stdenv.isDarwin) {
-      qt = {
-        enable = true;
-        # platformTheme.name = "kvantum";
-        # style.name = "kvantum";
-        platformTheme.name = "kde";
-        style.name = "Breeze";
-      };
-
       home.sessionVariables = {
         # use wayland as the default backend, fallback to xcb if wayland is not available
         QT_QPA_PLATFORM = "wayland;xcb";
@@ -22,6 +14,9 @@
 
         # tell calibre to use the dark theme
         CALIBRE_USE_DARK_PALETTE = "1";
+
+        # Add this line to force GTK apps to use Wayland natively
+        GDK_BACKEND = "wayland,x11";
       };
     };
   };

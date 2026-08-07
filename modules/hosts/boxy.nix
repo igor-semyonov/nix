@@ -47,7 +47,7 @@
     common-desktop
 
     kde
-    hyprland
+    # hyprland
 
     programs-steam
     programs-prism-launcher
@@ -84,8 +84,7 @@
             efiSupport = true;
             # efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
             device = "nodev";
-            font = "${pkgs.fira-code}/share/fonts/truetype/FiraCode-VF.ttf";
-            fontSize = 128;
+            fontSize = lib.mkForce 64;
             entryOptions = "--class nixos --unrestricted --id nixos";
             default = "nixos";
             # default="gentoo";
