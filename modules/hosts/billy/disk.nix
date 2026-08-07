@@ -18,7 +18,6 @@
               esp = {
                 priority = 2;
                 name = "esp";
-                size = "256MiB";
                 size = "${toString (256 * 1024)}K";
                 type = "EF00";
                 content = {
