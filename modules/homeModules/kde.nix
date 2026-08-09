@@ -678,6 +678,7 @@
         enableMiddleClickPaste = true;
         clickItemTo = "select";
         lookAndFeel = "org.kde.breezedark.desktop";
+        colorScheme = "Stylix";
         tooltipDelay = 1;
       };
 
