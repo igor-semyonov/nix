@@ -69,6 +69,27 @@
           terminal = 48;
         };
       };
+
+      iconTheme = {
+        enable = true;
+
+        # probably best coverage and most reasonable while having good contrast
+        # package = pkgs.kora-icon-theme;
+        # dark = "kora";
+        # light = "kora-light";
+
+        # cyberpunk neon
+        package = pkgs.candy-icons;
+        dark = "candy-icons";
+        light = "candy-icons";
+
+        # garuda dragonized used this
+        # package = pkgs.beauty-line-icon-theme;
+        # dark = "BeautyLine";
+        # light = "BeautyLine";
+      };
+
+      targets.grub.useImage = false;
     };
   };
 }

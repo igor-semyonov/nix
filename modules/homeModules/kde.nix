@@ -574,16 +574,7 @@
         "mediacontrol"."playpausemedia" = "Media Play";
         "mediacontrol"."previousmedia" = "Media Previous";
         "mediacontrol"."stopmedia" = "Media Stop";
-        # kwin = {
-        #   "Walk Through Windows of Current Application" = [
-        #     "Meta+Tab"
-        #     "Alt+`,Walk Through Windows of Current Application"
-        #   ];
-        #   "Walk Through Windows of Current Application (Reverse)" = [
-        #     "Meta+Shift+Tab"
-        #     "Alt+~,Walk Through Windows of Current Application (Reverse)"
-        #   ];
-        # };
+
         ksmserver = {
           "Lock Session" = [
             "Screensaver"
@@ -686,24 +677,8 @@
       workspace = {
         enableMiddleClickPaste = true;
         clickItemTo = "select";
-        # lookAndFeel = "TokyoNight";
-        # theme = "TokyoNight";
-        # colorScheme = "TokyoNight";
-        iconTheme = "Papirus-Dark";
-        # cursor = {
-        #   theme = "Bibata-Original-Amber-Right";
-        #   size = 96;
-        # };
-        # splashScreen = {
-        #   engine = "KSplashQML";
-        #   theme = "TokyoNight";
-        # };
+        lookAndFeel = "org.kde.breezedark.desktop";
         tooltipDelay = 1;
-        # wallpaper = "${config.wallpaper}";
-        # windowDecorations = {
-        #   library = "org.kde.kwin.aurorae";
-        #   theme = "__aurorae__svg__TokyoNight";
-        # };
       };
 
       configFile = {
@@ -809,14 +784,6 @@
         "dolphin/view_properties/global/.directory"."Dolphin"."ViewMode" = 1;
         "dolphin/view_properties/global/.directory"."Settings"."HiddenFilesShown" = true;
       };
-
-      # startup.startupScript = {
-      #   ulauncher = {
-      #     text = "ulauncher --hide-window";
-      #     priority = 8;
-      #     runAlways = true;
-      #   };
-      # };
     };
   };
 }
