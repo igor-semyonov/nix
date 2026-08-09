@@ -17,27 +17,7 @@
 
       # Force dark mode metrics across all generated themes
       polarity = "dark";
-
-      # The Custom High-Contrast Cyberpunk Palette
-      base16Scheme = {
-        base00 = "000000"; # Pure Pitch Black (Main Background)
-        base01 = "0a0a0a"; # Very Dark Grey (Panels, Alt Backgrounds)
-        base02 = "ff9000"; # Dark Grey (Selections, Highlights)
-        base03 = "333333"; # Grey (Comments, Inactive elements)
-        base04 = "cccccc"; # Light Grey (Dark Text)
-        base05 = "ffffff"; # Pure White (Main Text - Maximum Contrast)
-        base06 = "f5f5f5"; # Off White (Light Text)
-        base07 = "ffffff"; # Pure White (Light Background - rarely used)
-
-        base08 = "ff0055"; # Neon Pink/Red (Errors/Alerts)
-        base09 = "ff7700"; # Neon Orange (Warnings, secondary accents)
-        base0A = "ffee00"; # Neon Yellow (Search matches, warnings)
-        base0B = "00ffcc"; # Neon Cyan/Green (Strings, success)
-        base0C = "00ccff"; # Neon Cyan/Blue (Regex, escapes)
-        base0D = "aa00ff"; # Neon Purple (Primary Accent / Focus rings)
-        base0E = "dd00ff"; # Magenta (Keywords)
-        base0F = "ff00aa"; # Deep Pink (Deprecated/Misc)
-      };
+      base16Scheme = "${self}/modules/stylix/colors.yaml";
 
       cursor = {
         package = pkgs.bibata-cursors;

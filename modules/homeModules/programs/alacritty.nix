@@ -81,7 +81,7 @@
           save_to_clipboard = true;
         };
 
-        colors = lib.mkDefault {
+        colors = lib.mkForce {
           draw_bold_text_with_bright_colors = true;
           primary = {
             background = "#000000";

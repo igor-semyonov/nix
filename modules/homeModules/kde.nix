@@ -677,8 +677,7 @@
       workspace = {
         enableMiddleClickPaste = true;
         clickItemTo = "select";
-        lookAndFeel = "org.kde.breezedark.desktop";
-        colorScheme = "Stylix";
+        colorScheme = "igix";
         tooltipDelay = 1;
       };
 

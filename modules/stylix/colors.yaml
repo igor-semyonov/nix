@@ -1,0 +1,31 @@
+scheme: "igix"
+author: "Igor"
+
+# --- BASE 16 (Standard UI & Syntax) ---
+base00: "000000" # Pure Pitch Black (Main Background)
+base01: "0a0a0a" # Very Dark Grey (Panels, Alt Backgrounds)
+base02: "2b2b2b" # Lighter Dark Grey (Selections, Highlights)
+base03: "777777" # Mid Grey (Comments, Inactive elements)
+base04: "aaaaaa" # Light Grey (Secondary Text)
+base05: "ffffff" # Pure White (Main Text - Maximum Contrast)
+base06: "f5f5f5" # Off White (Light Text)
+base07: "ffffff" # Pure White (Light Background - rarely used)
+
+base08: "ff0055" # Neon Pink/Red (Errors/Alerts)
+base09: "ff5500" # Vivid Neon Orange (Warnings, secondary accents)
+base0A: "ffee00" # Neon Yellow (Search matches)
+base0B: "00ffcc" # Neon Cyan/Green (Strings, success)
+base0C: "00ccff" # Neon Cyan/Blue (Regex, escapes)
+base0D: "c400ff" # Hyper-Vivid Neon Purple (Primary Accent / Focus rings)
+base0E: "e600ff" # Electrified Magenta (Keywords)
+base0F: "ff00cc" # Hot Pink (Deprecated/Misc)
+
+# --- BASE 24 (Extended Terminal & High-Contrast States) ---
+base10: "000000" # Darkest Background (Kept pitch black for true OLED effect)
+base11: "050505" # Darker Background (Subtle separation for deep UI layers)
+base12: "444444" # Bright Black / Darkest Foreground (Terminal color 8)
+base13: "ffffff" # Brightest Foreground (Terminal color 15)
+base14: "ff2266" # Alternate Red (Bright Crimson)
+base15: "ff8800" # Alternate Orange (Bright Amber / Warning pop)
+base16: "ffcc00" # Alternate Yellow (Bright Gold)
+base17: "33ffbb" # Alternate Green (Bright Mint)
