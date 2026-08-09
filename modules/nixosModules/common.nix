@@ -90,9 +90,10 @@
 
     # System packages
     environment.systemPackages = with pkgs; [
-      tmux
-      file
+      e2fsprogs
+      pciutils
       usbutils
+      file
       terminus_font
       lm_sensors
       nix-index
@@ -100,10 +101,9 @@
       btop
       p7zip
       gcc
-      glib
+      just
       gnumake
       killall
-      # vim
       neovim
       wget
       git
