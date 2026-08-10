@@ -1,11 +1,5 @@
-{
-  self,
-  ...
-}: {
-  flake.homeModules.common-headless = {
-    pkgs,
-    ...
-  }: {
+{self, ...}: {
+  flake.homeModules.common-headless = {pkgs, ...}: {
     imports = [self.homeModules.common];
 
     # Ensure common packages are installed

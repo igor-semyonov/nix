@@ -1,11 +1,9 @@
 scheme: "igix"
 author: "Igor"
-
 # --- BASE 16 (Standard UI & Syntax) ---
-# Backgrounds: base00 is the ONLY pure black. base01/base02 are deliberately
-# lifted off black so GTK dialogs, cards, headerbars and (critically) buttons
-# have a visible surface. Without this, apps like virt-manager draw buttons at
-# near-black on near-black and they vanish.
+# base00 is the only pure black. base01/base02 are lifted off black so GTK
+# dialogs, cards, headerbars and buttons have a visible surface (fixes the
+# invisible buttons in apps like virt-manager).
 base00: "000000" # Pure Pitch Black (Main window / view / terminal background)
 base01: "202020" # Raised surfaces (dialogs, cards, headerbars, popovers, buttons)
 base02: "343434" # Selections, borders, scrollbars, entry fields
@@ -14,17 +12,14 @@ base04: "b0b0b0" # Light Grey (Secondary text)
 base05: "ffffff" # Pure White (Main text - maximum contrast)
 base06: "f5f5f5" # Off White (Light text)
 base07: "ffffff" # Pure White (Light background - rarely used)
-
 base08: "ff2d55" # Neon Red (Errors, destructive actions)
 base09: "ff8800" # Vivid Orange (Warnings, orange palette slot)
 base0A: "ffcc00" # Neon Yellow (Search matches)
 base0B: "00ff9c" # Neon Green (Strings, success)
 base0C: "22ccff" # Neon Cyan/Blue (Regex, escapes)
-base0D: "ff9000" # PRIMARY ACCENT / HIGHLIGHT (Orange) - focus rings, selections,
-                 # GTK accent, Firefox accent. Matches Alacritty selection bg.
+base0D: "ff9000" # PRIMARY ACCENT / HIGHLIGHT - Orange (GTK/Firefox accent, focus rings, selections)
 base0E: "c400ff" # Vivid Purple (Keywords, secondary bright accent)
 base0F: "ff00cc" # Hot Pink (Deprecated / misc)
-
 # --- BASE 24 (Extended Terminal & High-Contrast States) ---
 base10: "000000" # Darkest Background (Kept pitch black for true OLED effect)
 base11: "0a0a0a" # Darker Background (Subtle separation for deep UI layers)

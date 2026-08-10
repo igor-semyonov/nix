@@ -403,7 +403,7 @@
         "/mnt/10tb" = {
           inherit fsType noCheck;
           device = disk-10tb;
-          options =["subvolid=5"]++ btrfs-options-hdd;
+          options = ["subvolid=5"] ++ btrfs-options-hdd;
         };
         "/boot/efi" = {
           device = disk-esp;
