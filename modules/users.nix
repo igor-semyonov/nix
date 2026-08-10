@@ -72,6 +72,8 @@ in {
                 })
                 common-desktop
 
+                claude
+
                 alacritty
                 kitty
                 bash
