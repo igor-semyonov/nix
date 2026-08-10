@@ -13,7 +13,7 @@
     #   USE_OVERLAYFS="yes"
     # '';
     programs.firefox = {
-      enable = lib.mkIf pkgs.stdenv.isLinux true;
+      enable = true;
       configPath = ".mozilla/firefox";
       profiles = {
         default = {
