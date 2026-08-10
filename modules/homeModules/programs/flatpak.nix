@@ -1,10 +1,4 @@
-{
-  inputs,
-  config,
-  ...
-}: let
-  ns = config.namespace-specifier;
-in {
+{inputs, ...}: {
   flake.homeModules.flatpak = {
     config,
     lib,
@@ -12,7 +6,7 @@ in {
     ...
   }: {
     imports = [inputs.nix-flatpak.homeManagerModules.nix-flatpak];
-    options.${ns}.flatpak = {
+    options.igix.flatpak = {
       packages = lib.mkOption {
         type = lib.types.listOf (lib.types.singleLineStr);
         description = "List of flatpak package specifiers to be installed";
@@ -23,7 +17,7 @@ in {
     config = lib.mkIf (!pkgs.stdenv.isDarwin) {
       services.flatpak = {
         enable = true;
-        packages = config.${ns}.flatpak.packages;
+        packages = config.igix.flatpak.packages;
         uninstallUnmanaged = true;
         update.auto = {
           enable = true;

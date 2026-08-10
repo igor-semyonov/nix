@@ -6,7 +6,6 @@
   lib,
   ...
 }: let
-  ns = config.namespace-specifier;
   hostname = "tavore";
   system = "x86_64-linux";
   includedUsers = ["igor"];
@@ -84,7 +83,7 @@
           nvidia-container-toolkit.enable = true;
         };
 
-        ${ns} = {
+        igix = {
           btrbk.enable = true;
           nas = {
             enable = true;

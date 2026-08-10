@@ -1,15 +1,13 @@
-{config, ...}: let
-  ns = config.namespace-specifier;
-in {
+{...}: {
   flake.nixosModules.nas = {
     pkgs,
     lib,
     config,
     ...
   }: let
-    cfg = config.${ns}.nas;
+    cfg = config.igix.nas;
   in {
-    options.${ns}.nas = {
+    options.igix.nas = {
       enable = lib.mkEnableOption "Enable NAS mounts";
       host = lib.mkOption {
         default = "synology.local";

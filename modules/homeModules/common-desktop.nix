@@ -9,10 +9,7 @@
     ];
 
     home.packages = with pkgs;
-      [
-        bibata-cursors
-        papirus-nord
-      ]
+      []
       ++ lib.optionals pkgs.stdenv.isDarwin [
         # colima
         # docker

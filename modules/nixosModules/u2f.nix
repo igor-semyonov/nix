@@ -1,14 +1,12 @@
-{config, ...}: let
-  ns = config.namespace-specifier;
-in {
+{...}: {
   flake.nixosModules.u2f = {
     lib,
     config,
     ...
   }: let
-    cfg = config.${ns}.u2f;
+    cfg = config.igix.u2f;
   in {
-    options.${ns}.u2f = {
+    options.igix.u2f = {
       enable = lib.mkEnableOption "Enable u2f login using yubikey for the given users using the specified yubikey";
       sharedId = lib.mkOption {
         type = lib.types.singleLineStr;

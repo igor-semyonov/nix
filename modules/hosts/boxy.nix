@@ -2,23 +2,15 @@
   buildNixosAndHomeManager,
   inputs,
   self,
-  config,
   lib,
   ...
 }: let
-  ns = config.namespace-specifier;
   hostname = "boxy";
   system = "x86_64-linux";
   includedUsers = ["igor"];
   nixosHomeManagerModule = true;
   groups = {"i2c" = {};};
-  homeModules = [
-    {
-      programs.home-manager.enable = true;
-      home.stateVersion = "25.05";
-    }
-    # self.homeModules.nixpkgs # only if home manager is used standalone
-  ];
+  homeModules = [];
   nixosModules = with self.nixosModules; [
     {
       nixpkgs.overlays = [
@@ -44,15 +36,11 @@
       };
     }
     secrets
-    common-desktop
-
-    kde
-    # hyprland
+    igix-desktop
 
     programs-steam
     programs-prism-launcher
 
-    nix-ld
     uxplay
     u2f
     {igix.u2f.enable = true;}
@@ -270,7 +258,7 @@
           };
         };
 
-        ${ns} = {
+        igix = {
           btrbk = {
             enable = true;
             snapshots.subvolumes = ["@" "@home" "@fidler"];
@@ -322,8 +310,9 @@
         btrfs-options = [
           "noautodefrag"
           "noatime"
-          "compress-force=zstd:7"
-          "commit=60"
+          "discarg:async"
+          "compress=zstd:5"
+          "commit=30"
         ];
         btrfs-nonprimary-options =
           btrfs-options
@@ -341,8 +330,8 @@
           [
             "autodefrag"
             "noatime"
-            "compress-force=zstd:11"
             "commit=60"
+            "compress=zstd:7"
             "x-systemd.idle-timeout=120s"
           ]
           ++ btrfs-delay-options;

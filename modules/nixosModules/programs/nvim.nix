@@ -1,9 +1,4 @@
-{
-  config,
-  inputs,
-  ...
-}: let
-  ns = config.namespace-specifier;
+{inputs, ...}: let
   variables = {
     EDITOR = "vim";
     VISUAL = "vim";
@@ -16,9 +11,9 @@ in {
     config,
     ...
   }: let
-    cfg = config.${ns}.nvim;
+    cfg = config.igix.nvim;
   in {
-    options.${ns}.nvim = {
+    options.igix.nvim = {
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;

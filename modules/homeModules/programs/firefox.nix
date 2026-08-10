@@ -1,6 +1,10 @@
 {...}: {
-  flake.homeModules.firefox = {pkgs, ...}: {
-    services.psd = {
+  flake.homeModules.firefox = {
+    pkgs,
+    lib,
+    ...
+  }: {
+    services.psd = lib.mkIf pkgs.stdenv.isLinux {
       enable = true;
       resyncTimer = "1h";
     };

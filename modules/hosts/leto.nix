@@ -134,16 +134,13 @@
           '';
           plymouth.enable = lib.mkForce true;
           initrd = {
-            systemd = {
+            systemd-boot = {
               enable = true;
               configurationLimit = 10;
               # emergencyAccess = true;
             };
             luks.devices =
-              lib.genAttrs [
-                "luks-4438f2b3-0e46-4942-8896-b8d984265655"
-                "luks-a478d497-5266-483f-b27e-5585b8035dfa"
-              ]
+              lib.genAttrs ["crypt-root" "crypt-swap"]
               (_: {crypttabExtraOpts = ["fido2-device=auto"];});
           };
           loader = {
@@ -243,12 +240,12 @@
       boot.kernelModules = ["kvm-intel"];
 
       fileSystems."/" = {
-        device = "/dev/mapper/luks-4438f2b3-0e46-4942-8896-b8d984265655";
+        device = "/dev/mapper/crypt-root";
         fsType = "ext4";
       };
 
-      boot.initrd.luks.devices."luks-4438f2b3-0e46-4942-8896-b8d984265655".device = "/dev/disk/by-uuid/4438f2b3-0e46-4942-8896-b8d984265655";
-      boot.initrd.luks.devices."luks-a478d497-5266-483f-b27e-5585b8035dfa".device = "/dev/disk/by-uuid/a478d497-5266-483f-b27e-5585b8035dfa";
+      boot.initrd.luks.devices.crypt-root.device = "/dev/disk/by-uuid/4438f2b3-0e46-4942-8896-b8d984265655";
+      boot.initrd.luks.devices.crypt-swap.device = "/dev/disk/by-uuid/a478d497-5266-483f-b27e-5585b8035dfa";
 
       fileSystems."/boot" = {
         device = "/dev/disk/by-uuid/87BB-6093";
@@ -257,7 +254,7 @@
       };
 
       swapDevices = [
-        {device = "/dev/mapper/luks-a478d497-5266-483f-b27e-5585b8035dfa";}
+        {device = "/dev/mapper/crypt-swap";}
       ];
 
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

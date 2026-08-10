@@ -5,7 +5,6 @@
   lib,
   ...
 }: let
-  ns = config.namespace-specifier;
   hostname = "billy";
   system = "x86_64-linux";
   includedUsers = ["igor-headless"];
@@ -89,7 +88,7 @@
         SystemKeepFree=2G
       '';
 
-      # ${ns} = {
+      # igix = {
       #   btrbk = {
       #     enable = true;
       #     snapshots.subvolumes = [

@@ -1,11 +1,8 @@
 {
   self,
   lib,
-  config,
   ...
-}: let
-  ns = config.namespace-specifier;
-in {
+}: {
   config = {
     users = {
       igor = let
@@ -67,54 +64,21 @@ in {
                     gitKey = gitKeys.${hostname};
                   };
                   home.stateVersion = homeStateVersion.${hostname};
-
                   home.packages = [pkgs.antigravity-cli];
                 })
-                common-desktop
-
-                claude
-
-                alacritty
-                kitty
-                bash
-                bat
-                vivaldi
-                brave
-                firefox
-                matplotlib
-                fastfetch
-                gpg
-                ssh
-                starship
-                tmux
-                xresources
-                rustfmt
-                clang-format
-                btop
-                fzf
-                mpv
-                git
-                # zoxide
               ]
               ++ lib.optionals pkgs.stdenv.isLinux [
-                kde
-                # hyprland
-
-                tts
-                qt
-                gtk
-                xdg
-                flatpak
+                igix-desktop-linux
                 {
-                  ${ns}.flatpak.packages = [
+                  igix.flatpak.packages = [
                     # "org.libreoffice.LibreOffice" # switched to nixpkgs version for better qt support
                     "com.obsproject.Studio"
                     # "org.prismlauncher.PrismLauncher"
                     "com.discordapp.Discord"
                   ];
                 }
-                easyeffects
-              ];
+              ]
+              ++ lib.optionals pkgs.stdenv.isDarwin [igix-desktop-mac];
           };
         };
       igor-headless = let
@@ -229,7 +193,7 @@ in {
                 # easyeffects
                 flatpak
                 {
-                  ${ns}.flatpak.packages = [
+                  igix.flatpak.packages = [
                     "org.kde.gcompris"
                     "org.kde.ktuberling"
                     "org.tuxpaint.Tuxpaint"

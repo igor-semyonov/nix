@@ -1,14 +1,12 @@
-{config, ...}: let
-  ns = config.namespace-specifier;
-in {
+{...}: {
   flake.nixosModules.wifi = {
     config,
     lib,
     ...
   }: let
-    cfg = config.${ns}.wifi;
+    cfg = config.igix.wifi;
   in {
-    options.${ns}.wifi = {
+    options.igix.wifi = {
       enable = lib.mkEnableOption "Enable wifi";
       backend = lib.mkOption {
         description = "Wifi backend";

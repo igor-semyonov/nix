@@ -1,18 +1,18 @@
 {...}: {
   flake.nixosModules.nix-ld = {
     pkgs,
+    config,
     lib,
     ...
-  }: {
+  }: let
+    cudaSupport = config.nixpkgs.config.cudaSupport or false;
+  in {
     programs = {
       nix-ld = {
         enable = true;
         libraries = with pkgs;
           [
             stdenv.cc.cc.lib
-            cudaPackages.cudatoolkit.lib
-            cudaPackages.cudnn
-            linuxPackages.nvidia_x11
             zlib
             glib
             openssl
@@ -35,8 +35,13 @@
             libxcb
             libdrm
           ]
+          ++ lib.optionals cudaSupport [
+            cudaPackages.cudatoolkit.lib
+            cudaPackages.cudnn
+            linuxPackages.nvidia_x11
+          ]
           ++ pythonManylinuxPackages.manylinux1
-          ++ lib.optionals (pkgs.system == "x86_64-linux") (with pkgs.cudaPackages; [
+          ++ lib.optionals (pkgs.system == "x86_64-linux" && cudaSupport) (with pkgs.cudaPackages; [
             libcutensor
             nccl
             libcusparse_lt
