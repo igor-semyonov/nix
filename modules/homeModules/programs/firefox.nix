@@ -4,7 +4,7 @@
     lib,
     ...
   }: {
-    services.psd = {
+    services.psd = lib.mkIf pkgs.stdenv.isLinux {
       enable = true;
       resyncTimer = "1h";
     };
