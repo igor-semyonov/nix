@@ -12,6 +12,8 @@
     # xdg.configFile."psd/psd.conf".text = ''
     #   USE_OVERLAYFS="yes"
     # '';
+
+    stylix.targets.firefox.profileNames = ["default"];
     programs.firefox = {
       enable = true;
       configPath = ".mozilla/firefox";

@@ -50,7 +50,7 @@
         };
       };
 
-      iconTheme = {
+      icons = {
         enable = true;
 
         # probably best coverage and most reasonable while having good contrast
@@ -69,7 +69,7 @@
         # light = "BeautyLine";
       };
 
-      targets.grub.useImage = false;
+     targets.grub.useWallpaper = false;
     };
   };
 }
