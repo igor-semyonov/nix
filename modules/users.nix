@@ -67,9 +67,9 @@
 
                   home.packages = [pkgs.antigravity-cli];
                 })
-                igix-desktop
               ]
               ++ lib.optionals pkgs.stdenv.isLinux [
+                igix-desktop-linux
                 {
                   igix.flatpak.packages = [
                     # "org.libreoffice.LibreOffice" # switched to nixpkgs version for better qt support
@@ -78,7 +78,8 @@
                     "com.discordapp.Discord"
                   ];
                 }
-              ];
+              ]
+              ++ lib.optionals pkgs.stdenv.isDarwin [igix-desktop-mac];
           };
         };
       igor-headless = let

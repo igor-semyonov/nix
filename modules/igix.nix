@@ -10,6 +10,7 @@
     homeModules.igix-desktop-linux = {
       imports = with self.homeModules; [
         igix-desktop
+        vivaldi
         kde
         tts
         qt
@@ -30,7 +31,6 @@
         kitty
         bash
         bat
-        vivaldi
         brave
         firefox
         matplotlib
