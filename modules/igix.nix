@@ -9,6 +9,7 @@
     };
     homeModules.igix-desktop-linux = {
       imports = with self.homeModules; [
+        igix-desktop
         kde
         tts
         qt
