@@ -310,7 +310,7 @@
         btrfs-options = [
           "noautodefrag"
           "noatime"
-          "discarg:async"
+          "discard=async"
           "compress=zstd:5"
           "commit=30"
         ];
