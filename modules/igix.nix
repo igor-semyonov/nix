@@ -7,6 +7,20 @@
         nix-ld
       ];
     };
+    homeModules.igix-desktop-linux = {
+      imports = with self.homeModules; [
+        kde
+        tts
+        qt
+        gtk
+        xdg
+        flatpak
+        easyeffects
+      ];
+    };
+    homeModules.igix-desktop-mac = {
+      imports = [self.homeModules.igix-desktop];
+    };
     homeModules.igix-desktop = {
       imports = with self.homeModules; [
         common-desktop
@@ -32,15 +46,6 @@
         mpv
         git
         claude-code
-
-        kde
-
-        tts
-        qt
-        gtk
-        xdg
-        flatpak
-        easyeffects
       ];
     };
   };
