@@ -1,4 +1,4 @@
-{...}: {
+{self, ...}: {
   flake.homeModules.claude-code = {pkgs, ...}: let
     claude-statusline = pkgs.writeShellApplication {
       name = "claude-statusline";
@@ -47,6 +47,18 @@
     home.packages = [claude-statusline];
     programs.claude-code = {
       enable = true;
+      context = "";
+      # outputStyle = {
+      #   concise = ./output-styles/concise.md;
+      #   detailed = ''
+      #     # Detailed Output Style
+
+      #     Contents will be used verbatim for the detailed output format.
+      #   '';
+      # };
+      hooksDir = "${self}/modules/homeModules/programs/claude-code/hooks";
+      commandsDir = "${self}/modules/homeModules/programs/claude-code/commands";
+      rulesDir = "${self}/modules/homeModules/programs/claude-code/rules";
       settings = {
         statusLine = {
           type = "command";
