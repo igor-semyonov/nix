@@ -317,8 +317,9 @@
         btrfs-options = [
           "noautodefrag"
           "noatime"
-          "compress-force=zstd:7"
-          "commit=60"
+          "discarg:async"
+          "compress=zstd:5"
+          "commit=30"
         ];
         btrfs-nonprimary-options =
           btrfs-options
@@ -336,8 +337,8 @@
           [
             "autodefrag"
             "noatime"
-            "compress-force=zstd:11"
             "commit=60"
+            "compress=zstd:7"
             "x-systemd.idle-timeout=120s"
           ]
           ++ btrfs-delay-options;
