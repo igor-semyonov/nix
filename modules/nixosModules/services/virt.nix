@@ -3,7 +3,6 @@
   filterUsers,
   ...
 }: let
-  ns = config.namespace-specifier;
   users = config.users;
 in {
   flake.nixosModules.virt = {
@@ -13,9 +12,9 @@ in {
     includedUsers,
     ...
   }: let
-    cfg = config.${ns}.virtualisation;
+    cfg = config.igix.virtualisation;
   in {
-    options.${ns}.virtualisation = {
+    options.igix.virtualisation = {
       enable = lib.mkEnableOption "Enable virtualisation";
       hardware-interfaces = lib.mkOption {
         default = [];

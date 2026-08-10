@@ -1,14 +1,12 @@
-{config, ...}: let
-  ns = config.namespace-specifier;
-in {
+{...}: {
   flake.nixosModules.ai = {
     lib,
     config,
     ...
   }: let
-    cfg = config.${ns}.ai;
+    cfg = config.igix.ai;
   in {
-    options.${ns}.ai = {
+    options.igix.ai = {
       ollama = {
         enable = lib.mkEnableOption "Enable ollama";
       };

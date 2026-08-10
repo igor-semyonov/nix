@@ -1,14 +1,12 @@
-{config, ...}: let
-  ns = config.namespace-specifier;
-in {
+{...}: {
   flake.nixosModules.btrbk = {
     lib,
     config,
     ...
   }: let
-    cfg = config.${ns}.btrbk;
+    cfg = config.igix.btrbk;
   in {
-    options.${ns}.btrbk = {
+    options.igix.btrbk = {
       enable = lib.mkEnableOption "Enable BTRBK backing up for main drive";
       snapshots = {
         subvolumes = lib.mkOption {

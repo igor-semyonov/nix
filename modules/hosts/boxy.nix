@@ -6,7 +6,6 @@
   lib,
   ...
 }: let
-  ns = config.namespace-specifier;
   hostname = "boxy";
   system = "x86_64-linux";
   includedUsers = ["igor"];
@@ -44,15 +43,11 @@
       };
     }
     secrets
-    common-desktop
-
-    kde
-    # hyprland
+    igix-desktop
 
     programs-steam
     programs-prism-launcher
 
-    nix-ld
     uxplay
     u2f
     {igix.u2f.enable = true;}
@@ -270,7 +265,7 @@
           };
         };
 
-        ${ns} = {
+        igix = {
           btrbk = {
             enable = true;
             snapshots.subvolumes = ["@" "@home" "@fidler"];
@@ -403,7 +398,7 @@
         "/mnt/10tb" = {
           inherit fsType noCheck;
           device = disk-10tb;
-          options =["subvolid=5"]++ btrfs-options-hdd;
+          options = ["subvolid=5"] ++ btrfs-options-hdd;
         };
         "/boot/efi" = {
           device = disk-esp;

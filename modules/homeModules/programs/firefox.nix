@@ -1,5 +1,9 @@
 {...}: {
-  flake.homeModules.firefox = {pkgs, ...}: {
+  flake.homeModules.firefox = {
+    pkgs,
+    lib,
+    ...
+  }: {
     services.psd = {
       enable = true;
       resyncTimer = "1h";
@@ -9,7 +13,7 @@
     #   USE_OVERLAYFS="yes"
     # '';
     programs.firefox = {
-      enable = true;
+      enable = lib.mkIf pkgs.stdenv.isLinux true;
       configPath = ".mozilla/firefox";
       profiles = {
         default = {

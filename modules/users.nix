@@ -1,11 +1,8 @@
 {
   self,
   lib,
-  config,
   ...
-}: let
-  ns = config.namespace-specifier;
-in {
+}: {
   config = {
     users = {
       igor = let
@@ -70,48 +67,17 @@ in {
 
                   home.packages = [pkgs.antigravity-cli];
                 })
-                common-desktop
-
-                alacritty
-                kitty
-                bash
-                bat
-                vivaldi
-                brave
-                firefox
-                matplotlib
-                fastfetch
-                gpg
-                ssh
-                starship
-                tmux
-                xresources
-                rustfmt
-                clang-format
-                btop
-                fzf
-                mpv
-                git
-                # zoxide
+                igix-desktop
               ]
               ++ lib.optionals pkgs.stdenv.isLinux [
-                kde
-                # hyprland
-
-                tts
-                qt
-                gtk
-                xdg
-                flatpak
                 {
-                  ${ns}.flatpak.packages = [
+                  igix.flatpak.packages = [
                     # "org.libreoffice.LibreOffice" # switched to nixpkgs version for better qt support
                     "com.obsproject.Studio"
                     # "org.prismlauncher.PrismLauncher"
                     "com.discordapp.Discord"
                   ];
                 }
-                easyeffects
               ];
           };
         };
@@ -227,7 +193,7 @@ in {
                 # easyeffects
                 flatpak
                 {
-                  ${ns}.flatpak.packages = [
+                  igix.flatpak.packages = [
                     "org.kde.gcompris"
                     "org.kde.ktuberling"
                     "org.tuxpaint.Tuxpaint"

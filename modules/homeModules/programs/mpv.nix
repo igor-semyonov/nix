@@ -1,8 +1,12 @@
 {...}: {
-  flake.homeModules.mpv = {pkgs, ...}: {
+  flake.homeModules.mpv = {
+    pkgs,
+    lib,
+    ...
+  }: {
     programs.mpv = {
       enable = true;
-      scripts = [pkgs.mpvScripts.mpris];
+      scripts = lib.optionals pkgs.stdenv.isLinux [pkgs.mpvScripts.mpris];
     };
   };
 }
