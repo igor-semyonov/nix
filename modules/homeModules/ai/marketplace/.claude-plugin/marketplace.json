@@ -1,0 +1,17 @@
+{
+  "name": "igix",
+  "owner": {
+    "name": "igor"
+  },
+  "metadata": {
+    "description": "Igor's personal Claude Code marketplace: research, review, and dev-stack plugins."
+  },
+  "plugins": [
+    { "name": "deep-research", "source": "./plugins/deep-research", "description": "Structured multi-source research workflow with academic paper reading." },
+    { "name": "code-review", "source": "./plugins/code-review", "description": "Thorough code review command and reviewer agent." },
+    { "name": "rust-dev", "source": "./plugins/rust-dev", "description": "Rust development: cargo skill and idiomatic-Rust agent." },
+    { "name": "nix-dev", "source": "./plugins/nix-dev", "description": "Nix/NixOS development: nix skill and nix expert agent." },
+    { "name": "latex", "source": "./plugins/latex", "description": "LaTeX authoring: build skill and typesetting agent." },
+    { "name": "crypto-research", "source": "./plugins/crypto-research", "description": "Cryptography and algorithms research agents and Sage skill." }
+  ]
+}

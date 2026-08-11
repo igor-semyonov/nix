@@ -1,0 +1,6 @@
+{
+  "name": "code-review",
+  "description": "Thorough code review command and reviewer agent.",
+  "version": "0.1.0",
+  "author": { "name": "igor" }
+}

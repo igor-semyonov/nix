@@ -77,6 +77,16 @@
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Optional: remote Claude Code plugin marketplace. Uncomment, then thread
+    # `inputs` into modules/homeModules/programs/ai/claude-code.nix and set
+    # `programs.claude-code.marketplaces.<name> = inputs.claude-marketplace;`.
+    # A `flake = false` input resolves to the repo's store path, which is what
+    # the `marketplaces` option expects. Run `nix flake lock` after enabling.
+    # claude-marketplace = {
+    #   url = "github:owner/repo";
+    #   flake = false;
+    # };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree ./modules);

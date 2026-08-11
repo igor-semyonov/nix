@@ -46,6 +46,7 @@
         fzf
         mpv
         git
+        mcp-servers
         claude-code
         antigravity
       ];

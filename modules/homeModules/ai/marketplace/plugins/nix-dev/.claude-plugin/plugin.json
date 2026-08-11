@@ -1,0 +1,6 @@
+{
+  "name": "nix-dev",
+  "description": "Nix/NixOS development: nix skill and nix expert agent.",
+  "version": "0.1.0",
+  "author": { "name": "igor" }
+}

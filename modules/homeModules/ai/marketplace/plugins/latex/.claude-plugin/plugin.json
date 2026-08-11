@@ -1,0 +1,6 @@
+{
+  "name": "latex",
+  "description": "LaTeX authoring: build skill and typesetting agent.",
+  "version": "0.1.0",
+  "author": { "name": "igor" }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "crypto-research",
+  "description": "Cryptography and algorithms research agents and SageMath skill.",
+  "version": "0.1.0",
+  "author": { "name": "igor" }
+}

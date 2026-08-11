@@ -1,0 +1,6 @@
+{
+  "name": "rust-dev",
+  "description": "Rust development: cargo skill and idiomatic-Rust agent.",
+  "version": "0.1.0",
+  "author": { "name": "igor" }
+}

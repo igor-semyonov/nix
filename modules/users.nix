@@ -70,12 +70,19 @@
               ++ lib.optionals pkgs.stdenv.isLinux [
                 igix-desktop-linux
                 {
-                  igix.flatpak.packages = [
-                    # "org.libreoffice.LibreOffice" # switched to nixpkgs version for better qt support
-                    "com.obsproject.Studio"
-                    # "org.prismlauncher.PrismLauncher"
-                    "com.discordapp.Discord"
-                  ];
+                  igix = {
+                    mcp = {
+                      enable = true;
+                      playwrite.enable = true;
+                      gh.tokenFile = sops.secrets.gh-token.path;
+                    };
+                    flatpak.packages = [
+                      # "org.libreoffice.LibreOffice" # switched to nixpkgs version for better qt support
+                      "com.obsproject.Studio"
+                      # "org.prismlauncher.PrismLauncher"
+                      "com.discordapp.Discord"
+                    ];
+                  };
                 }
               ]
               ++ lib.optionals pkgs.stdenv.isDarwin [igix-desktop-mac];
