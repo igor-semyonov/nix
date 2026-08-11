@@ -47,6 +47,7 @@
         mpv
         git
         claude-code
+        antigravity
       ];
     };
   };
