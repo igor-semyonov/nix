@@ -46,10 +46,12 @@
         };
         # Format after edits with `nix fmt`, which defers to whatever the
         # repo's flake declares (treefmt here: nix/lua/toml/yaml/markdown/shell).
-        # `nix` is pinned to a nixpkgs store path so it is always present; a file
-        # type the formatter doesn't handle is skipped by `nix fmt` itself. If
-        # the repo has no `formatter` output, this fails loudly with a clear
-        # message rather than silently doing nothing (no `|| true`).
+        # `nix` is pinned to a nixpkgs store path so it is always present. Run in
+        # the edited file's OWN flake (walk up to its nearest flake.nix), not the
+        # session cwd, so cross-repo edits (e.g. ~/nix from a nix-personal
+        # session) don't trip treefmt's "not inside the tree root" guard. If that
+        # flake has no `formatter` output, this fails loudly with a clear message
+        # rather than silently doing nothing (no `|| true`).
         hooks = {
           PostToolUse = [
             {
@@ -61,9 +63,17 @@
                     set -euo pipefail
                     f=$(${pkgs.jq}/bin/jq -r '.tool_input.file_path // empty')
                     [ -z "$f" ] && exit 0
-                    if ! err=$(${pkgs.nix}/bin/nix fmt "$f" 2>&1); then
+                    d=$(${pkgs.coreutils}/bin/dirname "$f")
+                    while [ "$d" != / ] && [ ! -e "$d/flake.nix" ]; do
+                      d=$(${pkgs.coreutils}/bin/dirname "$d")
+                    done
+                    if [ ! -e "$d/flake.nix" ]; then
+                      echo "no flake.nix above $f; skipping nix fmt" >&2
+                      exit 0
+                    fi
+                    if ! err=$(cd "$d" && ${pkgs.nix}/bin/nix fmt "$f" 2>&1); then
                       echo "$err" >&2
-                      echo "nix fmt failed: is a \`formatter\` output set up in this repo's flake?" >&2
+                      echo "nix fmt failed: is a \`formatter\` output set up in $d/flake.nix?" >&2
                       exit 1
                     fi
                   '';
