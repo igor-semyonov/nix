@@ -31,35 +31,6 @@
           done
         '';
     };
-    tokyo-night-kde = pkgs.stdenvNoCC.mkDerivation {
-      pname = "tokyo-night-kde";
-      version = "1.0.6";
-
-      src = pkgs.fetchFromGitHub {
-        owner = "Jayy-Dev";
-        repo = "Plasma-Tokyo-Night";
-        rev = "main";
-        # When you first build, copy the "got:" hash from the error and replace this:
-        hash = "sha256-j1IKoNSfyDnYQUWRFcp3frwoV3kRwPQy3PO9oD7eza0=";
-      };
-
-      dontBuild = true;
-
-      installPhase = ''
-        mkdir -p $out/share/plasma/look-and-feel
-        mkdir -p $out/share/plasma/desktoptheme
-        mkdir -p $out/share/aurorae/themes
-        mkdir -p $out/share/color-schemes
-        mkdir -p $out/share/ksplash/Themes  # <-- Add this
-
-        # Copy the repo's folders into standard KDE data directories
-        cp -r aurorae/* $out/share/aurorae/themes/ 2>/dev/null || true
-        cp -r color-schemes/* $out/share/color-schemes/ 2>/dev/null || true
-        cp -r plasma/desktoptheme/* $out/share/plasma/desktoptheme/ 2>/dev/null || true
-        cp -r plasma/look-and-feel/* $out/share/plasma/look-and-feel/ 2>/dev/null || true
-        cp -r ksplash/* $out/share/ksplash/Themes/ 2>/dev/null || true  # <-- Add this
-      '';
-    };
   in {
     imports = [
       inputs.plasma-manager.homeModules.plasma-manager
@@ -82,7 +53,6 @@
         # tela-circle-icon-theme
         papirus-nord
         zoom-to-factor
-        # tokyo-night-kde
       ];
     };
 
