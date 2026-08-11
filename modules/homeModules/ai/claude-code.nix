@@ -16,9 +16,7 @@
       # Pull the shared MCP catalogue (programs.mcp.servers) into Claude Code.
       # Requires programs.mcp.enable, provided by the mcp-servers module.
       enableMcpIntegration = true;
-
       context = contextText;
-
       settings = {
         mouse = false;
         includeCoAuthoredBy = false;
@@ -83,6 +81,18 @@
           ];
         };
       };
+      env = {
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
+        CLAUDE_CODE_ATTRIBUTION_HEADER = "0";
+
+        ANTHROPIC_DEFAULT_OPUS_MODEL = "claude-opus-4-8";
+        ANTHROPIC_DEFAULT_SONNET_MODEL = "claude-sonnet-4-6";
+        ANTHROPIC_DEFAULT_HAIKU_MODEL = "claude-haiku-4-5";
+        CLAUDE_CODE_SUBAGENT_MODEL = "claude-sonnet-4-6";
+
+        CLAUDE_CODE_ENABLE_TELEMETRY = "0";
+      };
+      model = "claude-opus-4-8";
 
       # A skill is a directory containing SKILL.md; point at the whole tree.
       skills = ./skills;
