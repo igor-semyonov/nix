@@ -10,6 +10,18 @@
     ...
   }: let
     cfg = config.igix.mcp;
+    # Runs the github MCP server with a token minted from the local `gh` login
+    # (OAuth), avoiding PATs entirely. `gh auth token` errors non-zero when not
+    # logged in, and `set -e` propagates that so the failure is visible.
+    ghCliWrapper = pkgs.writeShellApplication {
+      name = "github-mcp-server-gh";
+      runtimeInputs = [pkgs.gh pkgs.github-mcp-server];
+      text = ''
+        GITHUB_PERSONAL_ACCESS_TOKEN=$(gh auth token)
+        export GITHUB_PERSONAL_ACCESS_TOKEN
+        exec github-mcp-server "$@"
+      '';
+    };
   in {
     options.igix.mcp = {
       enable = lib.mkEnableOption "Enable the shared MCP server catalogue.";
@@ -25,10 +37,27 @@
           default = null;
           description = ''
             Path to a file containing a GitHub personal access token
-            (e.g. `config.sops.secrets.github-token.path`). The github MCP
-            server is only configured when this is non-null. The mcp module
+            (e.g. `config.sops.secrets.github-token.path`). The mcp module
             reads the file at startup via its `env.<VAR>.file` support, so the
             token never lands in the Nix store.
+
+            Prefer `useGhCli` if your org disallows creating PATs.
+          '';
+        };
+        useGhCli = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = ''
+            Authenticate the github MCP server with the GitHub CLI's OAuth
+            token instead of a PAT. When true, the server is wrapped so that
+            `GITHUB_PERSONAL_ACCESS_TOKEN` is set from `gh auth token` at
+            startup — no token is ever written to disk or the Nix store.
+
+            This uses the `gh` OAuth app flow (run `gh auth login` once), which
+            is a distinct mechanism from personal access tokens and is commonly
+            permitted even when an org blocks PAT creation.
+
+            Takes precedence over `tokenFile` when both are set.
           '';
         };
       };
@@ -62,7 +91,20 @@
             # Extract text / tables / images from PDFs (OCR via tesseract).
             pdf = {command = "${pkgs.pdf-mcp}/bin/pdf-mcp";};
           }
-          // lib.optionalAttrs (cfg.gh.tokenFile != null) {
+          # GitHub API server. Auth precedence: gh CLI OAuth token > PAT file.
+          # SSH keys are not an option (the server uses the HTTPS API).
+          // lib.optionalAttrs cfg.gh.useGhCli {
+            github = {
+              # Wrap the server so its token is minted from the existing
+              # `gh` login at startup. `gh auth token` fails loudly if not
+              # logged in, so a missing session surfaces instead of a silent
+              # unauthenticated server.
+              command = "${ghCliWrapper}/bin/github-mcp-server-gh";
+              args = ["stdio"];
+              env.GITHUB_API_URL = cfg.gh.url;
+            };
+          }
+          // lib.optionalAttrs (!cfg.gh.useGhCli && cfg.gh.tokenFile != null) {
             github = {
               command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
               args = ["stdio"];

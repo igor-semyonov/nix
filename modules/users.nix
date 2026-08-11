@@ -73,8 +73,8 @@
                   igix = {
                     mcp = {
                       enable = true;
-                      playwrite.enable = true;
-                      gh.tokenFile = sops.secrets.gh-token.path;
+                      playwright.enable = true;
+                      gh.useGhCli = true;
                     };
                     flatpak.packages = [
                       # "org.libreoffice.LibreOffice" # switched to nixpkgs version for better qt support
