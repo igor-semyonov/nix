@@ -1,5 +1,11 @@
-{...}: {
-  flake.homeModules.zsh = {pkgs, ...}: {
+{self, ...}: {
+  flake.homeModules.zsh = {
+    config,
+    pkgs,
+    ...
+  }: {
+    imports = [self.homeModules.git];
+
     home.sessionPath = [
       "$HOME/.local/bin"
     ];
@@ -13,6 +19,8 @@
         ''
           # shellcheck disable=all
           eval "$(${pkgs.zoxide}/bin/zoxide init zsh)"
+
+          ${config.igix.gitWorktree.shellIntegration}
         '';
       shellAliases = {
         ff = "fastfetch";
@@ -31,6 +39,11 @@
         ggl = "git pull";
         ggp = "git push";
         ga = "git add";
+
+        # Worktrees. The cd-ing verbs (gwa, gwr, gwcd, gwclone, gwconvert,
+        # gwpr) are shell functions from igix.gitWorktree.shellIntegration.
+        gwl = "gw-list";
+        gwp = "gw-prune";
 
         flatpak = "flatpak --user";
         lo = "libreoffice";
