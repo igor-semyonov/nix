@@ -69,7 +69,7 @@
         # light = "BeautyLine";
       };
 
-     targets.grub.useWallpaper = false;
+      targets.grub.useWallpaper = false;
     };
   };
 }

@@ -11,7 +11,10 @@
         taplo.enable = true; # toml
         yamlfmt.enable = true;
         prettier.enable = true; # markdown
-        shfmt.enable = true;
+        shfmt = {
+          enable = true;
+          indent_size = 4;
+        };
         # shellcheck.enable = true;
       };
     };

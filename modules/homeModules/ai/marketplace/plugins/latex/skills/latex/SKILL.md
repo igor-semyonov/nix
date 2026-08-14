@@ -29,6 +29,7 @@ Undefined citations after edits usually mean a stale build: `latexmk -C && latex
 ## Debugging
 
 Read the **first** error in the log. Common ones:
+
 - `File 'foo.sty' not found` → missing package (on Nix add to the `texlive` set).
 - `Undefined control sequence` → typo or missing `\usepackage`.
 - Overfull/underfull `\hbox` are warnings.
