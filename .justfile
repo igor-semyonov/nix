@@ -4,6 +4,9 @@ actual_hostname := `uname -n`
 switch:
     sudo --preserve-env=SSH_AUTH_SOCK nixos-rebuild switch --flake . --cores {{ nproc }} --max-jobs {{ nproc }} --log-format bar-with-logs
 
+test:
+    sudo --preserve-env=SSH_AUTH_SOCK nixos-rebuild test --flake . --cores {{ nproc }} --max-jobs {{ nproc }} --log-format bar-with-logs
+
 boot:
     sudo --preserve-env=SSH_AUTH_SOCK nixos-rebuild boot --flake . --cores {{ nproc }} --max-jobs {{ nproc }} --log-format bar-with-logs
 
