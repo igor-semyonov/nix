@@ -62,20 +62,26 @@
         networks."10-wan" = {
           matchConfig.Name = "en*";
           networkConfig = {
-            IPv6AcceptRA = false;
+            # Vultr has no fe80::1; the v6 gateway is a per-VM link-local
+            # derived from the NIC's MAC, so it must come from the RA.
+            IPv6AcceptRA = true;
+          };
+          ipv6AcceptRAConfig = {
+            # Take the default route from the RA, but not the prefix, so no
+            # SLAAC or RFC 4941 temporary addresses appear. The static
+            # 2001:19f0:... address stays the only v6 address, and is what
+            # the AAAA record points at.
+            UseAutonomousPrefix = false;
           };
 
           address = [
             "207.246.88.247/23"
             "2001:19f0:4000:2c4b:5400:06ff:fe79:e305/64"
           ];
+          # v6 default route comes from the RA, not from here.
           routes = [
             {
               Gateway = "207.246.88.1";
-              GatewayOnLink = true;
-            }
-            {
-              Gateway = "fe80::1";
               GatewayOnLink = true;
             }
           ];
