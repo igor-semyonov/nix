@@ -40,7 +40,8 @@
         ls = "eza --icons always"; # default view
         ll = "eza -bhlg --icons --group-directories-first"; # long list
         la = "eza -abhlg --icons --group-directories-first"; # all list
-        lt = "eza --tree --level=2 --icons"; # tree
+        lt = "eza --tree --level=2 --icons=auto"; # tree
+        lrt = "eza -1 --icons --sort=modified --reverse";
 
         gs = "git status";
         gd = "git diff";
