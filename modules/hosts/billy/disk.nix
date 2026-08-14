@@ -9,19 +9,15 @@
           content = {
             type = "gpt";
             partitions = {
-              # BIOS boot partition, holds GRUB's core.img on GPT. Paired with
-              # the ESP below so one config boots both BIOS and UEFI instances:
-              # grub installs i386-pc here and x86_64-efi into the ESP on the
-              # same run. 1 MiB would do with /boot on vfat; 2 is free headroom.
+              # Paired with the ESP so one config boots BIOS and UEFI: grub
+              # installs i386-pc here and x86_64-efi into the ESP on the same run.
               boot = {
                 size = "2048K";
                 type = "EF02";
                 priority = 1;
               };
-              # EFI System Partition, also carries the kernels. It is a
-              # different filesystem from /nix/store, so grub forces
-              # copyKernels regardless of the option, at ~45 MiB per distinct
-              # kernel+initrd set. 1 GiB covers configurationLimit = 10.
+              # Also carries the kernels: a different filesystem from /nix/store
+              # forces copyKernels regardless of the option, ~45 MiB per set.
               esp = {
                 priority = 2;
                 name = "esp";
@@ -99,11 +95,8 @@
                   # Overwrite existing partitions if repurposing a drive
                   extraArgs = ["-f"];
                   subvolumes = let
-                    # Matches the root disk and boxy. Plain compress lets the
-                    # btrfs heuristic skip incompressible data, which is most
-                    # of what lands here: Vaultwarden's client-side-encrypted
-                    # blobs and already-compressed mail attachments. billy has
-                    # one vCPU, so zstd:3 rather than boxy's 5.
+                    # compress, not compress-force: most of /var/lib is
+                    # incompressible (encrypted vault blobs, mail attachments).
                     sharedMountOptions = [
                       "compress=zstd:3"
                       "noatime"
