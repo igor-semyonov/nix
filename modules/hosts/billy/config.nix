@@ -25,8 +25,10 @@
       nix = {
         settings = {
           download-buffer-size = 2 * 1024 * 1024 * 1024;
-          cores = 2;
-          max-jobs = 2;
+          # billy is a 1 vCPU / 964 MiB Vultr instance. Two parallel jobs on
+          # one core would only thrash.
+          cores = 1;
+          max-jobs = 1;
         };
         # gc = {
         #   automatic = true;
