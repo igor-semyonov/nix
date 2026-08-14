@@ -45,7 +45,7 @@
                   extraArgs = ["-f"];
                   subvolumes = let
                     sharedMountOptions = [
-                      "compress-force=zstd:3"
+                      "compress=zstd:3"
                       "noatime"
                       "noautodefrag"
                       "commit=45"
@@ -99,8 +99,13 @@
                   # Overwrite existing partitions if repurposing a drive
                   extraArgs = ["-f"];
                   subvolumes = let
+                    # Matches the root disk and boxy. Plain compress lets the
+                    # btrfs heuristic skip incompressible data, which is most
+                    # of what lands here: Vaultwarden's client-side-encrypted
+                    # blobs and already-compressed mail attachments. billy has
+                    # one vCPU, so zstd:3 rather than boxy's 5.
                     sharedMountOptions = [
-                      "compress-force=zstd:3"
+                      "compress=zstd:3"
                       "noatime"
                       "noautodefrag"
                       "commit=45"
