@@ -746,11 +746,11 @@
         "wrappers": "wrappers"
       },
       "locked": {
-        "lastModified": 1786499162,
-        "narHash": "sha256-fv4coGS4vwWBvCXEKaDratTivvpkmhPbJQOS3Ev1qR8=",
+        "lastModified": 1786713074,
+        "narHash": "sha256-kf5Ybti2apg+wBcgdYqdZDysRWmMu6hy8C3bVZcXdi0=",
         "owner": "igor-semyonov",
         "repo": "nvim",
-        "rev": "723f93fd7d2de2c3eb631fd1b00b65aa61eb76f9",
+        "rev": "87b52e5c4cbbbc79db40166a64e030e0a8d35453",
         "type": "github"
       },
       "original": {
