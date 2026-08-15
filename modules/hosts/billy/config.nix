@@ -28,11 +28,11 @@
           cores = 1;
           max-jobs = 1;
         };
-        # gc = {
-        #   automatic = true;
-        #   dates = "weekly";
-        #   options = "--delete-older-than "; # Deletes generations older than 14 days
-        # };
+        gc = {
+          automatic = true;
+          dates = "weekly";
+          options = "--delete-older-than 30d";
+        };
       };
 
       boot.loader = {
@@ -89,6 +89,12 @@
 
       zramSwap.enable = true;
       virtualisation.docker.enable = false;
+
+      services.openssh.settings = {
+        PasswordAuthentication = false;
+        KbdInteractiveAuthentication = false;
+        X11Forwarding = false;
+      };
 
       services.journald.extraConfig = ''
         SystemMaxUse=1G
