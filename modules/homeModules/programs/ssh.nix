@@ -38,6 +38,10 @@
           hostname = "192.168.50.48";
           user = "root";
         };
+        billy = {
+          hostname = "ssh.nalgor.com";
+          user = "root";
+        };
       };
     };
     services.ssh-agent.enable = true;
