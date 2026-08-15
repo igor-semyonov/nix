@@ -258,14 +258,28 @@
           };
         };
 
+        sops.secrets.btrbk-ssh-key = {
+          sopsFile = "${inputs.sops-secrets}/boxy.yaml";
+          owner = "btrbk";
+          mode = "0400";
+        };
+
         igix = {
           btrbk = {
             enable = true;
-            snapshots.subvolumes = ["@" "@home" "@fidler"];
+            snapshots.volumes."/mnt/btrfs-pool" = ["@" "@home" "@fidler"];
             target = {
               enable = true;
-              subvolumes = ["@" "@home" "@fidler"];
               location = "/mnt/8tb/btrbk-snapshots/";
+            };
+            pull.billy = {
+              host = "ssh.nalgor.com";
+              volumes = {
+                "/mnt/btrfs-pool-root" = ["@" "@home" "@root" "@var-log"];
+                "/mnt/btrfs-pool-data" = ["@var-lib" "@stalwart" "@vaultwarden"];
+              };
+              target = "/mnt/8tb/billy-backups";
+              sshIdentity = config.sops.secrets.btrbk-ssh-key.path;
             };
           };
           nas = {

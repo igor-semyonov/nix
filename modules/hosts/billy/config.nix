@@ -2,6 +2,7 @@
   buildNixosAndHomeManager,
   self,
   config,
+  inputs,
   lib,
   ...
 }: let
@@ -101,32 +102,18 @@
         SystemKeepFree=2G
       '';
 
-      # igix = {
-      #   btrbk = {
-      #     enable = true;
-      #     snapshots.subvolumes = [
-      #       "@"
-      #       "@home"
-      #     ];
-      #   };
-      # };
-
-      # Apply No-CoW to database and mail directories to prevent BTRFS fragmentation
-      systemd.tmpfiles.rules = [
-        # "h" means set extended attributes.
-        # +C disables CoW.
-
-        # For Vaultwarden (assuming default NixOS state directory)
-        "h /var/lib/bitwarden_rs - - - - +C"
-
-        # For Mail (example for standard vmail/dovecot spools)
-        "h /var/vmail - - - - +C"
-        "h /var/lib/postfix - - - - +C"
-
-        # Create the snapshot directory (Type 'd')
-        # Format: Type  Path  Mode  User  Group  Age  Argument
-        "d /mnt/btrfs-pool/btrbk-snapshots 0750 root root - -"
-      ];
+      igix.btrbk = {
+        enable = true;
+        # @nix, @swap, @tmp, @var-tmp and @var-cache are deliberately absent.
+        snapshots.volumes = {
+          "/mnt/btrfs-pool-root" = ["@" "@home" "@root" "@var-log"];
+          "/mnt/btrfs-pool-data" = ["@var-lib" "@stalwart" "@vaultwarden"];
+        };
+        # Kept beside its private half in nix-secrets so rotation is one commit.
+        sshAccess = [
+          (lib.removeSuffix "\n" (builtins.readFile "${inputs.sops-secrets}/btrbk-boxy-to-billy.pub"))
+        ];
+      };
 
       system.stateVersion = "26.11";
     }
