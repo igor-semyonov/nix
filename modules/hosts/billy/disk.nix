@@ -67,13 +67,27 @@
                       mountpoint = "/var/log";
                       mountOptions = sharedMountOptions;
                     };
+                    # Transient; separate so btrbk snapshots of @ stay clean.
+                    "@tmp" = {
+                      mountpoint = "/tmp";
+                      mountOptions = sharedMountOptions;
+                    };
+                    "@var-tmp" = {
+                      mountpoint = "/var/tmp";
+                      mountOptions = sharedMountOptions;
+                    };
+                    "@var-cache" = {
+                      mountpoint = "/var/cache";
+                      mountOptions = sharedMountOptions;
+                    };
                     "/" = {
                       mountpoint = "/mnt/btrfs-pool-root";
                       mountOptions = sharedMountOptions;
                     };
+                    # No mountOptions: btrfs swapfiles reject compression.
                     "@swap" = {
                       mountpoint = "/swap";
-                      swap.swapfile.size = "8G";
+                      swap.swapfile.size = "${toString (5 * 1024 * 1024)}K";
                     };
                   };
                 };
@@ -106,6 +120,17 @@
                   in {
                     "@var-lib" = {
                       mountpoint = "/var/lib";
+                      mountOptions = sharedMountOptions;
+                    };
+                    # Own subvolumes so each service can be snapshotted and
+                    # rolled back independently, and so nodatacow can be set
+                    # later without migrating live data.
+                    "@stalwart" = {
+                      mountpoint = "/var/lib/stalwart";
+                      mountOptions = sharedMountOptions;
+                    };
+                    "@vaultwarden" = {
+                      mountpoint = "/var/lib/vaultwarden";
                       mountOptions = sharedMountOptions;
                     };
                     "/" = {
