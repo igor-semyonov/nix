@@ -95,7 +95,9 @@
             };
           };
         };
-        data = {
+        # Sorts after "main" so disko's test harness, which assigns /dev/vd*
+        # in attribute order, gives the bootable disk to /dev/vda as on Vultr.
+        storage = {
           type = "disk";
           device = "/dev/vdb";
           content = {

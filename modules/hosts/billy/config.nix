@@ -46,8 +46,7 @@
           efiSupport = true;
           # Tells GRUB to write to /boot/EFI/BOOT/BOOTX64.EFI
           efiInstallAsRemovable = true;
-          # Set to "nodev" for UEFI, or point to "/dev/vda" if handling BIOS hybrid fallback
-          device = "/dev/vda";
+          # devices is left to disko, which sets it from the EF02 partition.
           configurationLimit = 10;
         };
       };
