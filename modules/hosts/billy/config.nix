@@ -88,6 +88,8 @@
       };
 
       zramSwap.enable = true;
+      virtualisation.docker.enable = false;
+
       services.journald.extraConfig = ''
         SystemMaxUse=1G
         SystemKeepFree=2G

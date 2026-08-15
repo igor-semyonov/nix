@@ -1,8 +1,9 @@
 {...}: {
-  flake.nixosModules.docker = {
+  flake.nixosModules.docker = {lib, ...}: {
     virtualisation = {
       docker = {
-        enable = true;
+        # mkDefault so hosts can opt out without mkForce.
+        enable = lib.mkDefault true;
         # rootless = {
         #   enable = true;
         #   setSocketVariable = true;
