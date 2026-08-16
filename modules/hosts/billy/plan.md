@@ -4,19 +4,47 @@ Vultr VPS, 1 vCPU / 964 MiB, BIOS boot, `/dev/vda` 32G + `/dev/vdb` 10G.
 Config in `modules/hosts/billy/{config,disk,checks}.nix`. Reinstall procedure in
 `reinstall.md`. Deploy with `just billy-test` (reboot-recoverable) then `just billy`.
 
-## Goals
+## Execution order
 
-1. Stalwart mail server
-2. AWS SES for outbound delivery
-3. Vaultwarden on billy
-4. Migrate the existing Vaultwarden off `fid` (Gentoo, Docker + host Postgres)
-5. _Optional:_ migrate mail off `fid`
-6. WireGuard between billy and boxy, with preshared keys
-7. Tighten the firewall — SSH only over WireGuard
-8. Consolidate all DNS onto Cloudflare (`nalgor.net`, `semyonov.xyz`,
-   `semyonov.dev` still elsewhere), proxied where appropriate
+The ordering below is Igor's, reviewed and kept — it front-loads the lockout
+risk while billy is still empty (a lockout today costs a 30-minute reinstall;
+the same lockout after mail and the vault are live costs data), and it keeps
+registrar, delegation, and service moves as separate reversible steps.
 
-Sections below are ordered by dependency, not by goal number.
+| #       | step                                        | rollback            |
+| ------- | ------------------------------------------- | ------------------- |
+| **0**   | SES production access + lower TTLs          | n/a — start now     |
+| **1**   | WireGuard, then SSH restricted to `wg0`     | reboot (via `test`) |
+| **2**   | Registrar → Porkbun (NS stays Linode)       | days                |
+| **3**   | DNS management → Cloudflare                 | minutes             |
+| **3.1** | Orange cloud, Full (strict) to origin       | one toggle          |
+| **3.5** | billy fundamentals: proxy, ACME, monitoring | n/a                 |
+| **4**   | Mail: new domains first, then `nalgor.net`  | dual-MX window      |
+| **5**   | Vaultwarden migration + origin flip         | lossy after writes  |
+
+Two additions to the original five: **step 0**, because SES sandbox exit is the
+only item gated on a third party's review time and everything in step 4 depends
+on it; and **step 3.5**, because both step 4 and step 5 need a reverse proxy and
+ACME on billy and neither step listed it.
+
+Sections below are grouped by topic, not sorted by step number — this table is
+the canonical order.
+
+### Standing rules across all steps
+
+- **TTLs stay low** from step 0 until step 5 is signed off. Every cutover's
+  rollback time is bounded below by the TTL that was in effect _before_ it.
+- **Apply risky changes with `nixos-rebuild test` first** — it does not survive
+  a reboot, which turns a lockout into a reboot instead of a reinstall.
+- **Rehearse each rollback once** before you need it. "Revert the DNS record" is
+  only a rollback if it has been tried.
+- **Watch for hostnames serving two protocols.** Twice now this has been the
+  hidden trap — the apex carrying both a website and the WireGuard endpoint, and
+  `mail.*` carrying both MX and webmail. Any name that is both proxied and
+  unproxied is a bug waiting to happen.
+- **billy + boxy both lost = total loss** of mail and vault. btrbk covers
+  billy→boxy only. Decide whether that is acceptable or whether a third copy is
+  wanted; for a password vault it probably is.
 
 ---
 
@@ -108,7 +136,127 @@ escape hatch — note a plan change also resizes the disk, so re-check `disk.nix
 
 ---
 
-## 8. DNS consolidation to Cloudflare
+## 0. Start immediately — these have lead time
+
+**Request AWS SES production access now.** Sandbox only permits sending to
+verified addresses, so step 4b cannot be meaningfully tested until this clears,
+and AWS review can take from a day to several. It is the only item in the plan
+gated on someone else's response time. Everything else can proceed in parallel.
+
+**Lower DNS TTLs at Linode.** Every cutover in steps 3–5 is bounded below by the
+TTL in effect _before_ the change. Drop `nalgor.net` and `semyonov.xyz` records
+to 300s well ahead of the delegation change, and keep them low until step 5 is
+signed off. Raise them afterwards.
+
+**Decide the SES sending identity model.** Per-domain identities each need their
+own DKIM CNAMEs — no wildcard. With five domains that is five verification sets,
+so it is worth scripting against the Cloudflare API rather than clicking through.
+
+### SES bootstrap — order of operations
+
+1. **Set the region first.** It is the console header dropdown, not part of the
+   wizard, and it is easy to miss. Identities are per-region **and so is
+   production access** — switching later means re-verifying everything and a
+   fresh review. `us-east-1` is the conventional default.
+2. **Verify an email identity.** Any address you can receive at —
+   `igor@nalgor.net` or a Gmail. It does _not_ need to be on a domain you intend
+   to send from; that is a separate identity type. Verify a Gmail as well: in
+   sandbox you may only send _to_ verified addresses, so an independent provider
+   is what lets you check real cross-provider delivery and spam placement.
+3. **Request production access.** Does not require any domain verified. This is
+   the clock you do not control — start it before anything else.
+4. **Add domain identities** (below), which is DNS work and independent of 1–3.
+
+### `nalgor.com` first — DNS DONE, awaiting production access
+
+Region: **us-east-2 (Ohio)**. Endpoints fixed by that choice:
+
+```
+SMTP        email-smtp.us-east-2.amazonaws.com:587 (STARTTLS)
+MAIL FROM   feedback-smtp.us-east-2.amazonses.com
+```
+
+Do not change region later — identities **and production access** are both
+per-region, so a move means re-verifying and re-queuing the review.
+
+Scoped to `nalgor.com` deliberately, to avoid disturbing fid's working mail.
+Not a blank slate: Porkbun forwarding is live (`MX 10 fwd1.porkbun.com`,
+`SPF include:_spf.porkbun.com ~all`). Does not affect send-testing; does own
+inbound.
+
+MAIL FROM: **`mailfrom.nalgor.com`**. SES plan: **Essentials**, VDM on,
+Optimized Shared Delivery on, open/click tracking **off**, Auto Validation
+**off**, no dedicated IPs, no tenants.
+
+**Published on Cloudflare (2026-08-15), all DNS-only, TTL 300, verified at both
+authoritative nameservers:**
+
+```
+2rfho5hlf5uuatp7hhvqaocm6owfmslj._domainkey  CNAME  ...dkim.amazonses.com
+dficovlzcymtgcvcvb6vn2zq5ybx76c6._domainkey  CNAME  ...dkim.amazonses.com
+boztaykyiboweea3xotodbhflgrovafz._domainkey  CNAME  ...dkim.amazonses.com
+mailfrom.nalgor.com   MX   10 feedback-smtp.us-east-2.amazonses.com
+mailfrom.nalgor.com   TXT  "v=spf1 include:amazonses.com ~all"
+_dmarc.nalgor.com     TXT  "v=DMARC1; p=none; rua=mailto:dmarc@nalgor.com"
+```
+
+`dmarc@nalgor.com` forwards via Porkbun for now; it becomes a Stalwart alias at
+step 4a when the Porkbun MX comes down. Two stale `_acme-challenge` TXT records
+were deleted at the same time.
+
+**`nalgor.com` is three weeks old** (registry creation 2026-07-26) and that is a
+deliverability factor in its own right. Domain age is a spam signal: receivers
+apply extra scrutiny below ~30 days, and there is no sending history at all.
+
+The risk this creates is **misdiagnosis** — early mail landing in spam will look
+like an auth bug when it is reputation. DMARC aggregate reports separate the
+two: authentication problems appear as SPF/DKIM `fail` in the XML, reputation
+problems appear as everything passing while placement stays poor. Read
+`nalgor.com` results as a floor, not a representative sample; `nalgor.net`
+(2022) and `semyonov.xyz` (2020) carry years of history and will behave better.
+
+Worth naming the tension: experimenting on the _new_ domains is right for
+avoiding disruption and wrong for deliverability. Still the correct trade — do
+not test on live mail — but calibrate expectations.
+
+**Beware the proxied wildcard.** `*.nalgor.com CNAME uixie.porkbun.com` is
+proxied, so any name without an explicit record resolves to Porkbun via
+Cloudflare. Explicit records win, but public resolvers cache the wildcard
+answer — new records look missing from `1.1.1.1` for a few minutes while being
+correct at the authoritative servers. **Always validate against
+`coco/tim.ns.cloudflare.com`, not a public resolver.**
+
+Porkbun's own DNS panel still shows 7 records for this zone. They are **inert** —
+NS points at Cloudflare — but they are a good way to lose an hour later.
+
+**A proxied CNAME returns Cloudflare's IPs instead of resolving the chain**,
+which breaks DKIM lookup outright. Cloudflare normally refuses to proxy
+underscore-prefixed records, but verify rather than assume.
+
+**The apex SPF probably needs no change.** SPF validates the _envelope_ sender,
+and with a custom MAIL FROM the envelope domain is `mailfrom.nalgor.com` — so
+SES is authorised by the subdomain's record, not the apex. Porkbun's existing
+apex SPF can stay for the forwarding. Clean separation, one record per sender.
+
+`nalgor.com` currently has **no** `_dmarc` record. Start at `p=none` with `rua`
+reporting so alignment can be observed for a week before tightening — worth
+doing _before_ touching `nalgor.net`, which already sits at `p=quarantine`.
+
+**Do not set `aspf=s`.** Strict SPF alignment would reject
+`mailfrom.nalgor.com` as unaligned with `nalgor.com` and fail every message.
+Relaxed (the default) accepts the subdomain.
+
+## 2. Registrar → Porkbun (NS stays at Linode)
+
+Covered in detail below under "Registrar transfer to Porkbun". Key point: this
+is deliberately separate from and _before_ the delegation change, and because NS
+already points at a third party (Linode), moving the registration is invisible
+to resolution.
+
+The post-transfer 60-day ICANN lock blocks further **registrar** transfers only
+— it does not block NS changes, so step 3 can follow immediately.
+
+## 3. DNS management → Cloudflare
 
 Current state:
 
@@ -148,6 +296,56 @@ changes are near-instant. Order:
 
 Doing it in this order also makes the Vaultwarden cutover a one-record change
 with instant rollback, which is what `vaultwarden-migration.md` assumes.
+
+### BLOCKING: fid's certbot must move to `dns-cloudflare` in the same window
+
+fid renews with:
+
+```
+authenticator            = dns-linode
+dns_linode_credentials   = /root/.secrets/certbot/linode.ini
+```
+
+and its certificates are **wildcards** — `*.nalgor.net`, `*.semyonov.xyz`.
+
+Both facts matter:
+
+- **Wildcards can only be issued over DNS-01.** Let's Encrypt will not do
+  HTTP-01 for a wildcard, so there is no fallback. The ACME authenticator must
+  be able to write TXT records into whatever is authoritative.
+- **The instant NS moves to Cloudflare, the Linode plugin writes challenge
+  records into a zone nobody reads.** Renewal fails, and ~30 days later every
+  TLS service on fid drops at once: `vault`, `abs`, `meet`, `gitea`, and both
+  websites.
+
+Timing is tight — `nalgor.net` expires **2026-09-16** and certbot renews at 30
+days remaining, so attempts begin around 2026-08-17. `semyonov.xyz` expires
+2026-10-25.
+
+Required, in the same maintenance window as the NS change:
+
+1. install `certbot-dns-cloudflare` on fid
+2. write a CF token credentials file (scoped to these zones, `0600`)
+3. set `authenticator = dns-cloudflare` + `dns_cloudflare_credentials` in
+   **both** `/etc/letsencrypt/renewal/*.conf`
+4. force a renewal to prove it works **before** the Linode zone goes away
+5. afterwards, revoke the Linode API token at Linode — deleting
+   `/root/.secrets/certbot/linode.ini` does not invalidate it
+
+Note this corrects an earlier assumption in this plan that fid used HTTP-01 and
+that moving it to DNS-01 was an optional improvement. It is already on DNS-01,
+pointed at the provider being left, which makes the switch mandatory rather than
+nice-to-have.
+
+### Existing DKIM on fid
+
+Selector is **`20250120792194`** (from `/etc/opendkim/key.table`; the
+`dkim._domainkey.*` strings there are opendkim's internal labels, not the
+selector). Published and valid for both `nalgor.net` and `semyonov.xyz`.
+
+These TXT records must be carried across in the zone migration, and must stay
+grey. They remain in use until Stalwart takes over signing for those domains at
+step 4c — at which point SES's DKIM CNAMEs replace them for outbound.
 
 ### Registrar transfer to Porkbun — separate from the DNS move
 
@@ -248,15 +446,129 @@ hostnames, and supports wildcards. Needs a Cloudflare API token scoped to
 decrypt (a new `billy.yaml`, not `boxy.yaml`).
 
 **Dependency:** DNS-01 for `vault.nalgor.net` is blocked until `nalgor.net`
-actually moves to Cloudflare, so goal 8 gates the Vaultwarden cutover. Either
+actually moves to Cloudflare, so step 3 gates the Vaultwarden cutover. Either
 sequence it that way, or use HTTP-01 for that one hostname in the interim —
 which reintroduces the port-80 contention, so prefer the ordering.
+
+While you have a Cloudflare token, consider moving **fid's** renewals to DNS-01
+too. Once fid's hostnames are orange-clouded, HTTP-01 renewals start depending
+on Cloudflare proxying `/.well-known/acme-challenge` correctly; DNS-01 removes
+that dependency for a service that is going to keep running for a while.
+
+## 3.5. billy fundamentals — prerequisite for steps 4 and 5
+
+Neither the mail step nor the Vaultwarden step works without these, and neither
+listed them.
+
+**Reverse proxy — decided: nginx + `security.acme`.** Vaultwarden speaks plain
+HTTP and Stalwart's admin UI is HTTP, so something must terminate TLS.
+
+Reasoning, verified against nixpkgs rather than reputation:
+
+- nginx is the _lighter_ of the two (~10–20 MiB vs Caddy's ~20–40). The "nginx is
+  overkill" folklore is about config verbosity, not footprint.
+- Caddy's headline advantage is built-in ACME, which NixOS largely neutralises —
+  `security.acme` already makes certs declarative for nginx.
+- With DNS-01, Caddy costs more. Its DNS providers are compile-time plugins:
+  `caddy.withPlugins` (`pkgs/by-name/ca/caddy/plugins.nix`) is well-built, but it
+  is a fixed-output derivation running `xcaddy` + `go mod vendor`, so plugins must
+  be version-pinned (`assertMsg`, line 46), you supply a `hash` that starts as
+  `fakeHash`, and `vendorHash = null` means **a source rebuild with no cache hit**
+  on every bump. lego ships every provider in one binary, so nginx needs none of
+  that.
+- Existing fid vhosts port over, including the `vault.nalgor.net` proxy block.
+
+Caddy's config is genuinely ~⅓ the size for pure reverse-proxy work. That is the
+one real argument the other way, and it does not outweigh a source rebuild per
+plugin bump plus the memory delta.
+
+**ACME via DNS-01** with the Cloudflare token from step 3. The integration is
+just two options (`security/acme/default.nix:730`, `:751`):
+
+```nix
+security.acme.certs."mail.nalgor.net" = {
+  dnsProvider = "cloudflare";
+  environmentFile = config.sops.secrets.cf-dns-token.path;
+};
+```
+
+`credentialFiles` (`:763`) takes `*_FILE`-suffixed vars via systemd credentials
+if preferred, and `dnsPropagationCheck` (`:781`) is the escape hatch if
+propagation gets flaky. Certificates needed: the mail hostname (one cert covers
+all five domains' SMTP/IMAP — clients connect to one name), `vault.nalgor.net`,
+the Stalwart admin hostname, and any landing-page redirect names.
+
+**Origin TLS must be valid before orange cloud.** Cloudflare Full (strict)
+validates the origin certificate. If billy is behind an orange record with a
+missing or mismatched cert, the failure is a 5xx from Cloudflare, not an obvious
+local error.
+
+**Monitoring — currently nothing.** Three things fail silently today or will:
+
+- btrbk timers (already true — a failed pull is invisible)
+- ACME renewals
+- the mail queue backing up, and SES bounce/complaint rates, which if they
+  breach AWS thresholds get sending suspended
+
+Minimum viable: systemd `OnFailure=` on the relevant units pointing at something
+that reaches you, plus SES bounce/complaint notifications via SNS. This should
+land before mail goes live, not after.
+
+**Capacity check.** `@stalwart`, `@vaultwarden`, and `@var-lib` all share the
+10 GiB vdb. fid's `/var/vmail` is 907 MiB today and mail only grows. Vultr block
+storage can be expanded online and btrfs resized to match, so this is a watch
+item rather than a blocker — but know the procedure before you need it.
 
 If everything is DNS-01, port 80 is not needed for ACME at all. It is still
 worth opening for HTTP→HTTPS redirects; drop it from the firewall if you do not
 want even that.
 
-## 6. WireGuard billy ↔ boxy (required, do first)
+## 1. WireGuard billy ↔ boxy, then SSH on wg0 only
+
+### boxy already has a WireGuard — do not collide with it
+
+`boxy.nix` defines `wg-quick.interfaces.fidler`:
+
+```nix
+address     = ["10.0.0.10/32"];
+listenPort  = 51820;
+privateKeyFile = "/etc/wireguard/privatekey";
+peers = [{ allowedIPs = ["10.0.0.0/24"]; endpoint = "nalgor.net:41883"; ... }];
+```
+
+Consequences for the new tunnel:
+
+- **Port 51820 is taken on boxy.** Since boxy is the initiator and sits behind
+  NAT, simply omit `listenPort` on its billy interface and let it pick an
+  ephemeral port. billy can still listen on 51820 — different host, no conflict.
+- **`10.0.0.0/24` is routed into `fidler`.** Keep the new tunnel off that range;
+  `10.100.0.0/24` is clear.
+- **Interface name** must not be `fidler`; use `billy`.
+- `privateKeyFile = "/etc/wireguard/privatekey"` is manual state on boxy, not
+  sops — the same reproducibility gap we closed on billy. Worth folding into
+  sops while touching this area.
+
+### The apex record is load-bearing — a trap for step 3.1
+
+The existing tunnel's endpoint is **`nalgor.net:41883`**, i.e. the _apex_ A
+record. Orange-clouding `nalgor.net` for the website would break the fid↔boxy
+WireGuard, because UDP cannot be proxied — and the failure would present as
+`abs.nalgor.net` dying, not as a DNS change.
+
+Fix before step 3.1: give the endpoint its own grey hostname, update `boxy.nix`,
+confirm the handshake, and only then consider orange on the apex.
+
+### Naming: nest it, do not take `wg.<domain>` flat
+
+Other WireGuard endpoints are planned outside this project. Do not burn the flat
+`wg.<domain>` label on the fid endpoint — use a nested form such as
+`fid.wg.<domain>` so siblings have somewhere to go.
+
+The only rule billy's plan needs from that: **everything under `wg.` stays
+grey.** WireGuard is UDP and can never be proxied, so that label is a permanent
+no-orange zone, which is what makes grouping worthwhile.
+
+### The tunnel itself
 
 billy has a static public IP and is the listening side; boxy is behind NAT and
 initiates with `PersistentKeepalive`.
@@ -282,7 +594,7 @@ Suggested addressing: `10.100.0.1/32` billy, `10.100.0.2/32` boxy. Open UDP
 Reachable via `wg` requires the interface up before `sshd` accepts on it — bind
 sshd to the WG address or filter in nftables, not both.
 
-## 7. Firewall tightening (required, do last)
+### Firewall — the second half of step 1
 
 Currently only 22 is open. Target state:
 
@@ -302,7 +614,87 @@ admin UI to wg0 as well.
 Add fail2ban or sshguard — still nothing rate-limiting auth. Less urgent once
 SSH is WG-only, but 25/587 remain exposed.
 
-## 1–2. Stalwart + AWS SES
+## 4. Mail — new domains first, then `nalgor.net` + `semyonov.xyz`
+
+Order within the step, per Igor: (a) stand up Stalwart for `nalgor.com`,
+`nalgor.dev`, `semyonov.dev`; (b) get SES sending fully working; (c) only then
+migrate `nalgor.net` and `semyonov.xyz` across, recreating service accounts.
+That is the right shape — it proves the whole stack on domains with no live
+users before touching the one that matters.
+
+Three things the original step 4 did not account for:
+
+**`nalgor.com` is not a clean slate.** It currently has live Porkbun email
+forwarding — `MX 10 fwd1.porkbun.com / 20 fwd2.porkbun.com`, SPF
+`include:_spf.porkbun.com ~all`. That has to be torn down, and SPF _replaced_
+rather than appended to, or you get two conflicting senders authorised.
+
+**Every fid service that sends mail needs rehoming, not just Vaultwarden.**
+Igor correctly flagged Vaultwarden's 2FA email codes. But `mailadmin`
+(PostfixAdmin) and anything else wired to fid's local Postfix are in the same
+position once MX moves. Enumerate before 4c rather than discovering it from a
+user report. (`cloud.nalgor.net` is inactive and `gitea.nalgor.net` is unused —
+out of scope.)
+
+**The 2FA-email dependency is a hard gate, not a footnote.** Between 4c and
+step 5, Vaultwarden is still on fid but mail lives on billy. If that path
+breaks, users with email-based 2FA are locked out of the vault — that is other
+people's lockout, not just yours. Two options:
+
+- point fid's Vaultwarden at billy's submission port with a dedicated service
+  account (what Igor means by "recreating the service accounts"), or
+- point fid's Vaultwarden straight at SES SMTP, bypassing billy entirely
+
+The second is simpler and removes a moving part during the window when billy's
+mail is newest. It also means Vaultwarden never depends on Stalwart, which is
+worth knowing generally: **if mail slips, step 5 is not blocked.**
+
+**MX cutover needs a dual-MX window.** For 4c, keep fid as a lower-priority MX
+while billy takes priority, so nothing bounces if billy rejects. Drop fid from
+the record set only once billy has been accepting cleanly for a full day. TTLs
+must already be low (step 0).
+
+### Webmail — deferred, optional
+
+Testing 4b with **Thunderbird** is better than webmail anyway: it exercises real
+IMAP and SMTP submission rather than a server-side abstraction, so a broken
+client config is distinguishable from a broken server.
+
+If a webmail host is wanted later, it is the tightest addition to this box.
+Rough steady-state budget on 964 MiB: base system ~150–250, Stalwart ~100–200,
+Vaultwarden ~50–100, reverse proxy ~20–40. That leaves room for a small PHP
+front end but not a careless one — `php-fpm` with `pm = ondemand` and a low
+`pm.max_children` is the difference between fitting and swapping. SnappyMail is
+the lightest credible option; Roundcube on SQLite is the mature middle. zram
+plus the 5 GiB swapfile give headroom, but swapping a mail server is unpleasant.
+
+**Do not reuse one hostname for both roles.** `mail.nalgor.net` is free today,
+but it cannot simultaneously be the MX target (must be grey — SMTP is not HTTP)
+and an orange-clouded webmail host. Same trap as the apex/WireGuard collision in
+step 1: one name serving both a proxied and an unproxied protocol.
+
+Putting the webmail host on **`.dev`** is a good call — Google preloaded the
+entire TLD into the HSTS list, so browsers refuse plaintext to it outright, with
+no reliance on a `Strict-Transport-Security` header arriving first. That kills
+downgrade attacks on the login page for free.
+
+The distinction to keep straight: **HSTS is HTTP-only and does nothing for mail
+transport.** It is not a reason to make the _MX target_ a `.dev` name. The
+equivalent guarantees for SMTP are **MTA-STS** (a policy file served over HTTPS
+at `mta-sts.<domain>`, telling senders to require TLS) and optionally
+**DANE/TLSA** (requires DNSSEC, which Cloudflare can sign). Worth adding for the
+mail domains once Stalwart is stable — note MTA-STS is itself an HTTPS host, so
+it needs a cert and can be orange.
+
+Suggested split:
+
+| host                         | cloud  | role                        |
+| ---------------------------- | ------ | --------------------------- |
+| `mail.nalgor.net`            | grey   | MX target, SMTP/IMAP        |
+| `webmail.nalgor.dev`         | orange | webmail, HSTS-preloaded TLD |
+| `mta-sts.<each mail domain>` | orange | MTA-STS policy              |
+
+### Stalwart + AWS SES
 
 State dir is `/var/lib/stalwart` (nixpkgs `stalwart.nix:13`; `stalwart-mail` only
 below stateVersion 26.05) — already its own subvolume on vdb, so it is covered by
@@ -334,7 +726,7 @@ per domain.
 goal 5 (migration), not day-one setup. Stand the other four up first on a
 domain billy already owns, prove the stack, then move `nalgor.net`.
 
-## 3–4. Vaultwarden, and migrating off fid
+## 5. Vaultwarden — install, migrate, flip the origin
 
 Target state dir `/var/lib/vaultwarden` (nixpkgs `vaultwarden/default.nix:14`;
 `bitwarden_rs` only below stateVersion 24.11) — already its own subvolume.
@@ -402,7 +794,7 @@ migration is the only path. See `vaultwarden-migration.md`.
 `.env` on fid holds the admin token and DB credentials — deliberately not read
 during this survey. Re-key rather than copy: put fresh values in sops.
 
-## 5. Mail migration off fid (optional)
+## Reference — fid's current mail setup (input to step 4c)
 
 - 907 MiB in `/var/vmail`, single domain `nalgor.net`, maildir layout
   `maildir:/var/vmail/%d/%n/`.
@@ -417,6 +809,33 @@ during this survey. Re-key rather than copy: put fresh values in sops.
   a billy-owned domain first, prove it, then migrate `nalgor.net` mail.
 
 ---
+
+## Later — low priority
+
+### Landing page / portal
+
+A static dark-mode index linking to `vault`, `abs`, and whatever else. Resource
+cost is effectively zero — a file served by the reverse proxy, no process, no
+database — so it does not compete with Stalwart for the 964 MiB.
+
+Worth building as a **Nix derivation** rather than a mutable webroot: the HTML
+lives in this repo, `pkgs.writeTextDir` or a small `runCommand` produces a store
+path, and the proxy roots at it. That keeps it in the same reproducibility model
+as everything else and means no state to back up.
+
+Pick one canonical host and 301 the rest to it. `nalgor.dev` is the natural
+choice given the HSTS-preloaded TLD. Note the redirecting names still need
+certificates, so add them to the ACME cert list even though they serve nothing.
+
+One consideration: a public portal is an index of your infrastructure. The links
+are not secrets and the targets all require auth, so this is probably fine — but
+if you would rather it not be enumerable, Cloudflare Access in front of the
+landing page (not the services) is a light way to gate it.
+
+### Webmail
+
+Covered under step 4. Deferred — Thunderbird covers testing, and webmail is the
+tightest fit on this box.
 
 ## Leftovers
 
