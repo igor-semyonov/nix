@@ -91,6 +91,11 @@ in
         Reads configuration from the environment: GW_ROOT (base directory for
         collections), GW_SYMLINK_FILES and GW_COPY_FILES (colon-separated
         untracked files to seed new worktrees with), GW_DIRENV_ALLOW.
+
+        Files listed in GW_SYMLINK_FILES are stored once per collection in
+        .gw-shared/ and symlinked into each worktree, which is where untracked
+        secrets belong. Individual collections can override the lists through
+        their own git config: gw.symlink, gw.copy and gw.inherit.
       '';
       platforms = lib.platforms.unix;
       mainProgram = "gw-list";

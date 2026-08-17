@@ -116,23 +116,55 @@ gw-prune --yes                # non-interactive; otherwise it prompts on /dev/tt
   HEAD. Fix the cause; do not work around it.
 - Absolute paths are safest across worktrees. `git -C "$dir"` beats `cd`.
 
-## New-worktree seeding
+## New-worktree seeding, shared secrets, per-repo config
 
-`gw-add`/`gw-pr`/`gw-clone` seed a fresh worktree from a sibling ("donor")
-worktree and then approve direnv. Tracked files (`.envrc` and friends) are
-already checked out by git and need no seeding. Existing files are never
-overwritten.
+`gw-add`/`gw-pr`/`gw-clone` seed a fresh worktree, then approve direnv. Tracked
+files (`.envrc` and friends) are already checked out by git and need no seeding.
+Existing files are never overwritten.
 
-| Env var            | Meaning                                                                             | Default           |
-| ------------------ | ----------------------------------------------------------------------------------- | ----------------- |
-| `GW_ROOT`          | base dir for collections                                                            | `~/src`           |
-| `GW_SYMLINK_FILES` | `:`-separated untracked paths **symlinked** from the donor (shared, e.g. `.direnv`) | empty             |
-| `GW_COPY_FILES`    | `:`-separated untracked paths **copied** from the donor (diverge per worktree)      | `.env:.env.local` |
-| `GW_DIRENV_ALLOW`  | `1` to run `direnv allow` in a worktree with an `.envrc`                            | `1`               |
+Two kinds of untracked file, and they are seeded differently:
 
-Symlinking a `.direnv` cache shares it across branches — and goes stale when
-`flake.nix` differs between them. Copy, don't symlink, anything that should
-diverge.
+- **Shared** (`gw.symlink`) — one real file in `<collection>/.gw-shared/`, with a
+  relative symlink into every worktree. **This is where untracked secrets go.**
+  The store sits beside `.bare/`, outside every worktree, so it survives
+  `gw-remove` of any branch and is never seen by git. Created `0700` on demand;
+  file modes are preserved, so keep secrets `0600`.
+- **Private** (`gw.copy`) — copied from an existing worktree, so each branch gets
+  its own divergent version.
+
+A file that already exists in a worktree is **migrated** into `.gw-shared/` the
+first time it is symlinked, leaving a link in its place — existing collections
+adopt the layout with no manual step.
+
+### Per-repo overrides (preferred over the globals)
+
+Stored in the collection's own git config (`.bare/config`): untracked, travels
+with the repo, no new file format. Run from anywhere in the collection.
+
+```bash
+git config --add gw.symlink .secrets   # shared across branches
+git config --add gw.copy    .env       # private per branch
+git config gw.inherit false            # seed nothing at all
+git config --get-all gw.symlink        # inspect
+git config --unset-all gw.symlink      # back to the global default
+```
+
+Setting `gw.symlink`/`gw.copy` **replaces** the corresponding global list rather
+than appending, so a repo can opt out of a global entry. This covers the mixed
+cases directly: `.env` shared in one repo, private in another, and elsewhere
+`.env` private (or even committed) while `.secrets` is shared.
+
+### Global defaults
+
+| Env var            | Meaning                                                           | Default           |
+| ------------------ | ----------------------------------------------------------------- | ----------------- |
+| `GW_ROOT`          | base dir for collections                                          | `~/src`           |
+| `GW_SYMLINK_FILES` | `:`-separated paths **shared** via `.gw-shared/` (e.g. `.direnv`) | empty             |
+| `GW_COPY_FILES`    | `:`-separated paths **copied** per worktree (diverge)             | `.env:.env.local` |
+| `GW_DIRENV_ALLOW`  | `1` to run `direnv allow` in a worktree with an `.envrc`          | `1`               |
+
+Sharing a `.direnv` cache goes stale when `flake.nix` differs between branches.
+Copy, don't share, anything that should diverge.
 
 ## Required git config
 

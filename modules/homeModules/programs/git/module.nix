@@ -47,15 +47,27 @@
                 ".tool-versions"
               ];
               description = ''
-                Untracked files symlinked into a new worktree from an existing
-                one, so edits stay shared. Paths are relative to the worktree
-                root; missing files are skipped. Must not contain `:`.
+                Untracked files shared across every worktree in a collection.
+                The real file lives in `<collection>/.gw-shared/`, beside
+                `.bare/`, with a relative symlink in each worktree, so edits are
+                shared and the file survives removing any worktree. A file that
+                already exists in a worktree is moved into the store the first
+                time it is shared. Paths are relative to the worktree root;
+                missing files are skipped. Must not contain `:`.
+
+                This is where untracked secrets belong: the store is outside
+                every worktree, so git never sees it, and it is created `0700`
+                with file modes preserved.
 
                 Empty by default: a tracked file (`.envrc` and friends) is
                 already checked out into every worktree by git, and existing
                 files are never overwritten. Use this for deliberately
                 gitignored state, such as sharing a `.direnv` cache -- at the
                 cost of staleness when `flake.nix` differs between branches.
+
+                Per-repository overrides live in the collection's own git
+                config and replace this list:
+                `git config --add gw.symlink .secrets`.
               '';
             };
 
@@ -71,6 +83,11 @@
                 for content that should diverge per worktree. Paths are relative
                 to the worktree root; missing files are skipped. Must not
                 contain `:`.
+
+                Per-repository overrides live in the collection's own git
+                config and replace this list: `git config --add gw.copy .env`.
+                `git config gw.inherit false` disables seeding entirely for one
+                collection.
               '';
             };
 

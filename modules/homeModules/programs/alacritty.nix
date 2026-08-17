@@ -51,7 +51,10 @@
         };
 
         font = {
-          size = lib.mkForce (
+          # Overrides stylix's fonts.sizes.terminal, but at a weaker priority
+          # than mkForce (50) so a host can still set its own size -- leto is a
+          # small laptop screen and forces a larger one.
+          size = lib.mkOverride 60 (
             if pkgs.stdenv.isDarwin
             then 36
             else 41.5

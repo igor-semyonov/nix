@@ -35,6 +35,7 @@ git fetch --quiet origin "pull/$num/head:$branch" ||
 
 git worktree add "$path" "$branch" >&2
 
+gw_resolve_lists "$root"
 donor=$(gw_donor_worktree "$path") || donor=""
 gw_inherit "$path" "$donor"
 

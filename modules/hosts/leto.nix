@@ -134,9 +134,10 @@
           '';
           plymouth.enable = lib.mkForce true;
           initrd = {
-            systemd-boot = {
+            # systemd in stage 1: required by the crypttab options below, which
+            # nixpkgs only honours under systemd stage 1.
+            systemd = {
               enable = true;
-              configurationLimit = 10;
               # emergencyAccess = true;
             };
             luks.devices =
@@ -149,7 +150,10 @@
               efiSysMountPoint = "/boot";
             };
             timeout = 5;
-            systemd-boot.enable = true;
+            systemd-boot = {
+              enable = true;
+              configurationLimit = 10;
+            };
           };
         };
 

@@ -70,6 +70,7 @@ if [ "$want_branch" = "$(git symbolic-ref --quiet --short HEAD 2>/dev/null)" ]; 
     fi
     # No donor exists yet -- this is the first worktree -- but a tracked .envrc
     # still needs allowing, which gw_inherit handles.
+    gw_resolve_lists "$root"
     gw_inherit "$path" ""
 else
     path=$(gw_add_worktree "$want_branch")
