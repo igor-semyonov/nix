@@ -9,9 +9,11 @@ description: >-
   checkout`/`switch`/`stash`, checking out a PR, cloning, cleaning up merged
   branches, "work on X while Y builds", locating a repo or branch on disk, or a
   path containing `.bare/`. Also trigger on the names gw-add, gw-clone,
-  gw-convert, gw-find, gw-list, gw-pr, gw-prune, gw-remove, gwa, gwc, gwcl,
-  gwpr, gwr, gwconvert, GW_ROOT. SKIP for read-only work inside one already
-  checked-out tree (log, diff, blame, grep, commit) that never changes branches.
+  gw-convert, gw-copy, gw-find, gw-list, gw-pr, gw-prune, gw-remove, gw-share,
+  gwa, gwc, gwcl, gwpr, gwr, gwconvert, GW_ROOT, or on sharing untracked
+  files/secrets/.env between branches of one repo. SKIP for read-only work
+  inside one already checked-out tree (log, diff, blame, grep, commit) that
+  never changes branches.
 ---
 
 # Git Worktrees (`gw-*` tooling)
@@ -116,53 +118,53 @@ gw-prune --yes                # non-interactive; otherwise it prompts on /dev/tt
   HEAD. Fix the cause; do not work around it.
 - Absolute paths are safest across worktrees. `git -C "$dir"` beats `cd`.
 
-## New-worktree seeding, shared secrets, per-repo config
+## New-worktree seeding: `gw-share` and `gw-copy`
 
 `gw-add`/`gw-pr`/`gw-clone` seed a fresh worktree, then approve direnv. Tracked
 files (`.envrc` and friends) are already checked out by git and need no seeding.
 Existing files are never overwritten.
 
-Two kinds of untracked file, and they are seeded differently:
+Which untracked files a worktree inherits is **per-collection state, not a global
+preference** — it lives in the collection's own git config (`.bare/config`) and is
+managed with two commands. There are no global `GW_*_FILES` variables.
 
-- **Shared** (`gw.symlink`) — one real file in `<collection>/.gw-shared/`, with a
-  relative symlink into every worktree. **This is where untracked secrets go.**
-  The store sits beside `.bare/`, outside every worktree, so it survives
-  `gw-remove` of any branch and is never seen by git. Created `0700` on demand;
-  file modes are preserved, so keep secrets `0600`.
-- **Private** (`gw.copy`) — copied from an existing worktree, so each branch gets
-  its own divergent version.
-
-A file that already exists in a worktree is **migrated** into `.gw-shared/` the
-first time it is symlinked, leaving a link in its place — existing collections
-adopt the layout with no manual step.
-
-### Per-repo overrides (preferred over the globals)
-
-Stored in the collection's own git config (`.bare/config`): untracked, travels
-with the repo, no new file format. Run from anywhere in the collection.
+- **`gw-share`** — one real file in `<collection>/.gw-shared/`, with a relative
+  symlink in every worktree. **This is where untracked secrets go.** The store
+  sits beside `.bare/`, outside every worktree, so it survives `gw-remove` of any
+  branch and git never sees it. Created `0700`; file modes are preserved, so keep
+  secrets `0600`.
+- **`gw-copy`** — copied per worktree, so each branch's version can diverge.
 
 ```bash
-git config --add gw.symlink .secrets   # shared across branches
-git config --add gw.copy    .env       # private per branch
-git config gw.inherit false            # seed nothing at all
-git config --get-all gw.symlink        # inspect
-git config --unset-all gw.symlink      # back to the global default
+gw-share                       # list shared paths + per-worktree state
+gw-share add .secrets          # adopt into the store, link into EVERY worktree
+gw-share add --from main .env  # pick whose copy wins when several differ
+gw-share rm .secrets           # unshare: each worktree gets its own real file
+gw-share sync                  # link any worktree still missing one
+
+gw-copy                        # list per-branch paths
+gw-copy add .env
+gw-copy rm .env                # config only; existing files are left alone
+gw-copy sync [--from <branch>]
 ```
 
-Setting `gw.symlink`/`gw.copy` **replaces** the corresponding global list rather
-than appending, so a repo can opt out of a global entry. This covers the mixed
-cases directly: `.env` shared in one repo, private in another, and elsewhere
-`.env` private (or even committed) while `.secrets` is shared.
+`add` records the config **and propagates in the same run**, reporting per
+worktree — including worktrees that already existed. Re-running is a no-op, so
+there is no way to accumulate duplicate config entries.
 
-### Global defaults
+Both refuse unsafe input: a path that is tracked by git, escapes the worktree
+(`..`, absolute), or lands inside the store. `gw-share add` also refuses when
+several worktrees hold the path with **differing content** — adopting one would
+destroy the others — and tells you to pick with `--from`. A path that exists
+nowhere yet is reported rather than silently ignored.
 
-| Env var            | Meaning                                                           | Default           |
-| ------------------ | ----------------------------------------------------------------- | ----------------- |
-| `GW_ROOT`          | base dir for collections                                          | `~/src`           |
-| `GW_SYMLINK_FILES` | `:`-separated paths **shared** via `.gw-shared/` (e.g. `.direnv`) | empty             |
-| `GW_COPY_FILES`    | `:`-separated paths **copied** per worktree (diverge)             | `.env:.env.local` |
-| `GW_DIRENV_ALLOW`  | `1` to run `direnv allow` in a worktree with an `.envrc`          | `1`               |
-| `GW_DIRENV_CACHE`  | `1` to copy an existing worktree's `.direnv` into a new one       | `1`               |
+### Environment
+
+| Env var           | Meaning                                                     | Default |
+| ----------------- | ----------------------------------------------------------- | ------- |
+| `GW_ROOT`         | base dir for collections                                    | `~/src` |
+| `GW_DIRENV_ALLOW` | `1` to run `direnv allow` in a worktree with an `.envrc`    | `1`     |
+| `GW_DIRENV_CACHE` | `1` to copy an existing worktree's `.direnv` into a new one | `1`     |
 
 `GW_DIRENV_CACHE` copies the evaluated devShell cache into each new worktree, so
 a fresh branch does not re-evaluate it on first `cd`. nix-direnv keys the cache
@@ -172,10 +174,8 @@ checked-out `flake.nix`/`flake.lock`, which nix-direnv would otherwise treat as
 invalidating. Skipped when `flake.nix`/`flake.lock` differ between the two
 worktrees.
 
-Sharing a `.direnv` via `GW_SYMLINK_FILES` is the other option, but it goes stale
-when `flake.nix` differs between branches — prefer `GW_DIRENV_CACHE`, which
-copies and so lets branches diverge. Copy, don't share, anything that should
-diverge.
+Prefer `GW_DIRENV_CACHE` over `gw-share add .direnv`: a shared cache goes stale
+when `flake.nix` differs between branches, while a copy lets them diverge.
 
 ## Required git config
 
@@ -189,7 +189,7 @@ Set by the home-manager module; a collection misbehaves without it.
 ## Source
 
 Scripts, shell functions, and the home-manager options
-(`igix.gitWorktree.{enable,root,symlinkFiles,copyFiles,direnvAllow}`) live in
+(`igix.gitWorktree.{enable,root,direnvAllow,direnvCache}`) live in
 `modules/homeModules/programs/git/` of the nix-personal flake. Shared helpers are
 in `lib.sh`; each `gw-<verb>.sh` is concatenated onto it at build time. Build or
 run standalone with `nix run .#git-worktree-scripts`. Every script also takes

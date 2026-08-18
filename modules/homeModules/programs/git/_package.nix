@@ -39,11 +39,13 @@
     gw-add = ./gw-add.sh;
     gw-clone = ./gw-clone.sh;
     gw-convert = ./gw-convert.sh;
+    gw-copy = ./gw-copy.sh;
     gw-find = ./gw-find.sh;
     gw-list = ./gw-list.sh;
     gw-pr = ./gw-pr.sh;
     gw-prune = ./gw-prune.sh;
     gw-remove = ./gw-remove.sh;
+    gw-share = ./gw-share.sh;
   };
 
   # Shell function definitions for the verbs that must change the caller's
@@ -89,13 +91,14 @@ in
         a nested directory named after the branch.
 
         Reads configuration from the environment: GW_ROOT (base directory for
-        collections), GW_SYMLINK_FILES and GW_COPY_FILES (colon-separated
-        untracked files to seed new worktrees with), GW_DIRENV_ALLOW.
+        collections), GW_DIRENV_ALLOW and GW_DIRENV_CACHE.
 
-        Files listed in GW_SYMLINK_FILES are stored once per collection in
-        .gw-shared/ and symlinked into each worktree, which is where untracked
-        secrets belong. Individual collections can override the lists through
-        their own git config: gw.symlink, gw.copy and gw.inherit.
+        Which untracked files a new worktree inherits is per-collection state
+        rather than a global preference, so it lives in each collection's own
+        git config (gw.symlink / gw.copy) and is managed with `gw-share` and
+        `gw-copy`. Shared files are stored once per collection in .gw-shared/
+        and symlinked into every worktree, which is where untracked secrets
+        belong; copied files diverge per worktree.
       '';
       platforms = lib.platforms.unix;
       mainProgram = "gw-list";

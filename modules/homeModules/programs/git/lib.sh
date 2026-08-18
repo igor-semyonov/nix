@@ -5,15 +5,14 @@
 #
 # Configuration comes from the environment so the scripts stay pure packages:
 #   GW_ROOT           base dir holding worktree collections (required)
-#   GW_SYMLINK_FILES  colon-separated untracked files shared across worktrees,
-#                     via the per-collection .gw-shared/ store
-#   GW_COPY_FILES     colon-separated untracked files to copy into new worktrees
 #   GW_DIRENV_ALLOW   1 to run `direnv allow` in a new worktree with an .envrc
 #   GW_DIRENV_CACHE   1 to copy an existing worktree's .direnv cache into a new
 #                     one, so the devShell is not re-evaluated per branch
 #
-# Per-collection overrides live in the collection's own git config; see
-# gw_resolve_lists below (gw.symlink / gw.copy / gw.inherit).
+# Which untracked files a new worktree inherits is per-collection state, not a
+# global preference, so it lives in the collection's own git config rather than
+# the environment. Manage it with `gw-share` and `gw-copy`; see
+# gw_resolve_lists below.
 
 gw_msg() { printf '%s\n' "$*" >&2; }
 gw_die() {
@@ -22,8 +21,6 @@ gw_die() {
 }
 
 : "${GW_ROOT:=$HOME/src}"
-: "${GW_SYMLINK_FILES=}"
-: "${GW_COPY_FILES=.env:.env.local}"
 : "${GW_DIRENV_ALLOW:=1}"
 : "${GW_DIRENV_CACHE:=1}"
 
@@ -31,41 +28,50 @@ gw_die() {
 # .bare/, so it is outside every worktree and cannot be removed by gw-remove.
 gw_shared_dir=.gw-shared
 
-# Per-repo overrides live in the collection's own git config (.bare/config), so
-# they are untracked, travel with the repo, and need no new file format:
-#   git config --add gw.symlink .secrets     # shared across branches
-#   git config --add gw.copy    .env         # private per branch
-#   git config gw.inherit false              # seed nothing at all
-# A repo that sets gw.symlink/gw.copy REPLACES the corresponding global list
-# rather than adding to it, so a repo can opt out of a global entry.
+# Config keys holding the inherited-file lists, in the collection's .bare/config:
+#   gw.symlink  one real file in .gw-shared/, symlinked into every worktree
+#   gw.copy     copied per worktree, so each branch's version can diverge
+gw_symlink_key=gw.symlink
+gw_copy_key=gw.copy
+
+# All values of a multi-valued config key, deduplicated. `git config --add`
+# happily stores the same value twice, so dedupe here rather than making every
+# caller defend against doing the work twice.
 gw_config_list() {
-    git config --get-all "$1" 2>/dev/null || true
+    git -C "$1" config --get-all "$2" 2>/dev/null | awk 'NF && !seen[$0]++' || true
 }
 
-# Resolve the effective symlink/copy lists for the collection $1 is in, filling
-# gw_symlink_files / gw_copy_files. Falls back to the GW_* environment defaults.
+# Add $3 to key $2 unless already present, so repeated adds are a no-op.
+gw_config_add() {
+    local dir="$1" key="$2" value="$3"
+    if git -C "$dir" config --get-all --fixed-value "$key" "$value" >/dev/null 2>&1; then
+        return 1
+    fi
+    git -C "$dir" config --add "$key" "$value"
+}
+
+# Drop every copy of $3 from key $2. Returns 1 when it was not configured.
+# --unset-all, not --unset: with duplicates present the latter refuses outright.
+gw_config_remove() {
+    local dir="$1" key="$2" value="$3"
+    git -C "$dir" config --unset-all --fixed-value "$key" "$value" 2>/dev/null
+}
+
+# Resolve the collection's inherited-file lists into gw_symlink_files /
+# gw_copy_files. $1 is any path inside the collection.
 gw_resolve_lists() {
-    local dir="$1" inherit repo_list
-    IFS=':' read -r -a gw_symlink_files <<<"$GW_SYMLINK_FILES"
-    IFS=':' read -r -a gw_copy_files <<<"$GW_COPY_FILES"
+    local dir="$1" list
+    gw_symlink_files=()
+    gw_copy_files=()
 
-    inherit=$(git -C "$dir" config --get gw.inherit 2>/dev/null || true)
-    if [ "$inherit" = false ]; then
-        gw_symlink_files=()
-        gw_copy_files=()
-        return 0
-    fi
-
-    if repo_list=$(gw_config_list gw.symlink) && [ -n "$repo_list" ]; then
-        mapfile -t gw_symlink_files <<<"$repo_list"
-    fi
-    if repo_list=$(gw_config_list gw.copy) && [ -n "$repo_list" ]; then
-        mapfile -t gw_copy_files <<<"$repo_list"
-    fi
+    list=$(gw_config_list "$dir" "$gw_symlink_key")
+    [ -z "$list" ] || mapfile -t gw_symlink_files <<<"$list"
+    list=$(gw_config_list "$dir" "$gw_copy_key")
+    [ -z "$list" ] || mapfile -t gw_copy_files <<<"$list"
 }
 
-IFS=':' read -r -a gw_symlink_files <<<"$GW_SYMLINK_FILES"
-IFS=':' read -r -a gw_copy_files <<<"$GW_COPY_FILES"
+gw_symlink_files=()
+gw_copy_files=()
 
 # Split a git remote URL into GW_HOST / GW_OWNER / GW_REPO.
 # Local paths and file:// URLs have no host or owner, so they get the
@@ -211,6 +217,88 @@ gw_worktree_with() {
     return 1
 }
 
+# Every worktree holding the relative path $1, one per line. Plural counterpart
+# to gw_worktree_with, for commands that must reason about all copies at once --
+# adopting a file that exists in several worktrees would destroy all but one.
+gw_worktrees_with() {
+    local name="$1" wt
+    while IFS= read -r wt; do
+        [ ! -e "$wt/$name" ] || printf '%s\n' "$wt"
+    done < <(gw_worktrees)
+}
+
+# Reject anything that would escape the worktree or break the config encoding.
+gw_assert_relpath() {
+    local name="$1"
+    case "$name" in
+    "") gw_die "empty path" ;;
+    /*) gw_die "path must be relative to the worktree root: $name" ;;
+    *..*) gw_die "path must not contain '..': $name" ;;
+    ./*) gw_die "drop the leading './': $name" ;;
+    *) ;;
+    esac
+    # Trailing slashes make "$dir/$name" ambiguous for -e tests and ln targets.
+    case "$name" in
+    */) gw_die "drop the trailing '/': $name" ;;
+    esac
+}
+
+# Refuse to manage a file git already owns: it would be checked out into every
+# worktree anyway, and replacing it with a symlink shows up as a local
+# modification. $1 is a worktree, $2 the relative path.
+gw_assert_not_tracked() {
+    local wt="$1" name="$2"
+    if git -C "$wt" ls-files --error-unmatch -- "$name" >/dev/null 2>&1; then
+        gw_die "$name is tracked by git -- it is already in every worktree"
+    fi
+}
+
+# Warn when a path is not ignored: the seeded file or symlink will show up as
+# untracked noise in `git status` for every worktree.
+gw_warn_not_ignored() {
+    local wt="$1" name="$2"
+    git -C "$wt" check-ignore -q -- "$name" 2>/dev/null ||
+        gw_msg "warning: $name is not gitignored; it will show as untracked"
+}
+
+# Link $1 from the shared store into every worktree that lacks it. Prints a line
+# per worktree touched and returns the number linked via gw_propagated.
+gw_propagate_symlink() {
+    local name="$1" shared="$2" wt rel
+    gw_propagated=0
+    gw_skipped=0
+    while IFS= read -r wt; do
+        rel=${wt#"$(dirname "$shared")"/}
+        if [ -e "$wt/$name" ] || [ -L "$wt/$name" ]; then
+            gw_skipped=$((gw_skipped + 1))
+            continue
+        fi
+        mkdir -p "$(dirname "$wt/$name")"
+        ln -srn "$shared/$name" "$wt/$name"
+        gw_msg "  linked into $rel"
+        gw_propagated=$((gw_propagated + 1))
+    done < <(gw_worktrees)
+}
+
+# Copy $1 from worktree $2 into every other worktree that lacks it.
+gw_propagate_copy() {
+    local name="$1" src="$2" root="$3" wt rel
+    gw_propagated=0
+    gw_skipped=0
+    while IFS= read -r wt; do
+        [ "$wt" != "$src" ] || continue
+        rel=${wt#"$root"/}
+        if [ -e "$wt/$name" ]; then
+            gw_skipped=$((gw_skipped + 1))
+            continue
+        fi
+        mkdir -p "$(dirname "$wt/$name")"
+        cp -a "$src/$name" "$wt/$name"
+        gw_msg "  copied into $rel"
+        gw_propagated=$((gw_propagated + 1))
+    done < <(gw_worktrees)
+}
+
 # Seed a fresh worktree with untracked dev files, then allow direnv.
 #
 # Symlinked entries point at the collection's $gw_shared_dir, which sits beside
@@ -244,10 +332,16 @@ gw_inherit() {
                 ln -srn "$src" "$from/$name"
                 gw_msg "  moved $name into $gw_shared_dir/ (now shared)"
             fi
-            if [ -e "$src" ] && [ ! -e "$dst/$name" ]; then
-                mkdir -p "$(dirname "$dst/$name")"
-                ln -srn "$src" "$dst/$name"
-                gw_msg "  linked $name"
+            if [ -e "$src" ]; then
+                if [ ! -e "$dst/$name" ]; then
+                    mkdir -p "$(dirname "$dst/$name")"
+                    ln -srn "$src" "$dst/$name"
+                    gw_msg "  linked $name"
+                fi
+            else
+                # Configured but nowhere to be found: say so rather than doing
+                # nothing silently, which reads as the feature being broken.
+                gw_msg "  $name: shared but does not exist yet (nothing to link)"
             fi
         done
     fi
@@ -260,6 +354,7 @@ gw_inherit() {
         elif from=$(gw_worktree_with "$name" "$dst"); then
             src="$from/$name"
         else
+            gw_msg "  $name: configured to copy but does not exist yet"
             continue
         fi
         if [ ! -e "$dst/$name" ]; then
