@@ -162,9 +162,20 @@ cases directly: `.env` shared in one repo, private in another, and elsewhere
 | `GW_SYMLINK_FILES` | `:`-separated paths **shared** via `.gw-shared/` (e.g. `.direnv`) | empty             |
 | `GW_COPY_FILES`    | `:`-separated paths **copied** per worktree (diverge)             | `.env:.env.local` |
 | `GW_DIRENV_ALLOW`  | `1` to run `direnv allow` in a worktree with an `.envrc`          | `1`               |
+| `GW_DIRENV_CACHE`  | `1` to copy an existing worktree's `.direnv` into a new one       | `1`               |
 
-Sharing a `.direnv` cache goes stale when `flake.nix` differs between branches.
-Copy, don't share, anything that should diverge.
+`GW_DIRENV_CACHE` copies the evaluated devShell cache into each new worktree, so
+a fresh branch does not re-evaluate it on first `cd`. nix-direnv keys the cache
+on a hash of the flake expression rather than the worktree path, so it is
+portable between worktrees; the copy's mtimes are bumped past the freshly
+checked-out `flake.nix`/`flake.lock`, which nix-direnv would otherwise treat as
+invalidating. Skipped when `flake.nix`/`flake.lock` differ between the two
+worktrees.
+
+Sharing a `.direnv` via `GW_SYMLINK_FILES` is the other option, but it goes stale
+when `flake.nix` differs between branches — prefer `GW_DIRENV_CACHE`, which
+copies and so lets branches diverge. Copy, don't share, anything that should
+diverge.
 
 ## Required git config
 

@@ -9,6 +9,8 @@
 #                     via the per-collection .gw-shared/ store
 #   GW_COPY_FILES     colon-separated untracked files to copy into new worktrees
 #   GW_DIRENV_ALLOW   1 to run `direnv allow` in a new worktree with an .envrc
+#   GW_DIRENV_CACHE   1 to copy an existing worktree's .direnv cache into a new
+#                     one, so the devShell is not re-evaluated per branch
 #
 # Per-collection overrides live in the collection's own git config; see
 # gw_resolve_lists below (gw.symlink / gw.copy / gw.inherit).
@@ -23,6 +25,7 @@ gw_die() {
 : "${GW_SYMLINK_FILES=}"
 : "${GW_COPY_FILES=.env:.env.local}"
 : "${GW_DIRENV_ALLOW:=1}"
+: "${GW_DIRENV_CACHE:=1}"
 
 # Name of the per-collection store for shared untracked files. Lives beside
 # .bare/, so it is outside every worktree and cannot be removed by gw-remove.
@@ -266,9 +269,56 @@ gw_inherit() {
         fi
     done
 
+    # Before `direnv allow`, so the first evaluation already sees a warm cache.
+    if [ "$GW_DIRENV_CACHE" = 1 ]; then
+        if [ -n "$donor" ] && [ -d "$donor/.direnv" ]; then
+            gw_copy_direnv "$dst" "$donor"
+        elif from=$(gw_worktree_with .direnv "$dst"); then
+            gw_copy_direnv "$dst" "$from"
+        fi
+    fi
+
     if [ "$GW_DIRENV_ALLOW" = 1 ] && [ -e "$dst/.envrc" ] && command -v direnv >/dev/null 2>&1; then
         (cd "$dst" && direnv allow) && gw_msg "  direnv allow"
     fi
+}
+
+# Copy the .direnv cache from an existing worktree into the new one, so a fresh
+# branch reuses the evaluated devShell instead of rebuilding it.
+#
+# nix-direnv keys its cache on a hash of the flake expression (usually just "."),
+# NOT on the worktree path, so the filenames match across worktrees. It then
+# invalidates on mtime: the cache is stale if any watched file (flake.nix,
+# flake.lock, .envrc) is newer than the profile .rc. `git worktree add` has just
+# written those files with current mtimes, so a copied cache always looks stale
+# until its own timestamps are bumped past them -- hence the `touch -h`, which is
+# exactly what nix-direnv itself does after a reload.
+#
+# Skipped when flake.nix/flake.lock differ between the two worktrees: the cache
+# would be evaluated for the wrong inputs, and direnv would rebuild anyway.
+gw_copy_direnv() {
+    local dst="$1" src="$2" f
+
+    [ -n "$src" ] || return 0
+    [ -d "$src/.direnv" ] || return 0
+    [ ! -e "$dst/.direnv" ] || return 0
+    # Nothing to reuse without an .envrc in the new worktree.
+    [ -e "$dst/.envrc" ] || return 0
+
+    for f in flake.nix flake.lock; do
+        if [ -e "$src/$f" ] || [ -e "$dst/$f" ]; then
+            cmp -s "$src/$f" "$dst/$f" || {
+                gw_msg "  .direnv not reused ($f differs)"
+                return 0
+            }
+        fi
+    done
+
+    cp -a "$src/.direnv" "$dst/.direnv" || return 0
+    # -h so the flake-profile symlink into /nix/store is stamped, not its target.
+    touch -h "$dst"/.direnv/flake-profile-* "$dst"/.direnv/nix-profile-* \
+        "$dst"/.direnv/flake-inputs/* 2>/dev/null || true
+    gw_msg "  reused .direnv cache"
 }
 
 # Add a worktree for branch $1 (base $2 when the branch is new). Prints its path.

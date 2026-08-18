@@ -102,6 +102,26 @@
               '';
             };
 
+            direnvCache = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = ''
+                Copy an existing worktree's `.direnv` directory into a new
+                worktree, so a fresh branch reuses the already-evaluated
+                devShell instead of rebuilding it on first `cd`.
+
+                nix-direnv keys its cache on a hash of the flake expression
+                rather than the worktree path, so the cache is portable between
+                worktrees of the same repo. The copy's timestamps are bumped
+                past the freshly checked-out `flake.nix`/`flake.lock`, since
+                nix-direnv invalidates on mtime.
+
+                Skipped when `flake.nix` or `flake.lock` differ between the two
+                worktrees -- the cache would be wrong for those inputs, and
+                direnv would re-evaluate regardless.
+              '';
+            };
+
             shellIntegration = lib.mkOption {
               type = lib.types.lines;
               readOnly = true;
@@ -179,6 +199,10 @@
                 GW_COPY_FILES = lib.concatStringsSep ":" cfg.copyFiles;
                 GW_DIRENV_ALLOW =
                   if cfg.direnvAllow
+                  then "1"
+                  else "0";
+                GW_DIRENV_CACHE =
+                  if cfg.direnvCache
                   then "1"
                   else "0";
               };
