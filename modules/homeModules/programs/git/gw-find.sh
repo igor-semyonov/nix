@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # gw-find [query] -- list every worktree under $GW_ROOT as "<host>/<owner>/<repo>
-# <branch>\t<abs-path>", optionally filtered. Consumed by the gwcd shell function.
+# <branch>\t<abs-path>", optionally filtered. Consumed by the gwc shell function.
 
 query="${1:-}"
 

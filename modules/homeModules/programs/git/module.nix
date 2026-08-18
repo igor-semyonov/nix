@@ -109,7 +109,7 @@
                 if cfg.enable
                 then gwScripts.shellIntegration
                 else "";
-              defaultText = lib.literalMD "the generated `gwa`/`gwcd`/… shell functions";
+              defaultText = lib.literalMD "the generated `gwa`/`gwc`/… shell functions";
               description = ''
                 Shell function definitions for the verbs that must change the
                 calling shell's directory. Source from bash's `initExtra` or

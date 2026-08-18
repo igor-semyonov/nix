@@ -9,7 +9,7 @@ description: >-
   checkout`/`switch`/`stash`, checking out a PR, cloning, cleaning up merged
   branches, "work on X while Y builds", locating a repo or branch on disk, or a
   path containing `.bare/`. Also trigger on the names gw-add, gw-clone,
-  gw-convert, gw-find, gw-list, gw-pr, gw-prune, gw-remove, gwa, gwcd, gwcl,
+  gw-convert, gw-find, gw-list, gw-pr, gw-prune, gw-remove, gwa, gwc, gwcl,
   gwpr, gwr, gwconvert, GW_ROOT. SKIP for read-only work inside one already
   checked-out tree (log, diff, blame, grep, commit) that never changes branches.
 ---
@@ -38,10 +38,10 @@ commands skip all of it.
 
 ## Two interfaces, and which one you can use
 
-| Interface                | What it is                             | Usable from an agent shell |
-| ------------------------ | -------------------------------------- | -------------------------- |
-| `gw-add`, `gw-clone`, …  | packaged scripts on `PATH`             | **yes**                    |
-| `gwa`, `gwcd`, `gwcl`, … | shell functions, interactive init only | no                         |
+| Interface               | What it is                             | Usable from an agent shell |
+| ----------------------- | -------------------------------------- | -------------------------- |
+| `gw-add`, `gw-clone`, … | packaged scripts on `PATH`             | **yes**                    |
+| `gwa`, `gwc`, `gwcl`, … | shell functions, interactive init only | no                         |
 
 The `gw*` short forms exist only because a subprocess cannot change its parent's
 directory — they wrap the script and `cd` to its output. They are defined in the

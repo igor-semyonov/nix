@@ -61,7 +61,7 @@
         ggp = "git push";
         ga = "git add";
 
-        # Worktrees. The cd-ing verbs (gwa, gwr, gwcd, gwclone, gwconvert,
+        # Worktrees. The cd-ing verbs (gwa, gwr, gwc, gwcl, gwconvert,
         # gwpr) are shell functions from igix.gitWorktree.shellIntegration.
         gwl = "gw-list";
         gwp = "gw-prune";
