@@ -1,7 +1,10 @@
 {
   description = "NixOS and nix-darwin configs for my machines";
   inputs = {
-    self.lfs = true;
+    # NOTE: deliberately no `self.lfs = true`. It made nix git-LFS-fetch
+    # assets/wine-tts.zip (~685 MiB) for anyone using this flake as an input,
+    # even to evaluate an unrelated module, and a failing LFS request broke
+    # evaluation outright. modules/tts/_wine-tts.nix fetches it on demand instead.
     # Nixpkgs
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.11";

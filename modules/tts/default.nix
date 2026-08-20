@@ -1,4 +1,4 @@
-{self, ...}: {
+{...}: {
   flake = {
     nixosModules.programs-tts = {pkgs, ...}: let
       tts = pkgs.writeShellApplication {
@@ -45,7 +45,12 @@
       lib,
       config,
       ...
-    }: {
+    }: let
+      # Fetched on demand as a fixed-output derivation rather than read out of
+      # `${self}/assets`, so consumers of this flake that don't use tts no longer
+      # pay a 685 MiB git-LFS fetch just to evaluate it. See ./_wine-tts.nix.
+      wine-tts = pkgs.callPackage ./_wine-tts.nix {};
+    in {
       home.packages = [pkgs.unzip];
       home.activation.downloadAndUnzip = lib.hm.dag.entryAfter ["writeBoundary"] ''
         TARGET_PATH="${config.home.homeDirectory}"
@@ -55,7 +60,7 @@
         if [[ ! -d "$WINE_PREFIX" ]]; then
           $DRY_RUN_CMD echo "Directory $WINE_PREFIX not found. Downloading and extracting..."
 
-          $DRY_RUN_CMD ${pkgs.unzip}/bin/unzip -q "${self}/assets/wine-tts.zip" -d "$TARGET_PATH"
+          $DRY_RUN_CMD ${pkgs.unzip}/bin/unzip -q "${wine-tts}/assets/wine-tts.zip" -d "$TARGET_PATH"
         else
           $DRY_RUN_CMD echo "Directory $WINE_PREFIX already exists. Skipping ZIP extraction."
         fi
