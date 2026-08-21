@@ -69,8 +69,10 @@ dir=$(gw-pr 123)
 gw-list
 
 # Find worktrees across every collection under $GW_ROOT.
-# Output: "<host>/<owner>/<repo> <branch>\t<abs-path>", optional substring filter.
+# Output: "<host>/<owner>/<repo> <branch>\t<abs-path>". Every argument is a
+# substring of that text and they are ANDed, so terms narrow order-independently.
 gw-find nix-personal
+gw-find anduril master        # master in anduril-nixpkgs, not its every branch
 gw-find                       # everything
 
 # Clone a new repo as a collection (prints the default-branch checkout).
