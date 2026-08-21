@@ -228,8 +228,8 @@
         };
 
         virtualDesktops = {
-          number = 4;
-          rows = 2;
+          number = 9;
+          rows = 3;
         };
       };
 
@@ -490,61 +490,70 @@
       };
 
       shortcuts = {
-        "plasmashell"."clear-history" = "Meta+Ctrl+V";
-        "plasmashell"."show-on-mouse-pos" = "Meta+V";
-        "kwin"."Window Maximize" = "Meta+PgUp";
-        "kwin"."Window Close" = "Alt+F4";
-        "kwin"."TrackMouse" = "Meta+`";
-        "kwin"."ClearLastMouseMark" = "Meta+Shift+F12";
-        "kwin"."ClearMouseMarks" = "Meta+Shift+F11";
-        "kwin"."Grid View" = "Meta+G";
-        "kwin"."Invert" = "Meta+Ctrl+I";
-        "kwin"."InvertWindow" = ["Ctrl+Alt+I" "Toggle Invert Effect on Window"];
-        "kwin"."Kill Window" = "Ctrl+Alt+Esc,Meta+Ctrl+Esc,Kill Window";
-        "kwin"."Overview" = "Meta+W";
-        "kwin"."Switch One Desktop Down" = "Meta+Ctrl+Down";
-        "kwin"."Switch One Desktop Up" = "Meta+Ctrl+Up";
-        "kwin"."Switch One Desktop to the Left" = "Meta+Ctrl+Left";
-        "kwin"."Switch One Desktop to the Right" = "Meta+Ctrl+Right";
-        "kwin"."Switch to Desktop 1" = "Ctrl+F1";
-        "kwin"."Switch to Desktop 2" = "Ctrl+F2";
-        "kwin"."Switch to Desktop 3" = "Ctrl+F3";
-        "kwin"."Switch to Desktop 4" = "Ctrl+F4";
-        "kwin"."Walk Through Windows" = ["Alt+Tab" "Alt+Tab,Walk Through Windows"];
-        "kwin"."Walk Through Windows (Reverse)" = ["Alt+Shift+Backtab" "Alt+Shift+Tab,Walk Through Windows (Reverse)"];
-        "kwin"."Walk Through Windows of Current Application" = ["Meta+Tab" "Alt+`,Walk Through Windows of Current Application"];
-        "kwin"."Walk Through Windows of Current Application (Reverse)" = ["Meta+Shift+Tab" "Alt+~,Walk Through Windows of Current Application (Reverse)"];
-        "kwin"."Window One Desktop Down" = "Meta+Alt+Down";
-        "kwin"."Window One Desktop Up" = "Meta+Alt+Up";
-        "kwin"."Window One Desktop to the Left" = "Meta+Alt+Left";
-        "kwin"."Window One Desktop to the Right" = "Meta+Alt+Right";
-        "kwin"."Window Quick Tile Bottom" = ["Meta+Down" "Meta+Num+2,Meta+Down,Quick Tile Window to the Bottom"];
-        "kwin"."Window Quick Tile Bottom Left" = "Meta+Num+1,,Quick Tile Window to the Bottom Left";
-        "kwin"."Window Quick Tile Bottom Right" = "Meta+Num+3,,Quick Tile Window to the Bottom Right";
-        "kwin"."Window Quick Tile Left" = ["Meta+Num+4" "Meta+Left,Meta+Left,Quick Tile Window to the Left"];
-        "kwin"."Window Quick Tile Right" = ["Meta+Right" "Meta+Num+6,Meta+Right,Quick Tile Window to the Right"];
-        "kwin"."Window Quick Tile Top" = ["Meta+Num+8" "Meta+Up,Meta+Up,Quick Tile Window to the Top"];
-        "kwin"."Window Quick Tile Top Left" = "Meta+Num+7,,Quick Tile Window to the Top Left";
-        "kwin"."Window Quick Tile Top Right" = "Meta+Num+9,,Quick Tile Window to the Top Right";
-        "kwin"."Window to Next Screen" = "Meta+Shift+Right";
-        "kwin"."Window to Previous Screen" = "Meta+Shift+Left";
-        "kwin"."view_actual_size" = ["Meta+Esc" "Zoom to Actual Size"];
-        "kwin"."view_zoom_in" = ["Meta+=" "Zoom In"];
-        "kwin"."view_zoom_out" = ["Meta+-" "Zoom Out"];
-        "kwin"."MoveZoomDown" = "Ctrl+Alt+Down,none,Move Zoomed Area Downwards";
-        "kwin"."MoveZoomLeft" = "Ctrl+Alt+Left,none,Move Zoomed Area to Left";
-        "kwin"."MoveZoomRight" = "Ctrl+Alt+Right,none,Move Zoomed Area to Right";
-        "kwin"."MoveZoomUp" = "Ctrl+Alt+Up,none,Move Zoomed Area Upwards";
-
-        "mediacontrol"."mediavolumedown" = "none,,Media volume down";
-        "mediacontrol"."mediavolumeup" = "none,,Media volume up";
-        "mediacontrol"."nextmedia" = "Media Next";
-        "mediacontrol"."pausemedia" = "Media Pause";
-        "mediacontrol"."playmedia" = "none,,Play media playback";
-        "mediacontrol"."playpausemedia" = "Media Play";
-        "mediacontrol"."previousmedia" = "Media Previous";
-        "mediacontrol"."stopmedia" = "Media Stop";
-
+        plasmashell = {
+          clear-history = "Meta+Ctrl+V";
+          show-on-mouse-pos = "Meta+V";
+        };
+        kwin = {
+          "Window Maximize" = "Meta+PgUp";
+          "Window Close" = "Alt+F4";
+          TrackMouse = "Meta+`";
+          ClearLastMouseMark = "Meta+Shift+F12";
+          ClearMouseMarks = "Meta+Shift+F11";
+          "Grid View" = "Meta+G";
+          Invert = "Meta+Ctrl+I";
+          InvertWindow = ["Ctrl+Alt+I" "Toggle Invert Effect on Window"];
+          "Kill Window" = "Ctrl+Alt+Esc,Meta+Ctrl+Esc,Kill Window";
+          Overview = "Meta+W";
+          "Switch One Desktop Down" = "Meta+Ctrl+Down";
+          "Switch One Desktop Up" = "Meta+Ctrl+Up";
+          "Switch One Desktop to the Left" = "Meta+Ctrl+Left";
+          "Switch One Desktop to the Right" = "Meta+Ctrl+Right";
+          "Switch to Desktop 1" = "Ctrl+F1";
+          "Switch to Desktop 2" = "Ctrl+F2";
+          "Switch to Desktop 3" = "Ctrl+F3";
+          "Switch to Desktop 4" = "Ctrl+F4";
+          "Switch to Desktop 5" = "Ctrl+F5";
+          "Switch to Desktop 6" = "Ctrl+F6";
+          "Switch to Desktop 7" = "Ctrl+F7";
+          "Switch to Desktop 8" = "Ctrl+F8";
+          "Switch to Desktop 9" = "Ctrl+F9";
+          "Walk Through Windows" = ["Alt+Tab" "Alt+Tab,Walk Through Windows"];
+          "Walk Through Windows (Reverse)" = ["Alt+Shift+Backtab" "Alt+Shift+Tab,Walk Through Windows (Reverse)"];
+          "Walk Through Windows of Current Application" = ["Meta+Tab" "Alt+`,Walk Through Windows of Current Application"];
+          "Walk Through Windows of Current Application (Reverse)" = ["Meta+Shift+Tab" "Alt+~,Walk Through Windows of Current Application (Reverse)"];
+          "Window One Desktop Down" = "Meta+Alt+Down";
+          "Window One Desktop Up" = "Meta+Alt+Up";
+          "Window One Desktop to the Left" = "Meta+Alt+Left";
+          "Window One Desktop to the Right" = "Meta+Alt+Right";
+          "Window Quick Tile Bottom" = ["Meta+Down" "Meta+Num+2,Meta+Down,Quick Tile Window to the Bottom"];
+          "Window Quick Tile Bottom Left" = "Meta+Num+1,,Quick Tile Window to the Bottom Left";
+          "Window Quick Tile Bottom Right" = "Meta+Num+3,,Quick Tile Window to the Bottom Right";
+          "Window Quick Tile Left" = ["Meta+Num+4" "Meta+Left,Meta+Left,Quick Tile Window to the Left"];
+          "Window Quick Tile Right" = ["Meta+Right" "Meta+Num+6,Meta+Right,Quick Tile Window to the Right"];
+          "Window Quick Tile Top" = ["Meta+Num+8" "Meta+Up,Meta+Up,Quick Tile Window to the Top"];
+          "Window Quick Tile Top Left" = "Meta+Num+7,,Quick Tile Window to the Top Left";
+          "Window Quick Tile Top Right" = "Meta+Num+9,,Quick Tile Window to the Top Right";
+          "Window to Next Screen" = "Meta+Shift+Right";
+          "Window to Previous Screen" = "Meta+Shift+Left";
+          view_actual_size = ["Meta+Esc" "Zoom to Actual Size"];
+          view_zoom_in = ["Meta+=" "Zoom In"];
+          view_zoom_out = ["Meta+-" "Zoom Out"];
+          MoveZoomDown = "Ctrl+Alt+Down,none,Move Zoomed Area Downwards";
+          MoveZoomLeft = "Ctrl+Alt+Left,none,Move Zoomed Area to Left";
+          MoveZoomRight = "Ctrl+Alt+Right,none,Move Zoomed Area to Right";
+          MoveZoomUp = "Ctrl+Alt+Up,none,Move Zoomed Area Upwards";
+        };
+        mediacontrol = {
+          mediavolumedown = "none,,Media volume down";
+          mediavolumeup = "none,,Media volume up";
+          nextmedia = "Media Next";
+          pausemedia = "Media Pause";
+          playmedia = "none,,Play media playback";
+          playpausemedia = "Media Play";
+          previousmedia = "Media Previous";
+          stopmedia = "Media Stop";
+        };
         ksmserver = {
           "Lock Session" = [
             "Screensaver"
