@@ -15,11 +15,31 @@
 
     tts = pkgs.writeShellApplication {
       name = "tts";
-      runtimeInputs = [
-        cfg.wine-package
-        pkgs.python314
-      ];
-      text = builtins.readFile ./tts.sh;
+      runtimeInputs =
+        [
+          cfg.wine-package
+          pkgs.python314
+        ]
+        ++ lib.optional cfg.headless pkgs.xvfb-run;
+      # Under `headless`, run the whole thing inside a throwaway X server.
+      #
+      # balcon needs a display even with `-i`. Without one, wine logs
+      # "nodrv_CreateWindow ... no driver could be loaded", never opens an audio device,
+      # and STILL EXITS 0 -- the script pipes wine to `&>/dev/null`, so a silent failure is
+      # indistinguishable from success. Established by controlled comparison on hardware
+      # (same session, same user, only the display differing): no `Stream/Output/Audio`
+      # node ever appears without Xvfb, and `balcon.exe` appears as a stream with it.
+      #
+      # This is the same reason a fresh prefix pops a wine window on first run after a wine
+      # update: it wants somewhere to put it, and a TTY session has nowhere.
+      #
+      # `-a` picks a free display number, so concurrent invocations do not collide.
+      text =
+        if cfg.headless
+        then ''
+          exec xvfb-run -a ${pkgs.bash}/bin/bash ${pkgs.writeText "tts-inner.sh" (builtins.readFile ./tts.sh)} "$@"
+        ''
+        else builtins.readFile ./tts.sh;
     };
     tts-selection = pkgs.writeShellApplication {
       name = "tts-selection";
@@ -98,9 +118,36 @@
   in {
     options.igix.tts = {
       enable = lib.mkEnableOption "Enable TTS" // {default = true;};
-      desktop-environment =
-        lib.mkEnableOption "Include TTS suited for a desktop environment"
-        // {default = true;};
+      headless = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          This host has no graphical session: an SSH login, a bare TTY, or a systemd unit.
+
+          Two consequences, which is why this is one option rather than two:
+
+          1. Wrap `tts` in `xvfb-run`. balcon needs a display even in `-i` (non-interactive)
+             mode. Without one, wine logs `nodrv_CreateWindow ... no driver could be loaded`,
+             never opens an audio device, and STILL EXITS 0 -- tts.sh sends wine's output to
+             `&>/dev/null`, so the failure is completely silent: `tts` succeeds and nothing
+             plays.
+
+             Verified by controlled comparison on hardware (same host, user and fresh
+             pipewire; only the display differing): no `Stream/Output/Audio` node ever
+             appears without Xvfb, `balcon.exe` shows up as a stream with it, and the mic
+             envelope goes from a flat -19 dBFS noise floor to a clear -12.7 dBFS utterance.
+
+             Related: this is why a wine window sometimes appears on the first run after a
+             wine update. Wine wants somewhere to put it, and with no display that step fails
+             and takes the audio path down with it.
+
+          2. Omit tts-selection, tts-screen and tts-region, which need wl-clipboard,
+             spectacle and tesseract to read a Wayland session that does not exist here.
+
+          Costs xvfb-run plus a small X server in the closure, and adds no measurable startup
+          time -- wine itself takes ~45 s before the first sample either way.
+        '';
+      };
       users = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = includedUsers;
@@ -143,7 +190,7 @@
     config = lib.mkIf cfg.enable {
       environment.systemPackages =
         [tts]
-        ++ lib.optionals cfg.desktop-environment [
+        ++ lib.optionals (!cfg.headless) [
           tts-selection
           tts-screen
           tts-region
