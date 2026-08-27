@@ -15,9 +15,9 @@
 
     tts = pkgs.writeShellApplication {
       name = "tts";
-      runtimeInputs = with pkgs; [
-        stable.wine-staging
-        python314
+      runtimeInputs = [
+        cfg.wine-package
+        pkgs.python314
       ];
       text = builtins.readFile ./tts.sh;
     };
@@ -118,6 +118,24 @@
           user from one declaration, each with its own skip condition, and a failed unpack
           stays visible in `systemctl status` instead of leaving a partial prefix that the
           next activation's directory check then treats as complete.
+        '';
+      };
+      wine-package = lib.mkOption {
+        type = lib.types.package;
+        default = pkgs.stable.wine-staging or pkgs.wine-staging;
+        defaultText = lib.literalExpression "pkgs.stable.wine-staging or pkgs.wine-staging";
+        description = ''
+          The wine build the voices run under. 32-bit wine, hence x86_64 only.
+
+          `pkgs.stable` is an attribute THIS flake's `overlays.stable-pkgs` adds; a consumer
+          importing this module into their own nixpkgs has no such attribute, so referencing
+          it unconditionally made the module fail to evaluate outside this flake with
+          `undefined variable 'stable'`. Hence the `or` fallback, and hence an option: a
+          consumer whose unstable wine is broken can point this at their own pin instead of
+          being told to add an overlay.
+
+          Preferring stable is deliberate -- wine-staging regressions on unstable have
+          broken the voices before, and the prefix is prebuilt against a known-good wine.
         '';
       };
     };
