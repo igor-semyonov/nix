@@ -218,12 +218,6 @@
         };
     };
 
-    _module.args.usersToNixos = pkgs: hostname: users: (
-      lib.mapAttrs (n: v: (v pkgs hostname).nixos)
-      users
-    );
-    _module.args.filterUsers = users: includedUsers: (lib.filterAttrs (n: v: lib.elem n includedUsers) users);
-
     flake.homeModules.users = {
       options.userConfig = {
         name = lib.mkOption {
@@ -243,61 +237,6 @@
           description = "GPG key id for git signing.";
         };
       };
-    };
-  };
-
-  options = let
-    # userNixosModule = lib.types.submodule {
-    #   options = {
-    #     description = lib.mkOption {
-    #       type = lib.types.singleLineStr;
-    #       description = "Description, often times full nname";
-    #       default = "";
-    #     };
-    #     extraGroups = lib.mkOption {
-    #       type = lib.types.listOf lib.types.singleLineStr;
-    #       description = "Groups to which the user will be added";
-    #       default = [];
-    #     };
-    #     isNormalUser = lib.mkOption {
-    #       type = lib.types.bool;
-    #       description = "Is normal user";
-    #       default = true;
-    #     };
-    #     shell = lib.mkOption {
-    #       type = lib.types.package;
-    #       description = "User's shell";
-    #     };
-    #     packages = lib.mkOption {
-    #       type = lib.types.listOf lib.types.package;
-    #       description = "List of packages to be installed, not using home manager.";
-    #       default = [];
-    #     };
-    #   };
-    # };
-    userModule = lib.types.submodule {
-      options = {
-        # name = lib.mkOption {
-        #   type = lib.types.singleLineStr;
-        #   description = "The username for this user";
-        # };
-        nixos = lib.mkOption {
-          description = "Nixos user options";
-          # type = lib.types.attrsOf userNixosModule;
-          type = lib.types.attrsOf lib.types.anything;
-        };
-        home = lib.mkOption {
-          description = "Home manager to be passed to homeConfiguration";
-          # type = lib.types.attrsOf userNixosModule;
-          type = lib.types.attrsOf lib.types.anything;
-        };
-      };
-    };
-  in {
-    users = lib.mkOption {
-      default = {};
-      description = "Users";
-      type = lib.types.attrsOf (lib.types.functionTo (lib.types.functionTo userModule));
     };
   };
 }
