@@ -134,14 +134,4 @@
       systemd.services = lib.listToAttrs (map unitFor resolved);
     };
   };
-
-  # Compatibility shim. `homeModules.igix-desktop-linux` imports `tts`, so removing the
-  # home module outright would break every desktop host. The unpack now lives in the NixOS
-  # module (one unit per user, from `igix.tts.users`), so there is nothing left for this to
-  # do -- it exists only so the import keeps resolving.
-  #
-  # Delete it once `modules/igix.nix` no longer lists `tts` in
-  # `homeModules.igix-desktop-linux`, and make sure the host sets `igix.tts.users` (or
-  # relies on its default of `includedUsers`) so the prefix is still unpacked.
-  flake.homeModules.tts = {};
 }

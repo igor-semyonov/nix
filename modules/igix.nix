@@ -12,7 +12,6 @@
         igix-desktop
         vivaldi
         kde
-        tts
         qt
         gtk
         xdg
