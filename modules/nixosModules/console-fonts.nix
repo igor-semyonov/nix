@@ -1,8 +1,11 @@
 {...}: {
   flake.nixosModules.console-fonts = {pkgs, ...}: {
     console = {
-      # packages = [pkgs.terminus_font];
-      font = "${pkgs.terminus_font}/share/consolefonts/ter-i32b.psf.gz";
+      # Terminus tops out at 16x32; spleen ships a precompiled 32x64 .psfu,
+      # the largest the VT driver accepts. Costs box-drawing coverage (35
+      # U+25xx glyphs vs Terminus's 58) -- TUI borders may fall back to ASCII.
+      packages = [pkgs.spleen];
+      font = "${pkgs.spleen}/share/consolefonts/spleen-32x64.psfu";
       enable = true;
       keyMap = "us";
       earlySetup = true;
