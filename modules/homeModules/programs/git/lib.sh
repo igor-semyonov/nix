@@ -416,10 +416,45 @@ gw_copy_direnv() {
     gw_msg "  reused .direnv cache"
 }
 
+# Update refs/remotes/origin/$1 from origin. Best-effort: no origin, no network,
+# or a branch that genuinely does not exist upstream all leave the local refs
+# untouched and return non-zero, so callers can fall back to what is already
+# fetched. Forced, matching the standard remotes refspec.
+gw_fetch_branch() {
+    local branch="$1"
+    git config --get remote.origin.url >/dev/null 2>&1 || return 1
+    git fetch --quiet origin "+refs/heads/$branch:refs/remotes/origin/$branch" 2>/dev/null
+}
+
+# Fast-forward local branch $1 to its upstream when it is strictly behind, so a
+# worktree is not created from a stale ref. update-ref rather than a merge: the
+# branch is not checked out anywhere yet, so there is no index or working tree.
+gw_fast_forward() {
+    local branch="$1" upstream old new short
+    upstream=$(git for-each-ref --format='%(upstream)' "refs/heads/$branch")
+    [ -n "$upstream" ] || return 0
+    git show-ref --verify --quiet "$upstream" || return 0
+
+    old=$(git rev-parse --verify "refs/heads/$branch")
+    new=$(git rev-parse --verify "$upstream")
+    [ "$old" != "$new" ] || return 0
+    short="${upstream#refs/remotes/}"
+
+    # Strictly behind only. A diverged branch carries local commits, and choosing
+    # between merge, rebase and discard is the user's call, not ours.
+    if ! git merge-base --is-ancestor "$old" "$new"; then
+        gw_msg "  '$branch' has diverged from $short; leaving it where it is"
+        return 0
+    fi
+
+    git update-ref -m "gw-add: fast-forward to $short" "refs/heads/$branch" "$new" "$old"
+    gw_msg "  fast-forwarded '$branch' to $short"
+}
+
 # Add a worktree for branch $1 (base $2 when the branch is new). Prints its path.
 # Existing local branch -> check out; remote-only -> track it; neither -> create.
 gw_add_worktree() {
-    local branch="$1" base="${2:-}" root path existing donor
+    local branch="$1" base="${2:-}" root path existing donor default
     gw_assert_branch_name "$branch"
     root=$(gw_root)
     path="$root/$branch"
@@ -435,12 +470,40 @@ gw_add_worktree() {
         gw_die "path already exists: $path"
     fi
 
+    # This is where a branch enters the collection, so its refs must be current.
+    # Stale refs fail in two silent ways: a remote branch pushed since the last
+    # fetch looks brand new and gets recreated empty from the default branch, and
+    # a local branch left behind by an earlier fetch yields a worktree quietly
+    # missing upstream commits. Skipped when a base is given -- that is an
+    # explicit "branch from this revision", and needs no remote opinion.
+    if [ -z "$base" ]; then
+        gw_fetch_branch "$branch" || true
+    fi
+
     if git show-ref --verify --quiet "refs/heads/$branch"; then
+        # A local branch with no upstream cannot be fast-forwarded and behaves
+        # oddly under status/pull/push; adopt origin's counterpart when there is
+        # one, which is what `git checkout <remote-only-branch>` would have done.
+        if [ -z "$(git for-each-ref --format='%(upstream)' "refs/heads/$branch")" ] &&
+            git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+            git branch --quiet --set-upstream-to="origin/$branch" "$branch" 2>/dev/null || true
+        fi
+        gw_fast_forward "$branch"
         git worktree add "$path" "$branch" >&2
     elif git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
         git worktree add --track -b "$branch" "$path" "origin/$branch" >&2
     else
-        [ -n "$base" ] || base="origin/$(gw_default_branch)"
+        # A genuinely new branch: base it on current upstream, not on whatever
+        # origin/HEAD happened to be at the last fetch, or it starts life behind.
+        # A collection with no remote (or an unfetched one) has no origin/* to
+        # branch from, so fall back to the local default branch, then HEAD.
+        if [ -z "$base" ]; then
+            default=$(gw_default_branch)
+            gw_fetch_branch "$default" || true
+            for base in "origin/$default" "$default" HEAD; do
+                git rev-parse --verify --quiet "$base^{commit}" >/dev/null && break
+            done
+        fi
         git rev-parse --verify --quiet "$base^{commit}" >/dev/null ||
             gw_die "base revision not found: $base"
         git worktree add --no-track -b "$branch" "$path" "$base" >&2

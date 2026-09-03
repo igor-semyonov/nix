@@ -6,8 +6,9 @@ if [ $# -eq 0 ] || [ "$1" = -h ] || [ "$1" = --help ]; then
 usage: gw-add <branch> [base]
 
 Add a worktree for <branch> at <collection-root>/<branch>.
-  existing local branch   -> checked out
-  remote-only branch      -> checked out tracking origin/<branch>
+Fetches origin/<branch> first, unless [base] is given.
+  existing local branch   -> fast-forwarded to its upstream, then checked out
+  remote branch           -> checked out tracking origin/<branch>
   new branch              -> created from [base] (default: origin's HEAD)
 EOF
     [ $# -eq 0 ] && exit 1
