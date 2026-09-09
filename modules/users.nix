@@ -31,7 +31,6 @@
             extraGroups = [
               "networkmanager"
               "wheel"
-              "docker"
               "i2c"
               "dialout"
             ];
@@ -108,7 +107,6 @@
             extraGroups = [
               "networkmanager"
               "wheel"
-              "docker"
               "i2c"
               "dialout"
             ];

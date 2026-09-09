@@ -89,7 +89,7 @@
       };
 
       zramSwap.enable = true;
-      virtualisation.docker.enable = false;
+      virtualisation.podman.enable = false;
 
       services.openssh.settings = {
         PasswordAuthentication = false;

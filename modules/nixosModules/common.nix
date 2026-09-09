@@ -15,7 +15,7 @@
       scripts
 
       ssh
-      docker
+      podman
       ai
       btrbk
       virt
