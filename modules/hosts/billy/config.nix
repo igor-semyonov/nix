@@ -97,10 +97,10 @@
         X11Forwarding = false;
       };
 
-      services.journald.extraConfig = ''
-        SystemMaxUse=1G
-        SystemKeepFree=2G
-      '';
+      services.journald.settings.Journal = {
+        SystemMaxUse = "${toString (1024 * 1024)}K";
+        SystemKeepFree = "${toString (2 * 1024 * 1024)}K";
+      };
 
       igix.btrbk = {
         enable = true;
