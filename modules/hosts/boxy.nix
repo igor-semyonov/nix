@@ -119,6 +119,23 @@
         };
 
         services = {
+          ipp-usb.enable = true;
+          printing = {
+            enable = lib.mkForce true;
+            listenAddresses = ["*:631"];
+            allowFrom = ["10.10.10.0/24"]; # trusted subnet
+            defaultShared = true;
+            browsing = true;
+            openFirewall = true;
+          };
+          avahi = {
+            enable = true;
+            publish = {
+              enable = true;
+              userServices = true;
+            };
+          };
+
           xserver.videoDrivers = ["nvidia"];
           audiobookshelf = {
             enable = true;
