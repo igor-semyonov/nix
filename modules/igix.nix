@@ -48,6 +48,7 @@
         mcp-servers
         claude-code
         antigravity
+        flatten-pdf
       ];
     };
   };
