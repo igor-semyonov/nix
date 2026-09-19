@@ -116,20 +116,52 @@
             nvidiaSettings = true;
           };
           nvidia-container-toolkit.enable = true;
+
+          printers = {
+            ensureDefaultPrinter = "Canon_LBP622C";
+            ensurePrinters = [
+              {
+                name = "Canon_LBP622C";
+                description = "Canon LBP622C/623C";
+                # ipp-usb re-exports the USB printer as driverless IPP on :60000
+                deviceUri = "ipp://localhost:60000/ipp/print";
+                model = "everywhere";
+                # everywhere-derived defaults are Gray and single-sided
+                ppdOptions = {
+                  printer-is-shared = "true";
+                  ColorModel = "RGB";
+                  Duplex = "DuplexNoTumble";
+                };
+              }
+            ];
+          };
         };
 
         services = {
           ipp-usb.enable = true;
           printing = {
             enable = lib.mkForce true;
+            # Defaults true; cups.socket then owns :631 and cupsd's own IPv4 bind
+            # fails, so LAN clients arrive as ::ffff: addresses and miss allowFrom.
+            startWhenNeeded = false;
             listenAddresses = ["*:631"];
-            allowFrom = ["10.10.10.0/24"]; # trusted subnet
+            # @LOCAL matches any subnet on a local interface, covering both IPv4
+            # and the delegated IPv6 /64. A literal v4 subnet 403s anything that
+            # reaches cupsd over IPv6.
+            allowFrom = ["@LOCAL"];
             defaultShared = true;
             browsing = true;
             openFirewall = true;
+            # Defaults to services.avahi.enable; it turns ipp-usb's loopback
+            # advertisement into an implicitclass queue that CUPS never re-shares,
+            # so AirPrint clients see nothing.
+            browsed.enable = false;
           };
           avahi = {
             enable = true;
+            # Otherwise boxy.local also publishes the docker bridge addresses and
+            # clients resolve the printer's SRV target to 172.17.0.1.
+            allowInterfaces = ["br0"];
             publish = {
               enable = true;
               userServices = true;
