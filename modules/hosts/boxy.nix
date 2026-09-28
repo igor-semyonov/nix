@@ -47,6 +47,9 @@
     programs-steam
     programs-prism-launcher
 
+    media-jellyfin
+    media-ripping
+
     uxplay
     u2f
     {igix.u2f.enable = true;}
@@ -339,6 +342,11 @@
           };
           nas = {
             enable = false;
+          };
+          jellyfin.enable = true;
+          media-ripping = {
+            enable = true;
+            allowedUsers = ["igor"];
           };
           virtualisation = {
             enable = true;
