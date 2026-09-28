@@ -27,4 +27,8 @@ text=" ${text}" # Preppending a space fixes some pronunciation
 #
 # No silence padding: `igix.sound.suspendTimeout = 0` keeps the DAC open, so there is no
 # wake gap for the opening syllables to fall into and nothing to pad against.
-echo "$text" | wine 'C:\balcon\balcon.exe' -i -n 'Microsoft Server Speech Text to Speech Voice (en-US, ZiraPro)' -s "$tts_speed" -fr 44 &>/dev/null
+#
+# -q: wait for any already-running copy to finish instead of talking over it. Selecting
+# several passages in a row queues them rather than playing them concurrently. Nothing
+# previously enforced this -- overlapping invocations just happened not to collide.
+echo "$text" | wine 'C:\balcon\balcon.exe' -i -n 'Microsoft Server Speech Text to Speech Voice (en-US, ZiraPro)' -s "$tts_speed" -fr 44 -q &>/dev/null
