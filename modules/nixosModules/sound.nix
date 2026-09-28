@@ -1,31 +1,73 @@
 {...}: {
   flake.nixosModules.sound-fiio-k9 = let
-    # The single pinned graph rate. Must stay in the 48k family: the SAPI voices emit
-    # 16kHz mono (AudioFormats=18, SPSF_16kHz16BitMono, confirmed live as `S16LE 1 16000`
-    # in pw-top), which divides exactly into 48/96/192k. The 44.1k family would make Tidal
-    # bit-exact but puts TTS on a non-integer ratio -- 88200/16000 = 5.5125 -- and TTS wins.
-    sample-rate = 96000;
+    # Rates the K9 can actually clock, from /proc/asound/card0/stream0. Guarded because an
+    # unsupported rate does not fail -- pipewire just resamples everything to something the
+    # device will take, which is silent and looks like a tuning problem rather than a typo.
+    supported-rates = [44100 48000 88200 96000 176400 192000 352800 384000];
 
-    # Quantum is counted in frames, so latency is quantum/sample-rate. Scaling the trio
-    # with the rate holds latency at the tuned 128/48000 = 2.67ms whichever family member
-    # `sample-rate` names, rather than silently changing it along with the rate.
+    # The single pinned graph rate. 44.1k is deliberate: it carries the bulk of Tidal --
+    # 16/44.1 and 24/44.1 alike, the latter being much of what Tidal labels hi-res, since
+    # the ex-MQA catalogue converted into 44.1/48k containers -- straight through at 1:1.
+    # The fractional conversion lands on the 16kHz SAPI voices instead (AudioFormats=18,
+    # SPSF_16kHz16BitMono, seen live as `S16LE 1 16000`), where 2.75625x on band-limited
+    # mono speech is inaudible. Deliberately trading the signal we listen to for the one
+    # we only need to understand.
     #
-    # Integer division truncates, so `s * 48000 == sample-rate` is the divisibility check;
-    # without it a 44.1k rate would yield a scale of 0 and a quantum of 0.
-    rate-scale = let
-      s = sample-rate / 48000;
+    # This is the rate the graph idles at and falls back to; `allowed-rates` below lets it
+    # follow the source when a track wants something else.
+    sample-rate =
+      if builtins.elem 44100 supported-rates
+      then 44100
+      else throw "sound-fiio-k9: the K9 does not advertise this rate";
+
+    # Rates pipewire may retune the device to when a stream asks for one. Set to [] to pin
+    # the graph and never renegotiate.
+    #
+    # Each switch closes and reopens the K9 -- a relay click plus a brief DAC re-lock, which
+    # is what makes its indicator change colour. That is affordable here only because this
+    # library is overwhelmingly 44.1k, so the graph sits at `sample-rate` and switches rarely;
+    # on a hi-res-heavy library the clicking would be constant and pinning would win.
+    #
+    # The 16kHz TTS voices are deliberately absent, and cannot be added -- the device cannot
+    # clock 16k. They therefore never trigger a switch; they are resampled to whatever the
+    # graph currently runs at, at `resample-quality` below. Their ratio consequently varies
+    # with the music (2.75625x at 44.1k, 6x at 96k), which is fine: every value is inaudible
+    # on band-limited mono speech.
+    #
+    # 352800/384000 are omitted though the K9 supports them: nothing streams there, and each
+    # extra entry is one more rate the graph can be dragged to.
+    allowed-rates = let
+      wanted = [44100 48000 88200 96000 176400 192000];
+      unsupported = builtins.filter (r: !(builtins.elem r supported-rates)) wanted;
     in
-      if s > 0 && s * 48000 == sample-rate
-      then s
-      else throw "sound-fiio-k9: sample-rate ${toString sample-rate} is not a positive multiple of 48000; both the 16kHz TTS path and this quantum scaling assume the 48k family";
+      if unsupported == []
+      then wanted
+      else throw "sound-fiio-k9: allowed-rates contains rates the K9 cannot clock: ${toString unsupported}";
 
-    default-quantum = 128 * rate-scale;
-    max-quantum = 256 * rate-scale;
-    min-quantum = 64 * rate-scale;
+    # Quantum is counted in frames, so latency is quantum/sample-rate -- a fixed frame count
+    # does NOT mean fixed latency across rates (128 frames is 2.67ms at 48k, 2.90ms at
+    # 44.1k, 1.33ms at 96k). Derive it from a target period instead, so moving `sample-rate`
+    # between the 44.1k and 48k families holds the tuning put instead of silently changing it.
+    target-period = 128.0 / 48000.0;
 
-    # Speex sinc length. 4 is the pipewire default and is audible on the 44.1k material
-    # that makes up most of Tidal; 10 is transparent. Measured headroom is vast -- the
-    # whole graph busies ~20us against a 2.67ms period -- so the longer filter is free.
+    # Pipewire accepts a non-power-of-two quantum but every documented tuning uses one, and
+    # the ALSA period follows the quantum. 44100 lands on 117.6 frames -> 128.
+    pow2-at-least = n: let
+      go = p:
+        if p >= n
+        then p
+        else go (p * 2);
+    in
+      go 1;
+
+    default-quantum = pow2-at-least (target-period * sample-rate);
+    min-quantum = default-quantum / 2;
+    max-quantum = default-quantum * 2;
+
+    # Speex sinc length. 4 is the pipewire default; 10 is transparent. Now carrying the TTS
+    # path rather than music, which is exactly why it stays at 10 -- the fractional ratio
+    # moved onto speech, so the good filter should follow it. Measured headroom is vast: the
+    # whole graph busies ~20us against a ~2.9ms period.
     resample-quality = 10;
 
     sample-rate-str = toString sample-rate;
@@ -52,15 +94,16 @@
         extraConfig = {
           pipewire."92-low-latency" = {
             "context.properties" = {
-              # Deliberately no `default.clock.allowed-rates`: a single pinned rate means the
-              # graph never renegotiates, so the K9 is never closed and reopened. Allowing
-              # 44100 would be bit-exact for music but costs a relay click and a DAC re-lock
-              # on every switch between a 44.1k source and TTS -- the thing this whole module
-              # exists to avoid. 44.1k is resampled instead, at `resample-quality` below.
+              # Switching only fires when the device has no active stream, so a rate change
+              # queued while something is playing lands at the next gap rather than mid-track.
+              # That also means a long unbroken listening session may never switch at all --
+              # benign, it just resamples until the graph next goes quiet.
               #
-              # The pin is also why the K9 stays open indefinitely, which is in turn why an
-              # exclusive-ALSA client (sone's bit-perfect mode) cannot take the device.
+              # Note this reopens the K9, which is why an exclusive-ALSA client (sone's
+              # bit-perfect mode) still cannot take the device: pipewire reclaims it
+              # immediately, and `session.suspend-timeout-seconds = 0` below keeps it held.
               "default.clock.rate" = sample-rate;
+              "default.clock.allowed-rates" = allowed-rates;
               "default.clock.quantum" = default-quantum;
               "default.clock.min-quantum" = min-quantum;
               "default.clock.max-quantum" = max-quantum;

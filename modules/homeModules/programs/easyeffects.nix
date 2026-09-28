@@ -1,5 +1,9 @@
 {...}: {
-  flake.homeModules.easyeffects = {...}: {
+  flake.homeModules.easyeffects = {
+    pkgs,
+    lib,
+    ...
+  }: {
     services.easyeffects = {
       enable = true;
       extraPresets = let
@@ -269,5 +273,28 @@
       };
       preset = "my-preset";
     };
+
+    # Keep easyeffects out of the PLAYBACK path while leaving the mic chain above alone.
+    # `processAllOutputs` is what moves streams into easyeffects_sink; with it false they
+    # link straight to the DAC, dropping an F32P round trip that bought nothing -- the
+    # preset above defines only an `input` pipeline, so the output chain was always empty.
+    # `processAllInputs` is deliberately untouched and stays at its default of true.
+    #
+    # Easyeffects 8.x is KConfig, not GSettings: the old `com.github.wwmm.easyeffects`
+    # dconf keys are dead in this version and writing them silently does nothing.
+    #
+    # Written at activation rather than via xdg.configFile because easyeffects owns this
+    # file -- it writes usedPresets, visiblePage and friends back into it, so a read-only
+    # store symlink would break the app. kwriteconfig6 sets the one key and leaves the
+    # rest, and is idempotent, so re-running activation is a no-op.
+    #
+    # Takes effect when easyeffects next starts; a running instance keeps its old routing.
+    home.activation.easyeffectsBypassOutput = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      $DRY_RUN_CMD mkdir -p "$HOME/.config/easyeffects/db"
+      $DRY_RUN_CMD ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
+        --file "$HOME/.config/easyeffects/db/easyeffectsrc" \
+        --group EffectsPipelines \
+        --key processAllOutputs false
+    '';
   };
 }
