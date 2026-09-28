@@ -22,16 +22,22 @@
     in
       go 1;
 
-    # Rates each known DAC advertises, copied from its own `Rates:` line in
-    # /proc/asound/card*/stream*. Naming a device here just seeds `allowedRates` with
-    # something correct for the hardware instead of a conservative guess; every value stays
-    # overridable. Add a device by adding an entry -- nothing else keys off the name.
+    # Rates each known DAC can actually clock for PCM. Naming a device seeds `allowedRates`
+    # with something correct for the hardware instead of a conservative guess; every value
+    # stays overridable. Add a device by adding an entry -- nothing else keys off the name.
     #
-    # The top of the FiiO K9's range is DSD-over-PCM territory that no stream will ever ask
-    # for. It is listed anyway because this is a statement about the hardware, not about
-    # what gets used, and the retune watcher only acts on a rate something actually wants.
+    # Verify by generating pink noise at each candidate rate and checking what the hardware
+    # lands on, e.g.
+    #   sox -n -r <rate> -c 2 -b 24 t.wav synth 6 pinknoise vol 0.06
+    #   pw-play t.wav & sleep 5; grep ^rate /proc/asound/card<N>/pcm0p/sub0/hw_params
+    #
+    # Do NOT copy `/proc/asound/card*/stream*` `Rates:` verbatim -- it is not a list of
+    # usable PCM rates. The K9 advertises through 768000, but measured on hardware anything
+    # above 192000 silently lands at a fraction of what was asked for: 352800 and 384000
+    # halve, 705600 and 768000 quarter. Those upper entries are DSD-over-PCM container
+    # rates. Listing them would let the graph be dragged somewhere the DAC cannot follow.
     known-devices = {
-      fiio-k9 = [44100 48000 88200 96000 176400 192000 352800 384000 705600 768000];
+      fiio-k9 = [44100 48000 88200 96000 176400 192000];
     };
 
     # Conservative set for an unnamed device: the two families everything supports, plus
