@@ -273,14 +273,28 @@
       # it is what `dac-retune` drives. The daemon is not used -- pipewire-pulse replaces it.
       environment.systemPackages = [pkgs.pulseaudio] ++ lib.optional cfg.autoRetune.enable retune;
 
+      # A user unit is enabled for every user that gets a systemd user manager -- there is
+      # no isNormalUser filter at this layer. Rather than start for every session and spin
+      # uselessly where there is no audio, this hangs off pipewire itself: `wantedBy` pulls
+      # it in only when that user's pipewire starts, and `partOf` takes it back down with
+      # it. ConditionUser additionally keeps it away from system accounts, which can end up
+      # with a user manager via lingering or PAMName.
       systemd.user.services.dac-retune = lib.mkIf cfg.autoRetune.enable {
         description = "Retune the DAC to match the playing stream's sample rate";
-        wantedBy = ["default.target"];
+        wantedBy = ["pipewire.service"];
+        partOf = ["pipewire.service"];
         after = ["pipewire.service" "wireplumber.service"];
+        unitConfig.ConditionUser = "!@system";
         serviceConfig = {
           ExecStart = "${retune}/bin/dac-retune";
           Restart = "always";
           RestartSec = 5;
+          # Nothing here needs privilege or persistence beyond talking to the user's own
+          # pipewire socket.
+          PrivateTmp = true;
+          ProtectSystem = "strict";
+          ProtectHome = "read-only";
+          NoNewPrivileges = true;
         };
       };
 
