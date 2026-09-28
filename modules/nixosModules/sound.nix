@@ -13,36 +13,12 @@
     # mono speech is inaudible. Deliberately trading the signal we listen to for the one
     # we only need to understand.
     #
-    # This is the rate the graph idles at and falls back to; `allowed-rates` below lets it
-    # follow the source when a track wants something else.
+    # Everything else resamples to this. Measured over 70 resolved plays from the sone logs:
+    # 65 at 44.1k, 2 at 48k, 3 at 96k -- so 93% of actual listening lands here at 1:1.
     sample-rate =
       if builtins.elem 44100 supported-rates
       then 44100
       else throw "sound-fiio-k9: the K9 does not advertise this rate";
-
-    # Rates pipewire may retune the device to when a stream asks for one. Set to [] to pin
-    # the graph and never renegotiate.
-    #
-    # Each switch closes and reopens the K9 -- a relay click plus a brief DAC re-lock, which
-    # is what makes its indicator change colour. That is affordable here only because this
-    # library is overwhelmingly 44.1k, so the graph sits at `sample-rate` and switches rarely;
-    # on a hi-res-heavy library the clicking would be constant and pinning would win.
-    #
-    # The 16kHz TTS voices are deliberately absent, and cannot be added -- the device cannot
-    # clock 16k. They therefore never trigger a switch; they are resampled to whatever the
-    # graph currently runs at, at `resample-quality` below. Their ratio consequently varies
-    # with the music (2.75625x at 44.1k, 6x at 96k), which is fine: every value is inaudible
-    # on band-limited mono speech.
-    #
-    # 352800/384000 are omitted though the K9 supports them: nothing streams there, and each
-    # extra entry is one more rate the graph can be dragged to.
-    allowed-rates = let
-      wanted = [44100 48000 88200 96000 176400 192000];
-      unsupported = builtins.filter (r: !(builtins.elem r supported-rates)) wanted;
-    in
-      if unsupported == []
-      then wanted
-      else throw "sound-fiio-k9: allowed-rates contains rates the K9 cannot clock: ${toString unsupported}";
 
     # Quantum is counted in frames, so latency is quantum/sample-rate -- a fixed frame count
     # does NOT mean fixed latency across rates (128 frames is 2.67ms at 48k, 2.90ms at
@@ -94,16 +70,23 @@
         extraConfig = {
           pipewire."92-low-latency" = {
             "context.properties" = {
-              # Switching only fires when the device has no active stream, so a rate change
-              # queued while something is playing lands at the next gap rather than mid-track.
-              # That also means a long unbroken listening session may never switch at all --
-              # benign, it just resamples until the graph next goes quiet.
+              # No `default.clock.allowed-rates`, and adding it back does NOT work here --
+              # this was tried and measured, not assumed. Retuning means closing and
+              # reopening the ALSA device, but `session.suspend-timeout-seconds = 0` below
+              # holds the K9 open permanently, so the moment pipewire would renegotiate in
+              # never arrives. With allowed-rates set to [44100 48000 88200 96000 176400
+              # 192000], a confirmed 24/96 FLAC (sone reporting `S24LE 2 96000`) left the
+              # device sitting at 44100 and was resampled; `clock.rate` never moved. The
+              # setting is inert against no-suspend, so it is omitted rather than left in
+              # looking functional.
               #
-              # Note this reopens the K9, which is why an exclusive-ALSA client (sone's
-              # bit-perfect mode) still cannot take the device: pipewire reclaims it
-              # immediately, and `session.suspend-timeout-seconds = 0` below keeps it held.
+              # The two are mutually exclusive: rate following requires letting the device
+              # suspend, which reintroduces a wake click before every TTS utterance -- the
+              # exact thing this module exists to prevent. Pinning wins.
+              #
+              # Same reason an exclusive-ALSA client (sone's bit-perfect mode) cannot take
+              # the device: pipewire never lets go of it.
               "default.clock.rate" = sample-rate;
-              "default.clock.allowed-rates" = allowed-rates;
               "default.clock.quantum" = default-quantum;
               "default.clock.min-quantum" = min-quantum;
               "default.clock.max-quantum" = max-quantum;
