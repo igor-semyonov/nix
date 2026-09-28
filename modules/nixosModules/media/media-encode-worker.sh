@@ -41,7 +41,7 @@ hdr_params() {
 # fallible step checks its own status.
 encode() {
     local src=$1 dest=$2
-    local probe primaries transfer matrix range svt_params tmp label
+    local probe primaries transfer matrix range svt_params tmp label title
     local -a color_args=() audio_args=()
 
     probe=$(ffprobe -v error -print_format json -select_streams v:0 \
@@ -70,6 +70,10 @@ encode() {
 
     label=$(basename "$dest")
     tmp=$MEDIA_TRANSCODE_DIR/$$.$label
+    # MakeMKV stamps the container title with the disc label, and -c copy
+    # carries it through. Left alone it leaks into every player, and Jellyfin
+    # shows it verbatim if "prefer embedded titles" is ever enabled.
+    title=${label%.mkv}
     echo "media-encode: $src -> $dest (preset $MEDIA_PRESET, crf $MEDIA_CRF)"
 
     # Explicit stream selection rather than `-map 0`: MakeMKV emits timecode and
@@ -77,7 +81,7 @@ encode() {
     ffmpeg -nostdin -hide_banner -y -nostats -loglevel warning \
         -i "$src" \
         -map 0:v -map '0:a?' -map '0:s?' -map '0:t?' \
-        -c copy \
+        -c:s copy \
         -c:v libsvtav1 \
         -preset "$MEDIA_PRESET" \
         -crf "$MEDIA_CRF" \
@@ -86,6 +90,7 @@ encode() {
         -svtav1-params "$svt_params" \
         "${color_args[@]}" \
         "${audio_args[@]}" \
+        -metadata title="$title" \
         -max_muxing_queue_size 4096 \
         -progress pipe:1 \
         "$tmp" |
