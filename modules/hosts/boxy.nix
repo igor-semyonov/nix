@@ -347,6 +347,10 @@
           media-ripping = {
             enable = true;
             allowedUsers = ["igor"];
+            # Installed out of band; see the option description. The free beta
+            # key rotates, and each MakeMKV build also self-expires after ~60
+            # days, which nixpkgs updates are far too slow to outrun.
+            makemkvKeyFile = "/var/lib/media-ripping/makemkv.key";
           };
           virtualisation = {
             enable = true;

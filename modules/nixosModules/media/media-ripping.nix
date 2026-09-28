@@ -59,6 +59,21 @@
       text = builtins.readFile ./media-pick-titles.sh;
     };
 
+    # Installed for the user as well as used by the worker: an expired build is
+    # the failure mode you want to be able to check for before loading a disc.
+    makemkvCheck = pkgs.writeShellApplication {
+      name = "makemkv-status";
+      runtimeInputs = with pkgs; [coreutils gnugrep gnused makemkv];
+      runtimeEnv = {
+        MAKEMKV_KEY_FILE = orEmpty cfg.makemkvKeyFile;
+        # So the remediation it prints names the service account, not whoever
+        # happened to run the check.
+        MEDIA_RIP_USER = cfg.user;
+        MEDIA_RIP_GROUP = cfg.group;
+      };
+      text = builtins.readFile ./media-makemkv-check.sh;
+    };
+
     helpers = [discScan waitForDisc guessTitles pickTitles libraryPath];
 
     cliEnv =
@@ -86,7 +101,7 @@
 
     ripWorker = pkgs.writeShellApplication {
       name = "media-rip-worker";
-      runtimeInputs = helpers ++ (with pkgs; [coreutils gawk gnused jq makemkv util-linux]);
+      runtimeInputs = helpers ++ [makemkvCheck] ++ (with pkgs; [coreutils gawk gnused jq makemkv util-linux]);
       runtimeEnv = pathEnv // {MAKEMKV_KEY_FILE = orEmpty cfg.makemkvKeyFile;};
       text = builtins.readFile ./media-rip-worker.sh;
     };
@@ -396,7 +411,7 @@
       ];
 
       environment.systemPackages =
-        [ripMovie ripTv ripTitles]
+        [ripMovie ripTv ripTitles makemkvCheck]
         ++ lib.optional cfg.installGui pkgs.makemkv;
 
       systemd.tmpfiles.settings = {

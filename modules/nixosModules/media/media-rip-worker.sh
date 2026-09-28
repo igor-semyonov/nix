@@ -154,7 +154,22 @@ shopt -u nullglob
 ((${#requests[@]} > 0)) || exit 0
 mapfile -t requests < <(printf '%s\n' "${requests[@]}" | sort)
 
+# Checked once per run rather than per request: an expired key or build fails
+# every disc identically, and the diagnosis belongs above the failures in the
+# journal rather than repeated between them.
+makemkv_usable=true
+makemkv-status || makemkv_usable=false
+
 for request in "${requests[@]}"; do
+    # Requests are still moved aside rather than left queued: the path unit
+    # retriggers while its glob matches, so holding them here would spin the
+    # service. Recover with `mv failed/*.json ..` once MakeMKV works again.
+    if [[ $makemkv_usable != true ]]; then
+        echo "media-rip: MakeMKV unusable (see above), parking $request in $failed_dir" >&2
+        mv "$request" "$failed_dir/"
+        continue
+    fi
+
     echo "media-rip: processing $request"
     if process "$request"; then
         rm -f "$request"
