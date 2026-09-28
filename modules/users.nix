@@ -50,6 +50,7 @@
               wl-clipboard
               vivaldi
               vivaldi-ffmpeg-codecs
+              sone
             ];
           };
           home = {
