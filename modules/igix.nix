@@ -5,6 +5,7 @@
         common-desktop
         kde
         nix-ld
+        sound
       ];
     };
     homeModules.igix-desktop-linux = {
