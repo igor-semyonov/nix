@@ -42,7 +42,7 @@ hdr_params() {
 # Called from an `if`, which disables errexit for the whole body, so each
 # fallible step checks its own status.
 encode() {
-    local src=$1 dest=$2
+    local src=$1 dest=$2 preset=${3:-$MEDIA_PRESET}
     local probe primaries transfer matrix range svt_params tmp label title pix_fmt src_pix
     local -a color_args=() audio_args=()
 
@@ -94,7 +94,7 @@ encode() {
     # carries it through. Left alone it leaks into every player, and Jellyfin
     # shows it verbatim if "prefer embedded titles" is ever enabled.
     title=${label%.mkv}
-    echo "media-encode: $src -> $dest (preset $MEDIA_PRESET, crf $MEDIA_CRF)"
+    echo "media-encode: $src -> $dest (preset $preset, crf $MEDIA_CRF)"
 
     # Explicit stream selection rather than `-map 0`: MakeMKV emits timecode and
     # other data streams that Matroska cannot remux. `t` keeps cover attachments.
@@ -103,7 +103,7 @@ encode() {
         -map 0:v -map '0:a?' -map '0:s?' -map '0:t?' \
         -c:s copy \
         -c:v libsvtav1 \
-        -preset "$MEDIA_PRESET" \
+        -preset "$preset" \
         -crf "$MEDIA_CRF" \
         -pix_fmt "$pix_fmt" \
         -g "$MEDIA_KEYINT" \
@@ -169,7 +169,8 @@ for job in "${queue[@]}"; do
         mv "$job" "$failed_dir/"
         continue
     fi
-    if encode "$src" "$dest"; then
+    jobpreset=$(jq -r '.preset // empty' "$job")
+    if encode "$src" "$dest" "${jobpreset:-$MEDIA_PRESET}"; then
         rm -f "$job"
         encoded=$((encoded + 1))
     else

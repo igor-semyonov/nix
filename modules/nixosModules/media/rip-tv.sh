@@ -22,6 +22,8 @@ lists its episodes out of order is fixed by reordering the selection.
       --tolerance PCT     width of the episode-length window used for the
                           initial guess (default: $MEDIA_EPISODE_TOLERANCE)
   -m, --min-length SEC    hide titles shorter than this (default: $MEDIA_TV_MIN_LENGTH)
+  -P, --preset N          SVT-AV1 preset for this rip, overriding the module
+                          default. Lower is slower and smaller.
   -w, --wait SEC          how long to wait for a disc (default: $MEDIA_WAIT)
   -E, --no-eject          leave the disc in the drive when the rip finishes
   -R, --no-encode         rip to staging only, skip AV1 encoding
@@ -40,6 +42,7 @@ titles=""
 tolerance=$MEDIA_EPISODE_TOLERANCE
 min_length=$MEDIA_TV_MIN_LENGTH
 wait_for=$MEDIA_WAIT
+preset=""
 eject=$MEDIA_EJECT
 encode=true
 assume_yes=false
@@ -72,6 +75,10 @@ while (($#)); do
         ;;
     -m | --min-length)
         min_length=$2
+        shift 2
+        ;;
+    -P | --preset)
+        preset=$2
         shift 2
         ;;
     -w | --wait)
@@ -171,11 +178,13 @@ jq -n \
     --argjson season "$season" \
     --argjson first_episode "$first_episode" \
     --argjson min_length "$min_length" \
+    --arg preset "$preset" \
     --argjson wait "$wait_for" \
     --argjson eject "$eject" \
     --argjson encode "$encode" \
     '$ARGS.named
      | .kind = "tv"
+     | .preset = (if $preset == "" then null else ($preset | tonumber) end)
      | .titles = ($titles | split(",") | map(tonumber))' >"$tmp"
 
 chmod 0664 "$tmp"

@@ -21,6 +21,8 @@ guess is reliable, so it is taken without prompting unless you ask.
   -i, --interactive       show the titles and confirm before ripping, e.g. to
                           choose between a theatrical and an extended cut
   -m, --min-length SEC    ignore titles shorter than this (default: $MEDIA_MIN_LENGTH)
+  -P, --preset N          SVT-AV1 preset for this rip, overriding the module
+                          default. Lower is slower and smaller.
   -w, --wait SEC          how long to wait for a disc (default: $MEDIA_WAIT)
   -E, --no-eject          leave the disc in the drive when the rip finishes
   -R, --no-encode         rip to staging only, skip AV1 encoding
@@ -39,6 +41,7 @@ titles=""
 part=0
 min_length=$MEDIA_MIN_LENGTH
 wait_for=$MEDIA_WAIT
+preset=""
 eject=$MEDIA_EJECT
 encode=true
 interactive=false
@@ -64,6 +67,10 @@ while (($#)); do
         ;;
     -m | --min-length)
         min_length=$2
+        shift 2
+        ;;
+    -P | --preset)
+        preset=$2
         shift 2
         ;;
     -w | --wait)
@@ -166,11 +173,13 @@ jq -n \
     --arg titles "$titles" \
     --argjson part "$part" \
     --argjson min_length "$min_length" \
+    --arg preset "$preset" \
     --argjson wait "$wait_for" \
     --argjson eject "$eject" \
     --argjson encode "$encode" \
     '$ARGS.named
      | .kind = "movie"
+     | .preset = (if $preset == "" then null else ($preset | tonumber) end)
      | .titles = (if $titles == "" then null else ($titles | split(",") | map(tonumber)) end)' >"$tmp"
 
 chmod 0664 "$tmp"
