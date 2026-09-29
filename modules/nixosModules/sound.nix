@@ -73,13 +73,26 @@
           '
         }
 
-        # Source rates of the streams attached to that sink. `Sink:` always precedes
-        # `Sample Specification:` within a block, so a single pass is enough.
+        # Source rates of the streams attached to that sink, EXCLUDING corked ones.
+        #
+        # Corked means paused, and a paused stream keeps its sink-input alive indefinitely
+        # with its original rate. A backgrounded browser tab therefore looks exactly like
+        # something demanding a rate change forever: the device gets retuned, pipewire
+        # returns the idle device to `default.clock.rate`, the mismatch reappears, and it
+        # cycles endlessly -- closing the device each time and eating the start of anything
+        # short that plays in between. Debouncing does not help, since a corked stream is
+        # present on every poll, not just transiently.
+        #
+        # `Corked:` comes after `Sample Specification:` in each block, so the rate has to be
+        # held and emitted at the block boundary rather than on sight.
         stream_rates() {
           pactl list sink-inputs | awk -v s="$1" '
-            /^Sink Input #/    { mine = 0 }
-            /^[ \t]*Sink: /    { mine = ($2 == s) }
-            mine && /Sample Specification:/ { gsub(/Hz/, "", $NF); print $NF }
+            function flush() { if (mine && rate != "" && corked == "no") print rate }
+            /^Sink Input #/          { flush(); mine = 0; rate = ""; corked = "" }
+            /^[ \t]*Sink: /          { mine = ($2 == s) }
+            /Sample Specification:/  { gsub(/Hz/, "", $NF); rate = $NF }
+            /^[ \t]*Corked: /        { corked = $2 }
+            END                      { flush() }
           ' | sort -u
         }
 
