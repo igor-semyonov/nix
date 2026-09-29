@@ -112,18 +112,30 @@
 
       systemd.services.jellyfin = {
         unitConfig.RequiresMountsFor = [cfg.libraryRoot];
-        serviceConfig = lib.mkIf cfg.nvenc.enable {
-          # The upstream module only allows hardwareAcceleration.device; NVENC
-          # additionally opens the control and UVM nodes. unitOption merges
-          # lists, so these append to the upstream entry.
-          DeviceAllow = [
-            "/dev/nvidiactl rw"
-            "/dev/nvidia-uvm rw"
-            "/dev/nvidia-uvm-tools rw"
-            "/dev/nvidia-modeset rw"
-          ];
-          SupplementaryGroups = ["video" "render"];
-        };
+
+        serviceConfig = lib.mkMerge [
+          {
+            # Upstream hardcodes 0077, which would make NFO sidecars and
+            # artwork Jellyfin writes into the library unreadable to everyone
+            # else -- including any backup not running as root, which is most
+            # of the point of having them. Safe to relax: the sensitive state
+            # in /var/lib/jellyfin is gated by that directory being 0700, not
+            # by the file mode. Matches the encoder, so the tree stays 0664.
+            UMask = lib.mkForce "0002";
+          }
+          (lib.mkIf cfg.nvenc.enable {
+            # The upstream module only allows hardwareAcceleration.device;
+            # NVENC additionally opens the control and UVM nodes. unitOption
+            # merges lists, so these append to the upstream entry.
+            DeviceAllow = [
+              "/dev/nvidiactl rw"
+              "/dev/nvidia-uvm rw"
+              "/dev/nvidia-uvm-tools rw"
+              "/dev/nvidia-modeset rw"
+            ];
+            SupplementaryGroups = ["video" "render"];
+          })
+        ];
       };
     };
   };

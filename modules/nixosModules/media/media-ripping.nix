@@ -392,6 +392,13 @@
     };
 
     config = lib.mkIf cfg.enable {
+      # MakeMKV talks to the drive through SCSI generic, not the block device:
+      # AACS handshakes and LibreDrive both need raw command passthrough. sg is
+      # a module here and nothing else requests char-major-21, so without this
+      # /dev/sg* never appears and makemkvcon reports "no usable optical
+      # drives" even though /dev/sr0 works fine.
+      boot.kernelModules = ["sg"];
+
       users.groups.${cfg.group} = {};
 
       users.users = lib.mkMerge [
