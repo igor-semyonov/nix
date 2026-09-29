@@ -34,6 +34,14 @@
               isDefault = true;
               settings = {
                 # "gfx.wayland.hdr" = true;
+                # Hardware video decode. Safe across vendors -- the driver
+                # choice is made by LIBVA_DRIVER_NAME in the NixOS module, and
+                # Firefox falls back to software if VA-API cannot initialise.
+                # Note this is decode only: it does nothing for a codec the
+                # browser refuses outright, such as 10-bit AV1 over MSE.
+                "media.ffmpeg.vaapi.enabled" = true;
+                "media.hardware-video-decoding.enabled" = true;
+                "media.rdd-ffmpeg.enabled" = true;
                 "browser.startup.homepage" = "https://google.com";
                 "browser.search.defaultenginename" = "google";
                 "browser.search.order.1" = "google";

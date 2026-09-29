@@ -330,10 +330,15 @@
 
         pixelFormat = lib.mkOption {
           type = lib.types.str;
-          default = "yuv420p10le";
+          default = "auto";
+          example = "yuv420p10le";
           description = ''
-            10-bit even for 8-bit sources: AV1's 10-bit path costs almost
-            nothing and avoids the banding 8-bit encoding introduces.
+            `auto` matches the source: 8-bit for an SDR disc, 10-bit for a
+            10-bit or HDR one. Measured on an 8-bit DVD, forcing 10 bits gave
+            identical bitrate and no SSIM gain -- there is no precision to
+            preserve -- while browsers refuse 10-bit AV1 over MSE and fall back
+            to a full re-encode, which is strictly worse than direct play.
+            Set a pixel format explicitly to override.
           '';
         };
 

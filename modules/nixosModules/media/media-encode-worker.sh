@@ -43,7 +43,7 @@ hdr_params() {
 # fallible step checks its own status.
 encode() {
     local src=$1 dest=$2
-    local probe primaries transfer matrix range svt_params tmp label title
+    local probe primaries transfer matrix range svt_params tmp label title pix_fmt src_pix
     local -a color_args=() audio_args=()
 
     probe=$(ffprobe -v error -print_format json -select_streams v:0 \
@@ -53,6 +53,24 @@ encode() {
     transfer=$(jq -r '.streams[0].color_transfer // ""' <<<"$probe")
     matrix=$(jq -r '.streams[0].color_space // ""' <<<"$probe")
     range=$(jq -r '.streams[0].color_range // ""' <<<"$probe")
+
+    # "auto" matches the source depth. Encoding an 8-bit SDR disc at 10 bits
+    # gains nothing measurable -- there is no precision to preserve -- and
+    # browsers refuse 10-bit AV1 over MSE, which forces a wasteful re-encode on
+    # the way to the client. HDR is always 10-bit regardless of what the
+    # container claims.
+    pix_fmt=$MEDIA_PIX_FMT
+    if [[ $pix_fmt == auto ]]; then
+        src_pix=$(jq -r '.streams[0].pix_fmt // ""' <<<"$probe")
+        case $src_pix in
+        *10le | *10be | *12le | *12be | *p010* | *p016*) pix_fmt=yuv420p10le ;;
+        *) pix_fmt=yuv420p ;;
+        esac
+        case $transfer in
+        smpte2084 | arib-std-b67) pix_fmt=yuv420p10le ;;
+        esac
+        echo "media-encode: source is $src_pix, encoding $pix_fmt"
+    fi
 
     svt_params="tune=$MEDIA_SVT_TUNE:film-grain=$MEDIA_FILM_GRAIN:film-grain-denoise=$MEDIA_FILM_GRAIN_DENOISE:enable-overlays=1:scd=1"
     [[ -n $MEDIA_SVT_EXTRA ]] && svt_params+=":$MEDIA_SVT_EXTRA"
@@ -87,7 +105,7 @@ encode() {
         -c:v libsvtav1 \
         -preset "$MEDIA_PRESET" \
         -crf "$MEDIA_CRF" \
-        -pix_fmt "$MEDIA_PIX_FMT" \
+        -pix_fmt "$pix_fmt" \
         -g "$MEDIA_KEYINT" \
         -svtav1-params "$svt_params" \
         "${color_args[@]}" \
