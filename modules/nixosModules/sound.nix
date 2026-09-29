@@ -83,6 +83,12 @@
           ' | sort -u
         }
 
+        # Previous poll's candidate, so a mismatch must persist across two checks before we
+        # act. A stream's reported rate is not stable the instant it appears, and acting on
+        # that transient cycled the device in the middle of short utterances -- inaudible
+        # for music, but it ate the first word of every speech-synthesis run.
+        previous=""
+
         while :; do
           sink=$(pactl get-default-sink 2>/dev/null || true)
           if [ -n "$sink" ]; then
@@ -104,10 +110,17 @@
             # Exactly one candidate, and it disagrees with the hardware. Two streams at
             # different rates is ambiguous -- leave it resampling rather than thrash.
             if [ "$#" -eq 1 ] && [ -n "$dev" ] && [ "$1" != "$dev" ]; then
-              pactl suspend-sink "$sink" 1
-              sleep 0.3
-              pactl suspend-sink "$sink" 0
-              sleep ${toString cfg.autoRetune.cooldown}
+              if [ "$1" = "$previous" ]; then
+                pactl suspend-sink "$sink" 1
+                sleep 0.3
+                pactl suspend-sink "$sink" 0
+                previous=""
+                sleep ${toString cfg.autoRetune.cooldown}
+              else
+                previous="$1"
+              fi
+            else
+              previous=""
             fi
           fi
           sleep ${toString cfg.autoRetune.interval}

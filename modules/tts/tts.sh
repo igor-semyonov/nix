@@ -19,16 +19,17 @@ text=''${text//>/rangle}
 text=''${text//</langle}
 text=" ${text}" # Preppending a space fixes some pronunciation
 
-# -fr 44: emit 44.1kHz instead of the voice's native 16kHz, matching the graph rate so
-# pipewire resamples nothing. balcon converts internally via its bundled libsamplerate.dll.
-# The voice is still a 16kHz source so this buys no detail -- it moves the conversion off
-# the realtime path, and keeps the ratio fixed regardless of what rate the DAC is clocked
-# at for music.
+# Deliberately NO `-fr`: the voice stays at its native 16kHz. Forcing 44.1k to match the
+# graph looked like a free win -- pipewire would resample nothing -- but it put speech on a
+# rate inside `igix.sound.allowedRates`, which made every utterance a candidate for a DAC
+# retune. The resulting suspend/resume cycle closed the device for ~0.4s mid-sentence and
+# ate the opening words. Measured: with the retune watcher running, a device poll during
+# playback showed CLOSED; with it stopped, 100/100 samples stayed open.
 #
-# No silence padding: `igix.sound.suspendTimeout = 0` keeps the DAC open, so there is no
-# wake gap for the opening syllables to fall into and nothing to pad against.
+# 16kHz is not a rate any DAC here can clock, so it can never appear in allowedRates, and
+# speech is therefore invisible to rate selection. That is the property the whole design
+# leans on. Resampling 16k on the realtime path is the cost, and it is inaudible.
 #
-# -q: wait for any already-running copy to finish instead of talking over it. Selecting
-# several passages in a row queues them rather than playing them concurrently. Nothing
-# previously enforced this -- overlapping invocations just happened not to collide.
-echo "$text" | wine 'C:\balcon\balcon.exe' -i -n 'Microsoft Server Speech Text to Speech Voice (en-US, ZiraPro)' -s "$tts_speed" -fr 44 -q &>/dev/null
+# -q: wait for any already-running copy to finish instead of talking over it, so selecting
+# several passages in a row queues them. Nothing previously enforced this.
+echo "$text" | wine 'C:\balcon\balcon.exe' -i -n 'Microsoft Server Speech Text to Speech Voice (en-US, ZiraPro)' -s "$tts_speed" -q &>/dev/null
