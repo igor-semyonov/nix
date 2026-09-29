@@ -8,6 +8,7 @@ name=""
 season=1
 episode=1
 position=0
+part=0
 
 while (($#)); do
     case $1 in
@@ -35,6 +36,10 @@ while (($#)); do
         position=$2
         shift 2
         ;;
+    --part)
+        part=$2
+        shift 2
+        ;;
     *)
         echo "media-library-path: unknown argument: $1" >&2
         exit 2
@@ -53,19 +58,33 @@ if [[ -z $name ]]; then
     exit 2
 fi
 
+# Jellyfin reads provider ids ([tmdbid-57243], [tvdbid-78804]) from the folder
+# name only, so strip trailing id blocks from the file half. Repeats, because
+# more than one provider may be pinned at once.
+display=$name
+while [[ $display =~ ^(.*[^[:space:]])[[:space:]]*\[[^][]*\]$ ]]; do
+    display=${BASH_REMATCH[1]}
+done
+[[ -n $display ]] || display=$name
+
 case $kind in
 tv)
     printf '%s/tv/%s/Season %02d/%s - S%02dE%02d.mkv' \
-        "$library" "$name" "$season" "$name" "$season" "$episode"
+        "$library" "$name" "$season" "$display" "$season" "$episode"
     ;;
 movie)
-    if ((position == 0)); then
-        printf '%s/movies/%s/%s.mkv' "$library" "$name" "$name"
+    if ((position == 0 && part > 0)); then
+        # One film genuinely spanning several discs. Jellyfin stacks files
+        # suffixed -part1/-part2 into a single playable item; the suffix must
+        # hang directly off the name, so no spaces around the dash.
+        printf '%s/movies/%s/%s-part%d.mkv' "$library" "$name" "$display" "$part"
+    elif ((position == 0)); then
+        printf '%s/movies/%s/%s.mkv' "$library" "$name" "$display"
     else
         # Jellyfin reads an `extras` subdirectory as bonus content rather than
         # as alternate versions of the feature.
         printf '%s/movies/%s/extras/%s - Extra %02d.mkv' \
-            "$library" "$name" "$name" "$position"
+            "$library" "$name" "$display" "$position"
     fi
     ;;
 *)

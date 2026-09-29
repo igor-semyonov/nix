@@ -103,6 +103,16 @@ encode() {
         return 1
     }
 
+    # Never clobber: two discs of one title, or a re-rip under a name already in
+    # the library, would otherwise silently replace hours of finished work.
+    if [[ -e $dest ]]; then
+        echo "media-encode: $dest already exists, refusing to overwrite" >&2
+        echo "media-encode:   for a film spanning discs use rip-movie --part N," >&2
+        echo "media-encode:   otherwise delete the existing file to replace it." >&2
+        echo "media-encode:   the new encode is kept at $tmp" >&2
+        return 1
+    fi
+
     mkdir -p "$(dirname "$dest")" || return 1
     # Same filesystem as the library by construction, so this is an atomic rename
     # and Jellyfin never sees a partial file.

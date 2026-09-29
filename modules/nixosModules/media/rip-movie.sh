@@ -14,6 +14,10 @@ guess is reliable, so it is taken without prompting unless you ask.
   -d, --device DEV        optical device (default: $MEDIA_DEFAULT_DEVICE)
   -t, --titles LIST       rip exactly these title indices, e.g. 0,4. The first
                           is the feature, the rest become extras.
+  -p, --part N            this disc holds part N of a film split across discs.
+                          Jellyfin stacks the parts into one playable item.
+                          Only for a genuinely split film -- a two-disc set
+                          whose second disc is bonus material is not this.
   -i, --interactive       show the titles and confirm before ripping, e.g. to
                           choose between a theatrical and an extended cut
   -m, --min-length SEC    ignore titles shorter than this (default: $MEDIA_MIN_LENGTH)
@@ -32,6 +36,7 @@ EOF
 device=$MEDIA_DEFAULT_DEVICE
 name=""
 titles=""
+part=0
 min_length=$MEDIA_MIN_LENGTH
 wait_for=$MEDIA_WAIT
 eject=$MEDIA_EJECT
@@ -47,6 +52,10 @@ while (($#)); do
         ;;
     -t | --titles)
         titles=$2
+        shift 2
+        ;;
+    -p | --part)
+        part=$2
         shift 2
         ;;
     -i | --interactive)
@@ -155,6 +164,7 @@ jq -n \
     --arg device "$device" \
     --arg name "$name" \
     --arg titles "$titles" \
+    --argjson part "$part" \
     --argjson min_length "$min_length" \
     --argjson wait "$wait_for" \
     --argjson eject "$eject" \
