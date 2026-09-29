@@ -352,6 +352,10 @@
           media-ripping = {
             enable = true;
             allowedUsers = ["igor"];
+            # Discs stay in the tray: the desktop automounts them and the rip
+            # service cannot unmount another user's mount, so the eject only
+            # ever failed noisily.
+            eject = false;
             # Installed out of band; see the option description. The free beta
             # key rotates, and each MakeMKV build also self-expires after ~60
             # days, which nixpkgs updates are far too slow to outrun.
