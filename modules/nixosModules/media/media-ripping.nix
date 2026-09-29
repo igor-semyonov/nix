@@ -117,6 +117,10 @@
           MEDIA_PIX_FMT = cfg.encode.pixelFormat;
           MEDIA_KEYINT = toString cfg.encode.keyframeInterval;
           MEDIA_FILM_GRAIN = toString cfg.encode.filmGrain;
+          MEDIA_FILM_GRAIN_DENOISE =
+            if cfg.encode.filmGrainDenoise
+            then "1"
+            else "0";
           MEDIA_SVT_TUNE = toString cfg.encode.tune;
           MEDIA_SVT_EXTRA = cfg.encode.extraSvtParams;
           MEDIA_AUDIO = cfg.encode.audio;
@@ -265,6 +269,17 @@
         '';
       };
 
+      preventAutoMount = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          Stop the desktop session auto-mounting discs in the rip drive. A disc
+          mounted under /run/media/<user> cannot be unmounted by the rip
+          service, so the post-rip eject fails and the disc stays in the tray.
+          Mount by hand if you need to browse a data disc.
+        '';
+      };
+
       installGui = lib.mkOption {
         type = lib.types.bool;
         default = true;
@@ -330,10 +345,24 @@
 
         filmGrain = lib.mkOption {
           type = lib.types.ints.between 0 50;
-          default = 8;
+          default = 0;
           description = ''
-            AV1 film grain synthesis level. Restores the grain low CRFs smear
-            away on film transfers; set 0 for animation.
+            AV1 film grain synthesis level. Only worth enabling together with
+            {option}`filmGrainDenoise`: the saving comes from denoising the
+            source and re-adding grain at playback, not from the synthesis
+            itself. Measured on a grainy film transfer, grain synthesis without
+            denoising encoded a bit-identical picture for ~5% more bitrate and
+            then painted synthetic grain over the grain already there.
+          '';
+        };
+
+        filmGrainDenoise = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = ''
+            Denoise the source before encoding when {option}`filmGrain` is
+            non-zero, which is what actually buys the bitrate back. Ignored
+            when `filmGrain` is 0.
           '';
         };
 
@@ -431,7 +460,18 @@
         });
 
         igix-media-ripping =
-          lib.genAttrs [cfg.ripDir cfg.transcodeDir cfg.stateDir "${cfg.stateDir}/encode-queue"] (_: {
+          lib.genAttrs [
+            cfg.ripDir
+            cfg.transcodeDir
+            cfg.stateDir
+            "${cfg.stateDir}/encode-queue"
+            # Declared rather than left to the worker's mkdir: if either ever
+            # ends up owned by another user, parking a failed job fails, the
+            # worker exits non-zero with the job still matching the path unit's
+            # glob, and the service restarts in a tight loop.
+            "${cfg.stateDir}/encode-queue/failed"
+            "${cfg.stateDir}/rip-queue/failed"
+          ] (_: {
             d = {
               mode = "0775";
               inherit (cfg) user group;
@@ -495,14 +535,27 @@
         };
       };
 
-      services.udev.extraRules = lib.mkIf cfg.autoRip.enable (
-        lib.concatMapStringsSep "\n" (kernel: ''
-          SUBSYSTEM=="block", KERNEL=="${kernel}", ACTION=="change", ENV{ID_CDROM_MEDIA_STATE}!="blank", ENV{ID_CDROM_MEDIA_BD}=="1", ENV{SYSTEMD_WANTS}+="media-autorip@%k.service"
-          SUBSYSTEM=="block", KERNEL=="${kernel}", ACTION=="change", ENV{ID_CDROM_MEDIA_STATE}!="blank", ENV{ID_CDROM_MEDIA_DVD}=="1", ENV{SYSTEMD_WANTS}+="media-autorip@%k.service"
-          SUBSYSTEM=="block", KERNEL=="${kernel}", ACTION=="change", ENV{ID_CDROM_MEDIA}!="1", RUN+="${config.systemd.package}/bin/systemctl --no-block stop media-autorip@%k.service"
-        '')
-        cfg.autoRip.devices
-      );
+      services.udev.extraRules = lib.mkMerge [
+        # Separate from the autoRip rules: a disc auto-mounted under
+        # /run/media/<user> cannot be unmounted by the rip service, so eject
+        # fails and the disc stays in the tray -- true whether or not anything
+        # is ripped automatically. Shares autoRip.devices as the drive list.
+        (lib.mkIf cfg.preventAutoMount (
+          lib.concatMapStringsSep "\n" (kernel: ''
+            SUBSYSTEM=="block", KERNEL=="${kernel}", ENV{UDISKS_IGNORE}="1"
+          '')
+          cfg.autoRip.devices
+        ))
+
+        (lib.mkIf cfg.autoRip.enable (
+          lib.concatMapStringsSep "\n" (kernel: ''
+            SUBSYSTEM=="block", KERNEL=="${kernel}", ACTION=="change", ENV{ID_CDROM_MEDIA_STATE}!="blank", ENV{ID_CDROM_MEDIA_BD}=="1", ENV{SYSTEMD_WANTS}+="media-autorip@%k.service"
+            SUBSYSTEM=="block", KERNEL=="${kernel}", ACTION=="change", ENV{ID_CDROM_MEDIA_STATE}!="blank", ENV{ID_CDROM_MEDIA_DVD}=="1", ENV{SYSTEMD_WANTS}+="media-autorip@%k.service"
+            SUBSYSTEM=="block", KERNEL=="${kernel}", ACTION=="change", ENV{ID_CDROM_MEDIA}!="1", RUN+="${config.systemd.package}/bin/systemctl --no-block stop media-autorip@%k.service"
+          '')
+          cfg.autoRip.devices
+        ))
+      ];
     };
   };
 }

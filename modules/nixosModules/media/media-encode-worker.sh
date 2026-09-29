@@ -8,8 +8,10 @@ failed_dir=$encode_queue/failed
 mkdir -p "$encode_queue" "$failed_dir" "$MEDIA_TRANSCODE_DIR"
 
 # Keeps Jellyfin from indexing half-written encodes even when the transcode
-# directory sits inside a library root.
-: >"$MEDIA_TRANSCODE_DIR/.ignore"
+# directory sits inside a library root. Created only when absent and never
+# fatal: truncating it would abort the whole run under errexit if the file ever
+# ends up owned by someone else.
+[[ -e $MEDIA_TRANSCODE_DIR/.ignore ]] || : >"$MEDIA_TRANSCODE_DIR/.ignore" 2>/dev/null || true
 
 # ffprobe reports these as rationals ("35400/50000"); shared by the HDR queries.
 # shellcheck disable=SC2016 # jq program text, not shell expansion
@@ -52,7 +54,7 @@ encode() {
     matrix=$(jq -r '.streams[0].color_space // ""' <<<"$probe")
     range=$(jq -r '.streams[0].color_range // ""' <<<"$probe")
 
-    svt_params="tune=$MEDIA_SVT_TUNE:film-grain=$MEDIA_FILM_GRAIN:film-grain-denoise=0:enable-overlays=1:scd=1"
+    svt_params="tune=$MEDIA_SVT_TUNE:film-grain=$MEDIA_FILM_GRAIN:film-grain-denoise=$MEDIA_FILM_GRAIN_DENOISE:enable-overlays=1:scd=1"
     [[ -n $MEDIA_SVT_EXTRA ]] && svt_params+=":$MEDIA_SVT_EXTRA"
 
     if [[ $transfer == smpte2084 || $transfer == arib-std-b67 ]]; then
