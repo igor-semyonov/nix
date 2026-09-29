@@ -22,23 +22,42 @@
     in
       go 1;
 
-    # Rates each known DAC can actually clock for PCM. Naming a device seeds `allowedRates`
-    # with something correct for the hardware instead of a conservative guess; every value
-    # stays overridable. Add a device by adding an entry -- nothing else keys off the name.
+    # Rates each known DAC can clock for PCM, verified on hardware. Naming a device seeds
+    # `allowedRates` correctly instead of guessing; every value stays overridable. Add a
+    # device by adding an entry -- nothing else keys off the name.
     #
-    # Verify by generating pink noise at each candidate rate and checking what the hardware
-    # lands on, e.g.
+    # Verify with pink noise at each candidate rate, targeting the sink directly:
     #   sox -n -r <rate> -c 2 -b 24 t.wav synth 6 pinknoise vol 0.06
-    #   pw-play t.wav & sleep 5; grep ^rate /proc/asound/card<N>/pcm0p/sub0/hw_params
+    #   pw-play --target <sink> t.wav &
+    #   pactl suspend-sink <sink> 1; sleep 0.4; pactl suspend-sink <sink> 0
+    #   grep ^rate /proc/asound/card<N>/pcm0p/sub0/hw_params
     #
-    # Do NOT copy `/proc/asound/card*/stream*` `Rates:` verbatim -- it is not a list of
-    # usable PCM rates. The K9 advertises through 768000, but measured on hardware anything
-    # above 192000 silently lands at a fraction of what was asked for: 352800 and 384000
-    # halve, 705600 and 768000 quarter. Those upper entries are DSD-over-PCM container
-    # rates. Listing them would let the graph be dragged somewhere the DAC cannot follow.
+    # CRITICAL: the rate under test must already be in the live `allowed-rates` or the
+    # result is meaningless. Pipewire silently falls back to the highest allowed rate in
+    # the SAME FAMILY -- 352800 and 705600 become 176400, 384000 and 768000 become 192000.
+    # That looks exactly like a hardware ceiling with neat halving, and is not one. Both
+    # DACs below were briefly mis-measured as capping at 192000 for precisely this reason;
+    # with the rates actually allowed, every entry here works.
+    # `match` is a wireplumber node.name pattern; `~` prefixes a regex.
     known-devices = {
-      fiio-k9 = [44100 48000 88200 96000 176400 192000];
+      fiio-k9 = {
+        match = "~alsa_output\\.usb-.*FiiO_K9.*";
+        rates = [44100 48000 88200 96000 176400 192000 352800 384000 705600 768000];
+      };
+      questyle-m15i = {
+        match = "~alsa_output\\.usb-.*M15i.*";
+        rates = [44100 48000 88200 96000 176400 192000 352800 384000 705600 768000];
+      };
     };
+
+    # Union of every declared device's rates, so the graph clock can reach anything any
+    # attached device can do. Per-device `audio.allowed-rates` then stops each one being
+    # dragged past its own ceiling -- the graph list alone cannot express "this DAC does
+    # 768k but the internal codec stops at 192k".
+    declared-rates = let
+      lists = lib.filter (r: r != null) (lib.mapAttrsToList (_: d: d.allowedRates) cfg.devices);
+    in
+      lib.sort (a: b: a < b) (lib.unique (lib.concatLists lists));
 
     # Conservative set for an unnamed device: the two families everything supports, plus
     # their first doubling.
@@ -160,28 +179,105 @@
         '';
       };
 
-      device = lib.mkOption {
-        type = lib.types.nullOr (lib.types.enum (builtins.attrNames known-devices));
-        default = null;
-        example = "fiio-k9";
+      knownDeviceRates = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.listOf lib.types.ints.positive);
+        readOnly = true;
+        default = lib.mapAttrs (_: d: d.rates) known-devices;
         description = ''
-          The DAC attached to this host, if it is one the module knows about. Naming it
-          seeds `allowedRates` from that device's advertised rate list rather than the
-          conservative generic set.
-
-          Purely a convenience: setting `allowedRates` directly does the same thing, and
-          overrides this.
+          PCM rate lists measured on real hardware for the DACs this module ships profiles
+          for. Read-only; exposed so a consumer can reference a known-good list rather than
+          copying `/proc/asound/card*/stream*`, which reports modes the device cannot
+          necessarily clock.
         '';
+      };
+
+      devices = lib.mkOption {
+        default = {};
+        description = ''
+          Per-output overrides, one entry per attached device. Empty means a single global
+          policy for every ALSA node, which is fine for a host with one fixed output.
+
+          Declare an entry per output on a machine whose outputs differ -- a laptop with an
+          internal codec, a USB DAC, and sometimes neither. Each entry becomes one
+          wireplumber `monitor.alsa.rules` match, applied after the global rule, so it
+          overrides it for the nodes it matches.
+
+          An entry named after a key in `knownDeviceRates` inherits that profile's match
+          pattern and rates, so `devices.fiio-k9 = {}` is enough. Any other name needs at
+          least `match`.
+        '';
+        example = lib.literalExpression ''
+          {
+            fiio-k9 = {}; # known profile, nothing to state
+            internal = {
+              match = "~alsa_output\\.pci-.*";
+              allowedRates = [44100 48000 96000];
+              suspendTimeout = 5; # let the internal codec idle down
+            };
+          }
+        '';
+        type = lib.types.attrsOf (lib.types.submodule ({name, ...}: {
+          options = {
+            match = lib.mkOption {
+              type = lib.types.str;
+              default =
+                known-devices.${name}.match
+                or (throw "igix.sound.devices.${name}: no built-in profile by that name, so `match` must be set -- a wireplumber node.name pattern, e.g. \"~alsa_output\\\\.pci-.*\" (find yours with `pactl list short sinks`). Built-in profiles: ${lib.concatStringsSep ", " (builtins.attrNames known-devices)}");
+              defaultText = lib.literalExpression "the matching `knownDeviceRates` entry's pattern, if the attribute name is one";
+              example = "~alsa_output\\.pci-.*";
+              description = ''
+                Wireplumber `node.name` pattern selecting this device. A `~` prefix makes
+                it a regex. Find the name with `pactl list short sinks`.
+              '';
+            };
+
+            allowedRates = lib.mkOption {
+              type = lib.types.nullOr (lib.types.listOf lib.types.ints.positive);
+              default = known-devices.${name}.rates or null;
+              defaultText = lib.literalExpression "the matching `knownDeviceRates` entry, if the attribute name is one, else null";
+              description = ''
+                Rates this device may be clocked at, as `audio.allowed-rates`. null leaves
+                it unconstrained and it follows the graph-wide `allowedRates`.
+
+                Measure rather than trusting `/proc` -- and note a rate absent from the
+                graph-wide list can never be selected here, so verify with it present or
+                pipewire's same-family fallback will fake a ceiling.
+              '';
+            };
+
+            rate = lib.mkOption {
+              type = lib.types.nullOr lib.types.ints.positive;
+              default = null;
+              description = ''
+                Rate this device idles at, as `audio.rate`. null follows the graph-wide
+                `sampleRate`. Useful where one output's natural rate differs from the
+                host's -- an internal codec at 48k beside a 44.1k-centric library.
+              '';
+            };
+
+            suspendTimeout = lib.mkOption {
+              type = lib.types.nullOr lib.types.ints.unsigned;
+              default = null;
+              description = ''
+                Per-device override of the global `suspendTimeout`. null inherits it.
+
+                A DAC used for speech synthesis wants 0 so nothing is clipped on wake; a
+                battery-powered internal codec usually wants to idle down instead.
+              '';
+            };
+          };
+        }));
       };
 
       allowedRates = lib.mkOption {
         type = lib.types.listOf lib.types.ints.positive;
         default =
-          if cfg.device != null
-          then known-devices.${cfg.device}
+          if declared-rates != []
+          then declared-rates
           else generic-rates;
         defaultText = lib.literalExpression ''
-          the advertised rates of `device`, or ${builtins.toJSON generic-rates} when unset
+          the union of every `devices.*.allowedRates`, or ${builtins.toJSON generic-rates}
+          when no devices are declared
         '';
         description = ''
           Rates the device may be retuned to when a stream wants one, on top of
@@ -374,13 +470,30 @@
 
           wireplumber = {
             enable = true;
-            extraConfig."suspend-timeout" = {
-              "monitor.alsa.rules" = [
-                {
-                  matches = [{"node.name" = "~alsa_*";}];
-                  actions.update-props."session.suspend-timeout-seconds" = cfg.suspendTimeout;
-                }
-              ];
+            # Global rule first, per-device rules after: wireplumber applies them in order,
+            # so a later match overrides an earlier one for the nodes it covers.
+            extraConfig."device-rules" = {
+              "monitor.alsa.rules" =
+                [
+                  {
+                    matches = [{"node.name" = "~alsa_*";}];
+                    actions.update-props."session.suspend-timeout-seconds" = cfg.suspendTimeout;
+                  }
+                ]
+                ++ (lib.mapAttrsToList (_: d: {
+                    matches = [{"node.name" = d.match;}];
+                    actions.update-props =
+                      lib.optionalAttrs (d.suspendTimeout != null) {
+                        "session.suspend-timeout-seconds" = d.suspendTimeout;
+                      }
+                      // lib.optionalAttrs (d.allowedRates != null) {
+                        "audio.allowed-rates" = d.allowedRates;
+                      }
+                      // lib.optionalAttrs (d.rate != null) {
+                        "audio.rate" = d.rate;
+                      };
+                  })
+                  cfg.devices);
             };
           };
         };

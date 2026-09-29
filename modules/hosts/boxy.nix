@@ -53,7 +53,12 @@
     uxplay
     u2f
     {igix.u2f.enable = true;}
-    {igix.sound.device = "fiio-k9";}
+    {
+      igix.sound.devices = {
+        fiio-k9 = {};
+        questyle-m15i = {};
+      };
+    }
 
     inputs.hardware.nixosModules.common-cpu-amd-zenpower
     # inputs.hardware.nixosModules.common-gpu-nvidia
