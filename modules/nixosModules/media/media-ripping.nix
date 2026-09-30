@@ -74,6 +74,17 @@
       text = builtins.readFile ./media-makemkv-check.sh;
     };
 
+    updateKey = pkgs.writeShellApplication {
+      name = "makemkv-update-key";
+      runtimeInputs = [makemkvCheck] ++ (with pkgs; [coreutils gnugrep gnused makemkv sudo]);
+      runtimeEnv = {
+        MAKEMKV_KEY_FILE = orEmpty cfg.makemkvKeyFile;
+        MEDIA_RIP_USER = cfg.user;
+        MEDIA_RIP_GROUP = cfg.group;
+      };
+      text = builtins.readFile ./makemkv-update-key.sh;
+    };
+
     helpers = [discScan waitForDisc guessTitles pickTitles libraryPath];
 
     cliEnv =
@@ -452,7 +463,7 @@
       ];
 
       environment.systemPackages =
-        [ripMovie ripTv ripTitles makemkvCheck]
+        [ripMovie ripTv ripTitles makemkvCheck updateKey]
         ++ lib.optional cfg.installGui pkgs.makemkv;
 
       systemd.tmpfiles.settings = {
