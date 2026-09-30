@@ -10,13 +10,39 @@ mkdir -p "$rip_queue" "$encode_queue" "$MEDIA_STATE_DIR/claims" "$failed_dir" "$
 
 # makemkvcon only reads its key from $HOME; the unit points HOME at the state
 # directory so this never lands in a real user's home.
+#
+# An expired or invalid key is worse than none at all: MakeMKV then refuses
+# outright instead of falling back to its evaluation period, so a stale key
+# silently blocks ripping that would otherwise work. Validate before
+# installing, and clear any previously installed key that has since lapsed.
 install_key() {
-    [[ -n $MAKEMKV_KEY_FILE && -r $MAKEMKV_KEY_FILE ]] || return 0
-    local key
-    key=$(tr -d '[:space:]' <"$MAKEMKV_KEY_FILE")
+    local settings="$HOME/.MakeMKV/settings.conf"
     mkdir -p "$HOME/.MakeMKV"
-    printf 'app_Key = "%s"\n' "$key" >"$HOME/.MakeMKV/settings.conf"
-    chmod 0600 "$HOME/.MakeMKV/settings.conf"
+
+    if [[ -z $MAKEMKV_KEY_FILE || ! -r $MAKEMKV_KEY_FILE ]]; then
+        rm -f "$settings"
+        return 0
+    fi
+
+    local key probe
+    key=$(tr -d '[:space:]' <"$MAKEMKV_KEY_FILE")
+    if [[ -z $key ]]; then
+        rm -f "$settings"
+        return 0
+    fi
+
+    probe=$(mktemp -d)
+    if HOME=$probe makemkvcon -r reg "$key" >/dev/null 2>&1; then
+        printf 'app_Key = "%s"\n' "$key" >"$settings"
+        chmod 0600 "$settings"
+        echo "media-rip: MakeMKV key accepted"
+    else
+        rm -f "$settings"
+        echo "media-rip: MakeMKV key in $MAKEMKV_KEY_FILE is not valid; ignoring it" >&2
+        echo "media-rip:   so the evaluation period can apply instead. Refresh it with" >&2
+        echo "media-rip:   'sudo makemkv-update-key' once you have a working key." >&2
+    fi
+    rm -rf "$probe"
 }
 
 # Strip anything that would be awkward or unsafe in a path component.

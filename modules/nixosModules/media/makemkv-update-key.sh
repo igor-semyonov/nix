@@ -69,8 +69,9 @@ fi
 key=$(tr -d '[:space:]' <<<"$key")
 if [[ -z $key ]]; then
     echo "makemkv-update-key: no key was read (input was empty)" >&2
-    echo "  if you piped it in, check the input is not empty:" >&2
-    echo "    printf '%s\\n' 'T-...' | sudo makemkv-update-key" >&2
+    echo "  if you redirected a file, check it is not empty; a file is" >&2
+    echo "  preferable to a pipe from echo, which leaves the key in history:" >&2
+    echo "    sudo makemkv-update-key < keyfile" >&2
     exit 1
 fi
 

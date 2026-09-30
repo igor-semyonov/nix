@@ -22,6 +22,35 @@
             onnxruntime = prev.onnxruntime.override {
               cudaSupport = false;
             };
+            # nixpkgs carries 1.18.4, whose ~60-day self-expiry has passed, so
+            # ripping fails with "This application version is too old". Track
+            # upstream directly; each release resets that clock.
+            makemkv = prev.makemkv.overrideAttrs (finalAttrs: prevAttrs: let
+              v = "2.0.0";
+              fetch = kind: hash:
+                prev.fetchurl {
+                  urls = [
+                    "https://www.makemkv.com/download/makemkv-${kind}-${v}.tar.gz"
+                    "https://www.makemkv.com/download/old/makemkv-${kind}-${v}.tar.gz"
+                  ];
+                  inherit hash;
+                };
+            in {
+              version = v;
+              sourceRoot = "makemkv-oss-${v}";
+              srcs = [
+                (fetch "bin" "sha256-8SZedIdaGG79+7vsdFmmTpaQM1FeU8vE2AXwo3TwoSQ=")
+                (fetch "oss" "sha256-Q1MWstIZ60jIgFJlV63dB2tfXm3lFxQkx2UfnKyVsWE=")
+              ];
+              passthru =
+                prevAttrs.passthru
+                // {
+                  srcs = {
+                    bin = fetch "bin" "sha256-8SZedIdaGG79+7vsdFmmTpaQM1FeU8vE2AXwo3TwoSQ=";
+                    oss = fetch "oss" "sha256-Q1MWstIZ60jIgFJlV63dB2tfXm3lFxQkx2UfnKyVsWE=";
+                  };
+                };
+            });
           }
         )
       ];
