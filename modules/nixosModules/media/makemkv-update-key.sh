@@ -53,17 +53,24 @@ if ((EUID != 0)); then
     exit 1
 fi
 
+# `read` returns non-zero at EOF without a trailing newline, which under
+# errexit would abort here before anything is validated -- so a key file or
+# pipe lacking a final newline would fail silently. The variable is still
+# populated in that case, so ignore the status and judge by content.
+key=""
 if [[ $from_stdin == true ]] || [[ ! -t 0 ]]; then
-    IFS= read -r key
+    IFS= read -r key || true
 else
     printf 'Paste the MakeMKV key (input hidden): ' >&2
-    IFS= read -rs key
+    IFS= read -rs key || true
     printf '\n' >&2
 fi
 
 key=$(tr -d '[:space:]' <<<"$key")
 if [[ -z $key ]]; then
-    echo "makemkv-update-key: no key supplied" >&2
+    echo "makemkv-update-key: no key was read (input was empty)" >&2
+    echo "  if you piped it in, check the input is not empty:" >&2
+    echo "    printf '%s\\n' 'T-...' | sudo makemkv-update-key" >&2
     exit 1
 fi
 
