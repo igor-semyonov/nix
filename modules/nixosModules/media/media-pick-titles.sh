@@ -115,8 +115,15 @@ render_table() {
             split(guess, g, ",")
             for (i in g) chosen[g[i]] = 1
         }
+        # "00390,00391" -> 390, for ordering by physical layout.
+        function firstseg(s,    parts) {
+            if (s == "") return -1
+            split(s, parts, ",")
+            return parts[1] + 0
+        }
         $1 == "TITLE" {
             id[n] = $2; secs[n] = $3; dur[n] = $4; chap[n] = $5; size[n] = $6
+            src[n] = $7; seg[n] = $8
             sorted[n] = $3; n++
         }
         END {
@@ -128,7 +135,8 @@ render_table() {
             }
             median = (n % 2) ? sorted[int(n / 2)] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2
 
-            printf "  %-3s %5s %10s %8s %10s %10s  %s\n", "", "idx", "duration", "chapters", "size", "vs median", "note"
+            printf "  %-3s %5s %10s %8s %10s %10s %11s %9s  %s\n", \
+                "", "idx", "duration", "chapters", "size", "vs median", "playlist", "clip", "note"
             for (i = 0; i < n; i++) {
                 mark = (id[i] in chosen) ? "[*]" : "[ ]"
                 mult = (median > 0) ? secs[i] / median : 0
@@ -156,8 +164,40 @@ render_table() {
                     note = "short -- trailer or extra?"
                 }
 
-                printf "  %-3s %5d %10s %8s %10s %9.2fx  %s\n", \
-                    mark, id[i], dur[i], chap[i], size[i], mult, note
+                printf "  %-3s %5d %10s %8s %10s %9.2fx %11s %9s  %s\n", \
+                    mark, id[i], dur[i], chap[i], size[i], mult, \
+                    (src[i] != "" ? src[i] : "-"), \
+                    (seg[i] != "" ? seg[i] : "-"), note
+            }
+
+            # The selection order below is derived from clip order. Playlist
+            # order usually agrees; where it does not, one of them mis-numbers
+            # the season and the disc alone cannot say which -- Dollhouse S1D1
+            # needed playlist order, S1D3 needed clip order. Surface it here,
+            # while reordering still costs nothing.
+            m = 0
+            for (i = 0; i < n; i++) if (id[i] in chosen) { bs[m] = i; bp[m] = i; m++ }
+            for (a = 1; a < m; a++) {
+                v = bs[a]; b = a - 1
+                while (b >= 0 && firstseg(seg[bs[b]]) > firstseg(seg[v])) { bs[b+1] = bs[b]; b-- }
+                bs[b+1] = v
+            }
+            for (a = 1; a < m; a++) {
+                v = bp[a]; b = a - 1
+                while (b >= 0 && src[bp[b]] > src[v]) { bp[b+1] = bp[b]; b-- }
+                bp[b+1] = v
+            }
+            byseg = ""; bysrc = ""
+            for (a = 0; a < m; a++) {
+                byseg = byseg (a ? "," : "") id[bs[a]]
+                bysrc = bysrc (a ? "," : "") id[bp[a]]
+            }
+            if (m > 1 && byseg != bysrc) {
+                printf "\n  !! clip order and playlist order disagree for the selected titles:\n"
+                printf "       by clip:     %s\n", byseg
+                printf "       by playlist: %s\n", bysrc
+                printf "     Confirm against the episodes themselves before encoding\n"
+                printf "     (rip-frames, after the rip) -- guessing has been wrong before.\n"
             }
         }
     ' <<<"$scan"

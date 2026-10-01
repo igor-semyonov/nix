@@ -78,6 +78,7 @@
 
     media-jellyfin
     media-ripping
+    media-bazarr
 
     uxplay
     u2f
@@ -378,6 +379,7 @@
             enable = false;
           };
           jellyfin.enable = true;
+          bazarr.enable = true;
           media-ripping = {
             enable = true;
             allowedUsers = ["igor"];

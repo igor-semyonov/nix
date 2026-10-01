@@ -662,6 +662,17 @@
 
       configFile = {
         baloofilerc."Basic Settings"."Indexing-Enabled" = false;
+        # Solid mounts inserted discs under /run/media/$USER, which the rip
+        # service (running as media-rip) cannot unmount -- so its eject fails
+        # and the disc stays in the tray. A udev UDISKS_IGNORE rule does not
+        # help here: Solid calls Mount() explicitly rather than relying on
+        # udisks' own automounting.
+        device_automounter_kcmrc.General = {
+          AutomountEnabled = false;
+          AutomountOnLogin = false;
+          AutomountOnPlugin = false;
+          AutomountUnknownDevices = false;
+        };
         kdeglobals = {
           General = {
             BrowserApplication = "firefox.desktop";

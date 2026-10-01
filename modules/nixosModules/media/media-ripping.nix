@@ -85,6 +85,14 @@
       text = builtins.readFile ./makemkv-update-key.sh;
     };
 
+    # The only check on title -> episode mapping that cannot be fooled by a
+    # disc lying about its own ordering: look at the frames.
+    ripFrames = pkgs.writeShellApplication {
+      name = "rip-frames";
+      runtimeInputs = [cfg.ffmpeg] ++ (with pkgs; [coreutils findutils gawk]);
+      text = builtins.readFile ./rip-frames.sh;
+    };
+
     helpers = [discScan waitForDisc guessTitles pickTitles libraryPath];
 
     cliEnv =
@@ -148,6 +156,14 @@
     workerService = {
       after = ["network.target"];
       unitConfig.RequiresMountsFor = [cfg.libraryRoot cfg.ripDir cfg.transcodeDir];
+      # Editing anything in this module changes these units, and a switch would
+      # then SIGTERM a rip or encode already in flight. The path unit re-fires
+      # on the still-queued job the moment the service dies, so the work
+      # restarts from title 0 and the loop repeats on every rebuild -- three
+      # attempts and ~45 minutes of Blu-ray reads were lost to exactly this.
+      # Nothing is gained by restarting: the next queued job picks up the new
+      # worker anyway.
+      restartIfChanged = false;
       serviceConfig = {
         Type = "oneshot";
         User = cfg.user;
@@ -463,7 +479,7 @@
       ];
 
       environment.systemPackages =
-        [ripMovie ripTv ripTitles makemkvCheck updateKey]
+        [ripMovie ripTv ripTitles ripFrames makemkvCheck updateKey]
         ++ lib.optional cfg.installGui pkgs.makemkv;
 
       systemd.tmpfiles.settings = {
