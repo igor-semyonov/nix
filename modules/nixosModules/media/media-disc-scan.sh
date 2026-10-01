@@ -4,7 +4,12 @@
 # need from a single pass.
 #
 #   LABEL <tab> The Matrix
-#   TITLE <tab> <index> <tab> <seconds> <tab> <h:mm:ss> <tab> <chapters> <tab> <size>
+#   TITLE <tab> <index> <tab> <seconds> <tab> <h:mm:ss> <tab> <chapters> <tab> <size> <tab> <source>
+#
+# <source> is the originating playlist/file (TINFO 16). MakeMKV's title
+# indices are NOT in playlist order -- on one Dollhouse disc it enumerated
+# 00788.mpls before 00787.mpls -- so anything that cares about episode order
+# must sort on this, not on the index.
 
 device=${1:?usage: media-disc-scan DEVICE MIN_LENGTH_SECONDS}
 min_length=${2:?usage: media-disc-scan DEVICE MIN_LENGTH_SECONDS}
@@ -24,6 +29,7 @@ makemkvcon -r --cache=1 --noscan --minlength="$min_length" info "dev:$device" |
       if (code == 8)  chapters[id] = unquote($0)
       if (code == 9)  duration[id] = unquote($0)
       if (code == 10) size[id] = unquote($0)
+      if (code == 16) src[id] = unquote($0)
       seen[id] = 1
       if (id > highest) highest = id
     }
@@ -33,8 +39,8 @@ makemkvcon -r --cache=1 --noscan --minlength="$min_length" info "dev:$device" |
       for (i = 0; i <= highest; i++) {
         if (!(i in seen) || !(i in duration)) continue
         split(duration[i], hms, ":")
-        printf "TITLE\t%d\t%d\t%s\t%s\t%s\n", \
-          i, hms[1] * 3600 + hms[2] * 60 + hms[3], duration[i], chapters[i], size[i]
+        printf "TITLE\t%d\t%d\t%s\t%s\t%s\t%s\n", \
+          i, hms[1] * 3600 + hms[2] * 60 + hms[3], duration[i], chapters[i], size[i], src[i]
       }
     }
   '

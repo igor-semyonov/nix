@@ -389,6 +389,12 @@
             # key rotates, and each MakeMKV build also self-expires after ~60
             # days, which nixpkgs updates are far too slow to outrun.
             makemkvKeyFile = "/var/lib/media-ripping/makemkv.key";
+            # Every rip here is a deliberate rip-tv/rip-movie invocation. Left
+            # on, inserting a disc starts a movie-style rip named from the disc
+            # label, which for a TV disc means one wrong episode filed as a
+            # film -- and the claim that is meant to hold it off cannot be set
+            # in time for a disc already in the drive.
+            autoRip.enable = false;
           };
           virtualisation = {
             enable = true;

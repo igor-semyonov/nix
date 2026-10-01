@@ -45,7 +45,7 @@ tv)
         # n must start as a number: awk subscripts stringify, so an
         # uninitialised n indexes id[""] rather than id[0] and loses a title.
         BEGIN { n = 0 }
-        $1 == "TITLE" { id[n] = $2; secs[n] = $3; sorted[n] = $3; n++ }
+        $1 == "TITLE" { id[n] = $2; secs[n] = $3; src[n] = $7; sorted[n] = $3; n++ }
         END {
             if (n == 0) exit
             for (i = 1; i < n; i++) {
@@ -56,9 +56,19 @@ tv)
             median = (n % 2) ? sorted[int(n / 2)] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2
             low = median * (100 - tol) / 100
             high = median * (100 + tol) / 100
-            out = ""
+            # Episode order follows the source playlist, not the title index
+            # that MakeMKV assigns: it enumerates playlists out of order on
+            # some discs, which silently mis-numbers a whole season.
+            m = 0
             for (i = 0; i < n; i++)
-                if (secs[i] >= low && secs[i] <= high) out = (out == "" ? id[i] : out "," id[i])
+                if (secs[i] >= low && secs[i] <= high) { ks[m] = src[i]; vi[m] = id[i]; m++ }
+            for (a = 1; a < m; a++) {
+                sk = ks[a]; sv = vi[a]; b = a - 1
+                while (b >= 0 && ks[b] > sk) { ks[b+1] = ks[b]; vi[b+1] = vi[b]; b-- }
+                ks[b+1] = sk; vi[b+1] = sv
+            }
+            out = ""
+            for (i = 0; i < m; i++) out = (out == "" ? vi[i] : out "," vi[i])
             print out
         }
     '
