@@ -39,11 +39,14 @@ landed.
 
 **A disc exposes three orderings and they disagree. None is authoritative.**
 
-| ordering                             | what it is                                                | observed                         |
-| ------------------------------------ | --------------------------------------------------------- | -------------------------------- |
-| MakeMKV title index                  | its own numbering, reshuffled by its main-title heuristic | wrong on Dollhouse S1D1          |
-| playlist (`.mpls`, TINFO 16)         | authoring order                                           | right on S1D1, **wrong** on S1D3 |
-| clip (`.m2ts`, TINFO 26 segment map) | physical layout                                           | right on S1D3                    |
+| ordering                             | what it is                                                | S1D1  | S1D3  | S2D1  |
+| ------------------------------------ | --------------------------------------------------------- | ----- | ----- | ----- |
+| MakeMKV title index                  | its own numbering, reshuffled by its main-title heuristic | wrong | right | wrong |
+| playlist (`.mpls`, TINFO 16)         | authoring order                                           | right | wrong | right |
+| clip (`.m2ts`, TINFO 26 segment map) | physical layout                                           | ?     | right | wrong |
+
+Every column has been wrong at least once, all three verified against the
+actual picture.
 
 Dollhouse S1D1: MakeMKV enumerated `00785 00786 00788 00787 00789` as titles
 0–4. Playlist order was correct; the title index silently swapped E03/E04.
@@ -52,12 +55,19 @@ Dollhouse S1D3: playlists `00800 00801 00799 00802` map to clips
 `00390 00391 00392 00393`. Playlist order puts 00799 first, but 00799 is
 _Epitaph One_ — the last episode of the season. Clip order gets it right.
 
-`media-guess-titles` now sorts by **first clip in the segment map**, falling
-back to the playlist name when MakeMKV reports no segment map. `rip-tv` prints
-a loud warning when the two orderings disagree for the selected titles.
+Dollhouse S2D1: playlists `00800 00802 00801 00803 00804` map to clips
+`800 801 802 803 804`, so the two orderings cross on titles 1 and 2. Here
+**playlist order is right and clip order is wrong** — title 1 (playlist 00802)
+is _Belle Chose_, E03, which clip order would have filed as E02.
 
-The warning is the point. Do not trust the default ordering on a disc that
-warns — verify.
+`media-guess-titles` sorts by **playlist**, the community-standard heuristic
+and the best of a bad set, falling back to the first clip in the segment map
+when a title has no playlist. `rip-tv` prints a loud warning when the two
+orderings disagree for the selected titles.
+
+The warning is the point, not the default. On a disc that warns, rip with
+`--no-encode`, run `rip-frames`, and confirm against the picture before
+encoding anything. Two seasons have been mis-numbered by trusting an ordering.
 
 ### Verifying: `rip-frames`
 
@@ -98,6 +108,34 @@ guessing.
 Disc 3 also carries the unaired pilot _Echo_ (45:47, playlist 00802). It is a
 different version of the first episode, not a duplicate; file it as
 `Season 00`/`S00E01` so Jellyfin treats it as a special.
+
+## Encoding: what the presets actually buy
+
+Measured 2026-10-01 on Dollhouse S02E01, a 43:37 1080p Blu-ray remux, CRF 22,
+production settings, VMAF scored against the source at `--subsample 5`:
+
+| preset | total GiB  | video GiB | video kbps | VMAF   | encode |
+| ------ | ---------- | --------- | ---------- | ------ | ------ |
+| 2      | 2.3040     | 0.639     | 2096       | 96.590 | 36.0 m |
+| **3**  | **2.2642** | **0.599** | **1965**   | 96.269 | 20.4 m |
+| 4      | 2.2818     | 0.616     | 2023       | 96.235 | 9.6 m  |
+| 5      | 2.2992     | 0.634     | 2080       | 96.245 | 7.4 m  |
+
+Three things worth keeping:
+
+**Quality is not the variable.** The whole spread is 0.36 VMAF, far below
+anything a viewer can see. Choosing a preset is choosing size and time.
+
+**Preset 2 is strictly dominated** — the largest video _and_ the slowest, for
++0.32 VMAF. Size is not monotonic in preset; do not assume slower is smaller.
+
+**Audio is 74% of the file.** 1.67 GiB of the 2.26 GiB is three audio tracks
+(two DTS plus an AC3). The entire preset 3 → 5 video difference is 35 MiB,
+while dropping the redundant DTS core would save on the order of a gigabyte.
+`encode.audio = "opus"` with `opusBitrate` is the lever that actually moves
+file size; preset choice is noise next to it.
+
+Preset 3 is the module default and the measured optimum for size.
 
 ## Pitfalls
 

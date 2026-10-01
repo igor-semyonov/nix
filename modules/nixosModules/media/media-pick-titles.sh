@@ -170,11 +170,11 @@ render_table() {
                     (seg[i] != "" ? seg[i] : "-"), note
             }
 
-            # The selection order below is derived from clip order. Playlist
+            # The selection order below is derived from playlist order. Clip
             # order usually agrees; where it does not, one of them mis-numbers
             # the season and the disc alone cannot say which -- Dollhouse S1D1
-            # needed playlist order, S1D3 needed clip order. Surface it here,
-            # while reordering still costs nothing.
+            # and S2D1 needed playlist order, S1D3 needed clip order. Surface
+            # it here, while reordering still costs nothing.
             m = 0
             for (i = 0; i < n; i++) if (id[i] in chosen) { bs[m] = i; bp[m] = i; m++ }
             for (a = 1; a < m; a++) {
@@ -194,10 +194,11 @@ render_table() {
             }
             if (m > 1 && byseg != bysrc) {
                 printf "\n  !! clip order and playlist order disagree for the selected titles:\n"
+                printf "       by playlist: %s   <- pre-selected\n", bysrc
                 printf "       by clip:     %s\n", byseg
-                printf "       by playlist: %s\n", bysrc
-                printf "     Confirm against the episodes themselves before encoding\n"
-                printf "     (rip-frames, after the rip) -- guessing has been wrong before.\n"
+                printf "     Neither ordering is reliable; each has mis-numbered a disc.\n"
+                printf "     Rip with --no-encode, run rip-frames, and confirm against the\n"
+                printf "     picture before encoding.\n"
             }
         }
     ' <<<"$scan"

@@ -45,11 +45,19 @@ tv)
         # n must start as a number: awk subscripts stringify, so an
         # uninitialised n indexes id[""] rather than id[0] and loses a title.
         BEGIN { n = 0 }
-        # Sort key: first .m2ts clip the playlist draws from, i.e. physical
-        # order on the disc. Falls back to the playlist name when MakeMKV
-        # reports no segment map (DVDs, and titles taken from a bare stream).
+        # Sort key: the source playlist. This is the community-standard
+        # heuristic and the best of a bad set -- across the discs checked
+        # against the actual picture it was right on Dollhouse S1D1 and S2D1
+        # and wrong on S1D3, where clip order was right instead. Clip order in
+        # turn was wrong on S2D1, so neither wins; see the disagreement
+        # warning in rip-tv, which is the part that actually prevents a
+        # mis-numbered season.
+        #
+        # Falls back to the first .m2ts clip when there is no playlist, which
+        # is the case for titles taken from a bare stream.
         function orderkey(segments, source,    parts) {
-            if (segments == "") return source
+            if (source != "") return source
+            if (segments == "") return ""
             split(segments, parts, ",")
             return sprintf("%09d", parts[1] + 0)
         }
