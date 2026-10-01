@@ -418,6 +418,12 @@
             subtitles = {
               languages = ["en" "ko" "ru"];
               credentialsFile = config.sops.templates."opensubtitles.env".path;
+              # Blu-rays ship English as embedded PGS, which subliminal counts
+              # as covered and skips. PGS is a bitmap: not searchable or
+              # restylable, and clients that cannot render it force a burn-in
+              # transcode. gestdown and tvsubtitles carry English anonymously,
+              # so this costs nothing against the OpenSubtitles quota.
+              forceEmbedded = true;
             };
           };
           virtualisation = {

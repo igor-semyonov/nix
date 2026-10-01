@@ -154,6 +154,7 @@
           # Only used as a has-anything-been-configured flag; the fetcher
           # carries its own baked copy of the full subtitle settings.
           MEDIA_SUBTITLE_LANGUAGES = lib.concatStringsSep " " cfg.subtitles.languages;
+          MEDIA_DROP_DTS_CORE = lib.boolToString cfg.encode.dropDtsCore;
           MEDIA_PRESET = toString cfg.encode.preset;
           MEDIA_CRF = toString cfg.encode.crf;
           MEDIA_PIX_FMT = cfg.encode.pixelFormat;
@@ -453,6 +454,21 @@
           type = lib.types.bool;
           default = false;
           description = "Keep the lossless MakeMKV rip after a successful encode.";
+        };
+
+        dropDtsCore = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = ''
+            Drop the standalone DTS core track MakeMKV emits alongside a
+            DTS-HD MA track of the same language. The core is a bit-exact
+            subset of the MA track, so this is lossless: a decoder that cannot
+            handle DTS-HD MA decodes the core out of the MA track and gets
+            identical audio. Measured at ~0.46 GiB per episode on a Blu-ray
+            remux -- an order of magnitude more than any SVT-AV1 preset
+            choice moves. Only a plain-`DTS` track shadowed by a `DTS-HD *`
+            track in the same language is removed.
+          '';
         };
       };
 

@@ -41,10 +41,38 @@ hdr_params() {
 
 # Called from an `if`, which disables errexit for the whole body, so each
 # fallible step checks its own status.
+# MakeMKV splits a DTS-HD MA stream into two Matroska tracks: the lossless
+# track and the backward-compatible DTS core it already contains. The core is a
+# bit-exact subset -- decoding the MA track with the decoder's core_only option
+# produces PCM identical to decoding the standalone core track -- so a player
+# that cannot handle MA still gets the same audio from the MA track alone.
+# Carrying it separately costs ~0.46 GiB per episode and gains nothing.
+#
+# Only a plain-"DTS" track shadowed by a "DTS-HD *" track in the *same
+# language* is dropped, so a genuine second language or a lone DTS track is
+# never touched.
+redundant_dts_cores() {
+    ffprobe -v error -print_format json -select_streams a \
+        -show_entries stream=index,profile:stream_tags=language "$1" |
+        jq -r '
+      [.streams[]] as $a
+      | $a[]
+      | select((.profile // "") == "DTS")
+      | . as $core
+      | select(any($a[];
+          (.profile // "") | startswith("DTS-HD")
+        ) and any($a[];
+          ((.profile // "") | startswith("DTS-HD"))
+          and ((.tags.language // "") == ($core.tags.language // ""))
+        ))
+      | .index
+    '
+}
+
 encode() {
     local src=$1 dest=$2 preset=${3:-$MEDIA_PRESET}
     local probe primaries transfer matrix range svt_params tmp label title pix_fmt src_pix
-    local -a color_args=() audio_args=()
+    local -a color_args=() audio_args=() map_args=()
 
     probe=$(ffprobe -v error -print_format json -select_streams v:0 \
         -show_streams -show_frames -read_intervals '%+#1' "$src") || return 1
@@ -88,6 +116,28 @@ encode() {
         audio_args=(-c:a copy)
     fi
 
+    # Default to every audio track; narrow it only if a redundant core is
+    # actually found, so a probe failure or an unexpected layout keeps the
+    # previous behaviour rather than silently dropping audio.
+    map_args=(-map '0:a?')
+    if [[ $MEDIA_DROP_DTS_CORE == true ]]; then
+        local -a drop=()
+        mapfile -t drop < <(redundant_dts_cores "$src")
+        if ((${#drop[@]} > 0)); then
+            local -a keep=()
+            local idx
+            while read -r idx; do
+                [[ -n $idx ]] || continue
+                printf '%s\n' "${drop[@]}" | grep -qxF "$idx" || keep+=(-map "0:$idx")
+            done < <(ffprobe -v error -select_streams a \
+                -show_entries stream=index -of csv=p=0 "$src")
+            if ((${#keep[@]} > 0)); then
+                map_args=("${keep[@]}")
+                echo "media-encode: dropping redundant DTS core track(s): ${drop[*]}"
+            fi
+        fi
+    fi
+
     label=$(basename "$dest")
     tmp=$MEDIA_TRANSCODE_DIR/$$.$label
     # MakeMKV stamps the container title with the disc label, and -c copy
@@ -100,7 +150,7 @@ encode() {
     # other data streams that Matroska cannot remux. `t` keeps cover attachments.
     ffmpeg -nostdin -hide_banner -y -nostats -loglevel warning \
         -i "$src" \
-        -map 0:v -map '0:a?' -map '0:s?' -map '0:t?' \
+        -map 0:v "${map_args[@]}" -map '0:s?' -map '0:t?' \
         -c:s copy \
         -c:v libsvtav1 \
         -preset "$preset" \
