@@ -85,6 +85,26 @@
       text = builtins.readFile ./makemkv-update-key.sh;
     };
 
+    # Bazarr cannot be used for this: it has no library scanner and takes its
+    # media list from the Sonarr/Radarr APIs, so it cannot be pointed at a
+    # directory. subliminal works on paths, which is what the encode worker
+    # already has in hand.
+    fetchSubtitles = pkgs.writeShellApplication {
+      name = "media-fetch-subtitles";
+      runtimeInputs = [pkgs.python3Packages.subliminal pkgs.coreutils];
+      runtimeEnv = {
+        MEDIA_SUBTITLE_LANGUAGES = lib.concatStringsSep " " cfg.subtitles.languages;
+        MEDIA_SUBTITLE_PROVIDERS = lib.concatStringsSep " " cfg.subtitles.providers;
+        MEDIA_SUBTITLE_MIN_SCORE = toString cfg.subtitles.minScore;
+        MEDIA_SUBTITLE_CREDENTIALS_FILE = orEmpty cfg.subtitles.credentialsFile;
+        MEDIA_SUBTITLE_FORCE_EMBEDDED =
+          if cfg.subtitles.forceEmbedded
+          then "1"
+          else "";
+      };
+      text = builtins.readFile ./media-fetch-subtitles.sh;
+    };
+
     # The only check on title -> episode mapping that cannot be fooled by a
     # disc lying about its own ordering: look at the frames.
     ripFrames = pkgs.writeShellApplication {
@@ -127,10 +147,13 @@
 
     encodeWorker = pkgs.writeShellApplication {
       name = "media-encode-worker";
-      runtimeInputs = [cfg.ffmpeg] ++ (with pkgs; [coreutils curl gawk jq]);
+      runtimeInputs = [cfg.ffmpeg fetchSubtitles] ++ (with pkgs; [coreutils curl gawk jq]);
       runtimeEnv =
         pathEnv
         // {
+          # Only used as a has-anything-been-configured flag; the fetcher
+          # carries its own baked copy of the full subtitle settings.
+          MEDIA_SUBTITLE_LANGUAGES = lib.concatStringsSep " " cfg.subtitles.languages;
           MEDIA_PRESET = toString cfg.encode.preset;
           MEDIA_CRF = toString cfg.encode.crf;
           MEDIA_PIX_FMT = cfg.encode.pixelFormat;
@@ -433,6 +456,67 @@
         };
       };
 
+      subtitles = {
+        languages = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [];
+          example = ["en" "ko" "ru"];
+          description = ''
+            IETF language codes to fetch subtitle sidecars for after each
+            encode, using subliminal. Empty disables subtitle fetching
+            entirely. Each language is a separate download, so it counts
+            separately against a provider's daily quota.
+          '';
+        };
+
+        providers = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = ["opensubtitlescom" "podnapisi" "tvsubtitles" "gestdown"];
+          description = ''
+            subliminal providers to query, in preference order. Everything
+            except the `opensubtitles*` family and `addic7ed` works
+            anonymously, so keeping a few credential-free providers in the
+            list gives a fallback once the OpenSubtitles quota is spent.
+          '';
+        };
+
+        credentialsFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "/var/lib/media-ripping/opensubtitles.env";
+          description = ''
+            File of `KEY=VALUE` lines holding subliminal provider
+            credentials, e.g. `SUBLIMINAL_PROVIDER_OPENSUBTITLESCOM_USERNAME`
+            and `..._PASSWORD`. Must be readable by
+            {option}`igix.media-ripping.user` and should be mode 0400; it is
+            parsed rather than sourced, and the values reach subliminal
+            through the environment so they never appear in a command line or
+            in {command}`ps`.
+          '';
+        };
+
+        minScore = lib.mkOption {
+          type = lib.types.ints.between 0 100;
+          default = 0;
+          description = ''
+            Minimum subliminal match score, as a percentage. 0 accepts
+            subliminal's own default thresholds.
+          '';
+        };
+
+        forceEmbedded = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = ''
+            Fetch a sidecar even when the file already carries an embedded
+            subtitle track in that language. Blu-ray rips embed PGS, which is
+            a bitmap format and so cannot be searched, restyled or scaled --
+            but turning this on multiplies quota use for languages the disc
+            already ships.
+          '';
+        };
+      };
+
       jellyfin = {
         url = lib.mkOption {
           type = lib.types.str;
@@ -479,7 +563,7 @@
       ];
 
       environment.systemPackages =
-        [ripMovie ripTv ripTitles ripFrames makemkvCheck updateKey]
+        [ripMovie ripTv ripTitles ripFrames fetchSubtitles makemkvCheck updateKey]
         ++ lib.optional cfg.installGui pkgs.makemkv;
 
       systemd.tmpfiles.settings = {

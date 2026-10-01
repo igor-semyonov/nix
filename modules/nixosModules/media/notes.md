@@ -1,6 +1,6 @@
 # Media pipeline notes
 
-Operational knowledge for `media-ripping.nix`, `jellyfin.nix` and `bazarr.nix`
+Operational knowledge for `media-ripping.nix` and `jellyfin.nix`
 that is not obvious from the code. Mostly things that went wrong once.
 
 ## Shape of the pipeline
@@ -25,8 +25,15 @@ media-encode.path -> media-encode.service  (media-encode-worker: SVT-AV1)
 retrigger while its service is running, which is what keeps rips (contending
 for the one drive) and encodes (for the CPU) strictly serial.
 
-Encode jobs are queued only after _every_ title in a rip job has been ripped,
-so nothing reaches the library until the whole disc is done.
+The two services are independent, so they **pipeline**: each title is queued
+for encoding as soon as it is ripped, and the encoder (CPU-bound) runs
+alongside the ripper (bound by the drive at ~8.5 MiB/s). On a five-episode
+disc that saves roughly a whole rip-pass.
+
+The consequence is that a disc failing on a later title leaves the earlier
+episodes already in the library — correctly numbered, just incomplete. Check
+`rip-queue/failed/` when a disc comes up short rather than assuming nothing
+landed.
 
 ## Episode ordering: the thing that keeps biting
 
@@ -193,14 +200,71 @@ and belong in _folder_ names only: `Dollhouse (2009) [tmdbid-14956]`, with
 files named `Dollhouse (2009) - S01E11.mkv`. Season 00 is Specials. Multi-part
 movies use `-part1`/`-part2`.
 
+## Subtitles
+
+**Bazarr was tried and removed.** It has no library scanner of its own — it is
+a companion to Sonarr/Radarr and takes its media list from their APIs, so
+there is no way to point it at `/mnt/8tb/@media`. It installs and runs
+perfectly well on port 6767 and does precisely nothing. Using it would have
+meant deploying Sonarr and Radarr purely as a library index.
+
+`subliminal` replaced it, called per-file by the encode worker right after a
+successful encode and before Jellyfin is told to rescan, so episodes are
+indexed with their sidecars on the first pass. A provider failing never fails
+an encode that already succeeded.
+
+```sh
+media-fetch-subtitles "/mnt/8tb/@media/tv/Some Show"   # backfill a directory
+media-fetch-subtitles --age 7d /mnt/8tb/@media/tv      # only recent files
+media-fetch-subtitles -f -v some.mkv                   # re-download, verbose
+```
+
+Configured by `igix.media-ripping.subtitles.*`: `languages` (empty disables
+the whole thing), `providers`, `credentialsFile`, `minScore`, `forceEmbedded`.
+
+**Credentials** are a `KEY=VALUE` file, mode 0400, owned by the rip user:
+
+```
+SUBLIMINAL_PROVIDER_OPENSUBTITLESCOM_USERNAME=...
+SUBLIMINAL_PROVIDER_OPENSUBTITLESCOM_PASSWORD=...
+```
+
+On boxy that file is not written by hand: `opensubtitles_com_username` and
+`opensubtitles_com_pw` live in the sops `default.yaml`, and a
+`sops.templates."opensubtitles.env"` block in the host file renders them into
+`/run/secrets/rendered/opensubtitles.env` at activation. Only
+`<SOPS:...:PLACEHOLDER>` tokens reach the store — interpolating the secrets
+into the content directly would publish them in a world-readable derivation.
+Adding a provider login means adding a key to the sops file and a line to that
+template, never a literal in the repo.
+
+`..._APIKEY` is optional — subliminal ships its own consumer key. The file is
+parsed, not sourced, and only `SUBLIMINAL_*` lines are honoured, because this
+runs as the service account. Values reach subliminal through the environment,
+never argv, so they stay out of {command}`ps`.
+
+Only the `opensubtitles*` family and `addic7ed` need logins. `podnapisi`,
+`tvsubtitles`, `gestdown`, `bsplayer`, `napiprojekt`, `subtitulamos` and
+`subtis` are anonymous, which is why a few of them stay in the default
+provider list as a fallback once quota runs out.
+
+**Quota.** OpenSubtitles free allows 20 downloads/day and _each language
+counts separately_ — three languages means roughly six episodes a day before
+it dries up. The anonymous providers do not count against it.
+
+**Embedded PGS.** Blu-ray rips ship embedded English subtitles, so subliminal
+skips English by default, treating the embedded track as sufficient. PGS is a
+bitmap: not searchable, restylable or scalable. `forceEmbedded = true`
+overrides that, at the cost of spending quota on a language the disc already
+carries.
+
 ## Services and ports
 
-| service  | port | notes                                    |
-| -------- | ---- | ---------------------------------------- |
-| Jellyfin | 8096 | NVENC via `igix.jellyfin.nvenc.enable`   |
-| Bazarr   | 6767 | writes `.srt` sidecars next to the media |
+| service  | port | notes                                  |
+| -------- | ---- | -------------------------------------- |
+| Jellyfin | 8096 | NVENC via `igix.jellyfin.nvenc.enable` |
 
-Both run with `UMask = 0002` in group `media` so everything they write stays
-group-readable. Jellyfin upstream hardcodes `0077`, which makes NFO sidecars
-and artwork unreadable to everyone else; `jellyfin.nix` overrides it with
+Jellyfin runs with `UMask = 0002` in group `media` so everything it writes
+stays group-readable. Upstream hardcodes `0077`, which makes NFO sidecars and
+artwork unreadable to everyone else; `jellyfin.nix` overrides it with
 `lib.mkForce`.

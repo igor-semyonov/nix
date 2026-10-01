@@ -173,6 +173,13 @@ for job in "${queue[@]}"; do
     if encode "$src" "$dest" "${jobpreset:-$MEDIA_PRESET}"; then
         rm -f "$job"
         encoded=$((encoded + 1))
+        # Before Jellyfin is told to rescan, so the episode is indexed with its
+        # sidecars instead of needing a second pass. A provider being down or
+        # out of quota must not fail an encode that already succeeded.
+        if [[ -n ${MEDIA_SUBTITLE_LANGUAGES:-} ]]; then
+            media-fetch-subtitles "$dest" ||
+                echo "media-encode: subtitle fetch failed for $dest, continuing" >&2
+        fi
     else
         echo "media-encode: job failed, moved to $failed_dir" >&2
         mv "$job" "$failed_dir/"

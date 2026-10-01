@@ -75,7 +75,7 @@ enqueue_encode() {
 process() {
     local request=$1
     local device kind name season first_episode titles part preset min_length wait eject encode
-    local scan stage stamp dest index i target scratch
+    local scan stage stamp dest index position target scratch
     local -a selected produced fresh
 
     # shellcheck disable=SC2046 # @sh output is deliberately split into assignments
@@ -122,6 +122,7 @@ process() {
     mkdir -p "$stage" || return 1
 
     produced=()
+    position=0
     for index in "${selected[@]}"; do
         echo "media-rip: ripping title $index to $stage"
 
@@ -132,9 +133,15 @@ process() {
         rm -rf "$scratch"
         mkdir -p "$scratch" || return 1
 
+        # A title that never completes would otherwise leave its scratch
+        # directory, and an empty staging directory, behind for good. rmdir
+        # refuses a non-empty $stage, which is exactly right once pipelining
+        # means earlier titles may already be queued for encoding.
         makemkvcon --noscan --progress=-same --minlength="$min_length" \
             mkv "dev:$device" "$index" "$scratch" || {
             echo "media-rip: makemkvcon failed on title $index" >&2
+            rm -rf "$scratch"
+            rmdir "$stage" 2>/dev/null || true
             return 1
         }
 
@@ -143,6 +150,8 @@ process() {
         shopt -u nullglob
         if ((${#fresh[@]} == 0)); then
             echo "media-rip: makemkvcon produced nothing for title $index" >&2
+            rm -rf "$scratch"
+            rmdir "$stage" 2>/dev/null || true
             return 1
         fi
 
@@ -150,6 +159,31 @@ process() {
         mv "${fresh[0]}" "$target" || return 1
         rmdir "$scratch" 2>/dev/null || true
         produced+=("$target")
+
+        # Queue each encode as soon as its title exists rather than batching
+        # them at the end of the disc. The two workers are separate units with
+        # separate path units, so the encoder (CPU-bound) runs alongside the
+        # ripper (bound by the drive at ~8.5 MiB/s) and a multi-episode disc
+        # finishes roughly a whole rip-pass sooner.
+        #
+        # Position within `selected` -- not the MakeMKV title index -- is what
+        # maps onto episode numbers, and it is settled the moment a title is
+        # ripped, so queueing early cannot renumber anything. The cost is that
+        # a disc failing on a later title leaves the earlier episodes already
+        # in the library instead of nothing at all; they are correctly
+        # numbered, just incomplete.
+        if [[ $encode == true ]]; then
+            if [[ $kind == tv ]]; then
+                dest=$(media-library-path --kind tv --library "$MEDIA_LIBRARY_ROOT" \
+                    --name "$name" --season "$season" \
+                    --episode "$((first_episode + position))")
+            else
+                dest=$(media-library-path --kind movie --library "$MEDIA_LIBRARY_ROOT" \
+                    --name "$name" --position "$position" --part "$part")
+            fi
+            enqueue_encode "$target" "$dest" "$preset" || return 1
+        fi
+        position=$((position + 1))
     done
 
     if [[ $eject == true ]]; then
@@ -158,19 +192,7 @@ process() {
 
     if [[ $encode != true ]]; then
         echo "media-rip: encoding skipped, ${#produced[@]} title(s) left in $stage"
-        return 0
     fi
-
-    for i in "${!produced[@]}"; do
-        if [[ $kind == tv ]]; then
-            dest=$(media-library-path --kind tv --library "$MEDIA_LIBRARY_ROOT" \
-                --name "$name" --season "$season" --episode "$((first_episode + i))")
-        else
-            dest=$(media-library-path --kind movie --library "$MEDIA_LIBRARY_ROOT" \
-                --name "$name" --position "$i" --part "$part")
-        fi
-        enqueue_encode "${produced[$i]}" "$dest" "$preset" || return 1
-    done
 }
 
 install_key

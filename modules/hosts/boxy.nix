@@ -78,7 +78,6 @@
 
     media-jellyfin
     media-ripping
-    media-bazarr
 
     uxplay
     u2f
@@ -357,6 +356,26 @@
           mode = "0400";
         };
 
+        sops.secrets = {
+          opensubtitles_com_username = {};
+          opensubtitles_com_pw = {};
+        };
+
+        # subliminal takes provider credentials from the environment, so the
+        # two secrets have to arrive as one KEY=VALUE file. A template renders
+        # it at activation from the decrypted values, which keeps both out of
+        # the store -- interpolating the secrets directly would put them in a
+        # world-readable derivation.
+        sops.templates."opensubtitles.env" = {
+          owner = "media-rip";
+          group = "media";
+          mode = "0400";
+          content = ''
+            SUBLIMINAL_PROVIDER_OPENSUBTITLESCOM_USERNAME=${config.sops.placeholder.opensubtitles_com_username}
+            SUBLIMINAL_PROVIDER_OPENSUBTITLESCOM_PASSWORD=${config.sops.placeholder.opensubtitles_com_pw}
+          '';
+        };
+
         igix = {
           btrbk = {
             enable = true;
@@ -379,7 +398,6 @@
             enable = false;
           };
           jellyfin.enable = true;
-          bazarr.enable = true;
           media-ripping = {
             enable = true;
             allowedUsers = ["igor"];
@@ -397,6 +415,10 @@
             # film -- and the claim that is meant to hold it off cannot be set
             # in time for a disc already in the drive.
             autoRip.enable = false;
+            subtitles = {
+              languages = ["en" "ko" "ru"];
+              credentialsFile = config.sops.templates."opensubtitles.env".path;
+            };
           };
           virtualisation = {
             enable = true;
