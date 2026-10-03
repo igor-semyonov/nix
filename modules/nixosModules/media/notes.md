@@ -39,14 +39,16 @@ landed.
 
 **A disc exposes three orderings and they disagree. None is authoritative.**
 
-| ordering                             | what it is                                                | S1D1  | S1D3  | S2D1  |
-| ------------------------------------ | --------------------------------------------------------- | ----- | ----- | ----- |
-| MakeMKV title index                  | its own numbering, reshuffled by its main-title heuristic | wrong | right | wrong |
-| playlist (`.mpls`, TINFO 16)         | authoring order                                           | right | wrong | right |
-| clip (`.m2ts`, TINFO 26 segment map) | physical layout                                           | ?     | right | wrong |
+| ordering                             | what it is                                                | S1D1  | S1D3  | S2D1  | S2D2  |
+| ------------------------------------ | --------------------------------------------------------- | ----- | ----- | ----- | ----- |
+| MakeMKV title index                  | its own numbering, reshuffled by its main-title heuristic | wrong | right | wrong | right |
+| playlist (`.mpls`, TINFO 16)         | authoring order                                           | right | wrong | right | right |
+| clip (`.m2ts`, TINFO 26 segment map) | physical layout                                           | ?     | right | wrong | right |
 
-Every column has been wrong at least once, all three verified against the
-actual picture.
+Every column has been wrong at least once, all verified against the actual
+picture. S2D2 is the easy case where all three agree — but four of its five
+titles share an identical 44:01 runtime, so duration corroborates nothing and
+the frames are still the only check.
 
 Dollhouse S1D1: MakeMKV enumerated `00785 00786 00788 00787 00789` as titles
 0–4. Playlist order was correct; the title index silently swapped E03/E04.
@@ -129,13 +131,55 @@ anything a viewer can see. Choosing a preset is choosing size and time.
 **Preset 2 is strictly dominated** — the largest video _and_ the slowest, for
 +0.32 VMAF. Size is not monotonic in preset; do not assume slower is smaller.
 
-**Audio is 74% of the file.** 1.67 GiB of the 2.26 GiB is three audio tracks
-(two DTS plus an AC3). The entire preset 3 → 5 video difference is 35 MiB,
-while dropping the redundant DTS core would save on the order of a gigabyte.
-`encode.audio = "opus"` with `opusBitrate` is the lever that actually moves
-file size; preset choice is noise next to it.
+**Audio is 74% of the file.** 1.67 GiB of the 2.26 GiB is three audio tracks.
+The entire preset 3 → 5 video difference is 35 MiB. Preset choice is noise
+next to the audio; see below.
 
 Preset 3 is the module default and the measured optimum for size.
+
+## The redundant DTS core
+
+MakeMKV emits a Blu-ray's DTS-HD MA stream as **two** Matroska tracks:
+
+```
+stream 1  DTS-HD MA  5.1  24-bit   1.102 GiB   lossless
+stream 2  DTS        5.1           0.464 GiB   the core, lossy
+stream 3  AC3        stereo        0.069 GiB   downmix
+```
+
+DTS-HD MA is structurally a lossy DTS core plus a lossless extension. Stream 2
+is that core on its own — and it is **bit-exact redundant**, which is checkable
+rather than a matter of belief:
+
+```sh
+ffmpeg -core_only 1 -ss 600 -t 60 -i f.mkv -map 0:1 -f s24le -c:a pcm_s24le - | sha256sum
+ffmpeg             -ss 600 -t 60 -i f.mkv -map 0:2 -f s24le -c:a pcm_s24le - | sha256sum
+# identical; decoding the MA track in full gives a different (lossless) hash
+```
+
+So a decoder that cannot handle DTS-HD MA extracts the same audio from the MA
+track anyway. `encode.dropDtsCore` (default true) removes it, saving ~0.46 GiB
+per episode — roughly 13× the entire preset 2→5 range. Only a plain-`DTS`
+track shadowed by a `DTS-HD *` track **of the same language** is dropped, so a
+real second language or a lone DTS track survives.
+
+Stripping it from already-encoded files is a stream copy, so it costs nothing
+in quality:
+
+```sh
+ffmpeg -i in.mkv -map 0 -map -0:2 -c copy -map_metadata 0 -map_chapters 0 out.mkv
+```
+
+Verify before replacing: duration unchanged, audio count down by exactly one,
+subtitle count unchanged, a `DTS-HD` track still present, result smaller. Run
+over the library on 2026-10-01 this reclaimed **9.12 GiB across 18 files**.
+
+**A remux changes timestamp origin.** Hashing a decoded window after the
+remux will _not_ match the same `-ss` window before it, because the container
+rewrite shifts where that timestamp lands. This looks alarming and is not data
+loss. To check the payload itself, compare the raw compressed stream
+(`-map 0:1 -c copy -f dts - | sha256sum`) before and after — that is
+byte-identical.
 
 ## Pitfalls
 
