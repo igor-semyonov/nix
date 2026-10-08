@@ -161,24 +161,11 @@
           };
           nvidia-container-toolkit.enable = true;
 
-          printers = {
-            ensureDefaultPrinter = "Canon_LBP622C";
-            ensurePrinters = [
-              {
-                name = "Canon_LBP622C";
-                description = "Canon LBP622C/623C";
-                # ipp-usb re-exports the USB printer as driverless IPP on :60000
-                deviceUri = "ipp://localhost:60000/ipp/print";
-                model = "everywhere";
-                # everywhere-derived defaults are Gray and single-sided
-                ppdOptions = {
-                  printer-is-shared = "true";
-                  ColorModel = "RGB";
-                  Duplex = "DuplexNoTumble";
-                };
-              }
-            ];
-          };
+          # hardware.printers is deliberately unused: it provisions the queue from
+          # cups.service's own ExecStartPost under `set -e`, but `-m everywhere`
+          # needs a live IPP query and ipp-usb is ordered After=cups.service, so
+          # the query loses the race and a failed lpadmin takes the scheduler down
+          # for good via the restart limit. See systemd.services.ensure-printer.
         };
 
         services = {
@@ -330,6 +317,68 @@
               done
             '';
           # audiobookshelf.preStart = "until ip a s dev fidler; do sleep 1; done; sleep 3";
+
+          # Provisions the queue out-of-band instead of from cups.service, so a
+          # printer that is absent or still enumerating can never fail cupsd.
+          # Re-run by udev on every USB add, i.e. on boot and on power-cycle.
+          ensure-printer = {
+            description = "Provision the Canon LBP622C CUPS queue";
+            after = ["cups.service" "ipp-usb.service"];
+            wants = ["cups.service" "ipp-usb.service"];
+            # Catches a fast crash-loop without ever wedging for long: a real
+            # attempt takes up to 135s, so it outlives the window and stays
+            # retryable. Recovery does not depend on this anyway — udev re-runs
+            # the unit when the device reappears.
+            startLimitIntervalSec = 300;
+            startLimitBurst = 3;
+            serviceConfig = {
+              Type = "oneshot";
+              Restart = "on-failure";
+              RestartSec = 15;
+              ExecStart = let
+                queue = "Canon_LBP622C";
+                uri = "ipp://localhost:60000/ipp/print";
+              in
+                pkgs.writeShellScript "ensure-printer" ''
+                  set -eu
+
+                  # ipp-usb binds :60000 before it has enumerated the device, so a
+                  # listening socket is not readiness; poll for real attributes.
+                  ready=
+                  for _ in $(seq 60); do
+                    if "${pkgs.cups}/bin/ipptool" -q "${uri}" \
+                      "${pkgs.cups}/share/cups/ipptool/get-printer-attributes.test"; then
+                      ready=1
+                      break
+                    fi
+                    sleep 2
+                  done
+                  if [ -z "$ready" ]; then
+                    echo "ipp-usb did not serve printer attributes at ${uri}" >&2
+                    exit 1
+                  fi
+
+                  # everywhere-derived defaults are Gray and single-sided.
+                  # retry-job overrides CUPS' stop-printer default, which otherwise
+                  # leaves the queue disabled for good once a job meets a printer
+                  # that is switched off.
+                  "${pkgs.cups}/bin/lpadmin" -p "${queue}" -E \
+                    -D 'Canon LBP622C/623C' \
+                    -v "${uri}" \
+                    -m everywhere \
+                    -o printer-is-shared=true \
+                    -o ColorModel=RGB \
+                    -o Duplex=DuplexNoTumble \
+                    -o printer-error-policy=retry-job
+                  "${pkgs.cups}/bin/lpadmin" -d "${queue}"
+
+                  # Clear any stopped/rejecting state left by jobs that ran while
+                  # the printer was unreachable.
+                  "${pkgs.cups}/bin/cupsenable" --release "${queue}"
+                  "${pkgs.cups}/bin/cupsaccept" "${queue}"
+                '';
+            };
+          };
         };
 
         networking = {
@@ -442,6 +491,11 @@
         services.udev.extraRules = ''
           # don't automount my bios save drive
           SUBSYSTEM=="block", ENV{ID_SERIAL_SHORT}=="4C531001460105106550", ENV{UDISKS_IGNORE}="1"
+
+          # Same IPP-over-USB interface match as ipp-usb's own rule (07/01/04).
+          # ipp-usb stays running across a printer power-cycle, so its startup is
+          # not a usable trigger; bind provisioning to the device instead.
+          ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ENV{ID_USB_INTERFACES}=="*:070104:*", TAG+="systemd", ENV{SYSTEMD_WANTS}+="ensure-printer.service"
         '';
 
         system.stateVersion = "25.05";
