@@ -358,7 +358,6 @@
                     exit 1
                   fi
 
-                  # everywhere-derived defaults are Gray and single-sided.
                   # retry-job overrides CUPS' stop-printer default, which otherwise
                   # leaves the queue disabled for good once a job meets a printer
                   # that is switched off.
@@ -367,10 +366,24 @@
                     -v "${uri}" \
                     -m everywhere \
                     -o printer-is-shared=true \
-                    -o ColorModel=RGB \
-                    -o Duplex=DuplexNoTumble \
                     -o printer-error-policy=retry-job
                   "${pkgs.cups}/bin/lpadmin" -d "${queue}"
+
+                  # Separate call: PPD options are applied by rewriting *Default
+                  # lines in the queue's current PPD, so the PPD that -m everywhere
+                  # regenerates above would discard them.
+                  #
+                  # The IPP -default attributes are the ones that matter. Building an
+                  # everywhere queue copies the device's own job defaults onto it,
+                  # and the Canon reports monochrome/one-sided; those stored defaults
+                  # outrank the PPD both for AirPrint clients, which read
+                  # print-color-mode-default straight off the shared queue, and for
+                  # local ones, where print-color-mode maps back onto ColorModel.
+                  "${pkgs.cups}/bin/lpadmin" -p "${queue}" \
+                    -o print-color-mode-default=color \
+                    -o sides-default=two-sided-long-edge \
+                    -o ColorModel=RGB \
+                    -o Duplex=DuplexNoTumble
 
                   # Clear any stopped/rejecting state left by jobs that ran while
                   # the printer was unreachable.
