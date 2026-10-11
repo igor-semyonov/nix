@@ -14,6 +14,10 @@ guess is reliable, so it is taken without prompting unless you ask.
   -d, --device DEV        optical device (default: $MEDIA_DEFAULT_DEVICE)
   -t, --titles LIST       rip exactly these title indices, e.g. 0,4. The first
                           is the feature, the rest become extras.
+  -c, --crop W:H:X:Y      crop the feature to this region, dropping letterbox
+                          bars an early DVD baked into a 4:3 frame. Applies to
+                          the feature only -- extras are often natively 4:3.
+                          Measure it first: ffmpeg -i RIP -vf cropdetect -f null -
   -p, --part N            this disc holds part N of a film split across discs.
                           Jellyfin stacks the parts into one playable item.
                           Only for a genuinely split film -- a two-disc set
@@ -38,6 +42,7 @@ EOF
 device=$MEDIA_DEFAULT_DEVICE
 name=""
 titles=""
+crop=""
 part=0
 min_length=$MEDIA_MIN_LENGTH
 wait_for=$MEDIA_WAIT
@@ -55,6 +60,14 @@ while (($#)); do
         ;;
     -t | --titles)
         titles=$2
+        shift 2
+        ;;
+    -c | --crop)
+        crop=$2
+        if [[ ! $crop =~ ^[0-9]+:[0-9]+:[0-9]+:[0-9]+$ ]]; then
+            echo "rip-movie: --crop wants W:H:X:Y, got '$crop'" >&2
+            exit 2
+        fi
         shift 2
         ;;
     -p | --part)
@@ -171,6 +184,7 @@ jq -n \
     --arg device "$device" \
     --arg name "$name" \
     --arg titles "$titles" \
+    --arg crop "$crop" \
     --argjson part "$part" \
     --argjson min_length "$min_length" \
     --arg preset "$preset" \
@@ -180,6 +194,7 @@ jq -n \
     '$ARGS.named
      | .kind = "movie"
      | .preset = (if $preset == "" then null else ($preset | tonumber) end)
+     | .crop = (if $crop == "" then null else $crop end)
      | .titles = (if $titles == "" then null else ($titles | split(",") | map(tonumber)) end)' >"$tmp"
 
 chmod 0664 "$tmp"

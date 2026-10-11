@@ -70,9 +70,29 @@ redundant_dts_cores() {
 }
 
 encode() {
-    local src=$1 dest=$2 preset=${3:-$MEDIA_PRESET}
+    local src=$1 dest=$2 preset=${3:-$MEDIA_PRESET} crop=${4:-}
     local probe primaries transfer matrix range svt_params tmp label title pix_fmt src_pix
-    local -a color_args=() audio_args=() map_args=()
+    local -a color_args=() audio_args=() map_args=() filter_args=()
+
+    # Early DVDs letterbox a widescreen film inside a 4:3 frame, baking the
+    # black bars into the picture. A 16:9 display then pillarboxes that 4:3
+    # frame as well, so the image ends up windowboxed with bars on all four
+    # sides. Cropping the bars away at encode time restores the film's real
+    # aspect; ffmpeg carries the sample aspect ratio through, so the result
+    # still displays correctly.
+    #
+    # Per-file rather than per-disc on purpose: a disc's feature can be
+    # letterboxed while its extras are natively 4:3, and cropping those would
+    # cut into the picture.
+    if [[ -n $crop ]]; then
+        # Straight into an ffmpeg argument, so only w:h:x:y is accepted.
+        if [[ ! $crop =~ ^[0-9]+:[0-9]+:[0-9]+:[0-9]+$ ]]; then
+            echo "media-encode: refusing malformed crop '$crop' (want w:h:x:y)" >&2
+            return 1
+        fi
+        filter_args=(-vf "crop=$crop")
+        echo "media-encode: cropping to $crop"
+    fi
 
     probe=$(ffprobe -v error -print_format json -select_streams v:0 \
         -show_streams -show_frames -read_intervals '%+#1' "$src") || return 1
@@ -151,6 +171,7 @@ encode() {
     ffmpeg -nostdin -hide_banner -y -nostats -loglevel warning \
         -i "$src" \
         -map 0:v "${map_args[@]}" -map '0:s?' -map '0:t?' \
+        "${filter_args[@]}" \
         -c:s copy \
         -c:v libsvtav1 \
         -preset "$preset" \
@@ -220,7 +241,8 @@ for job in "${queue[@]}"; do
         continue
     fi
     jobpreset=$(jq -r '.preset // empty' "$job")
-    if encode "$src" "$dest" "${jobpreset:-$MEDIA_PRESET}"; then
+    jobcrop=$(jq -r '.crop // empty' "$job")
+    if encode "$src" "$dest" "${jobpreset:-$MEDIA_PRESET}" "$jobcrop"; then
         rm -f "$job"
         encoded=$((encoded + 1))
         # Before Jellyfin is told to rescan, so the episode is indexed with its

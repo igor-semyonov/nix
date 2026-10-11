@@ -61,11 +61,13 @@ prettify() {
 }
 
 enqueue_encode() {
-    local src=$1 dest=$2 preset=${3:-} tmp stamp
+    local src=$1 dest=$2 preset=${3:-} crop=${4:-} tmp stamp
     tmp=$(mktemp "$encode_queue/.job-XXXXXX")
     stamp=$(date -u +%Y%m%dT%H%M%S.%N)
-    jq -n --arg src "$src" --arg dest "$dest" --arg preset "$preset" \
-        '$ARGS.named | .preset = (if $preset == "" then null else ($preset | tonumber) end)' >"$tmp"
+    jq -n --arg src "$src" --arg dest "$dest" --arg preset "$preset" --arg crop "$crop" \
+        '$ARGS.named
+         | .preset = (if $preset == "" then null else ($preset | tonumber) end)
+         | .crop = (if $crop == "" then null else $crop end)' >"$tmp"
     mv "$tmp" "$encode_queue/$stamp.json"
     echo "media-rip: queued encode $src -> $dest"
 }
@@ -79,7 +81,7 @@ process() {
     local -a selected produced fresh
 
     # shellcheck disable=SC2046 # @sh output is deliberately split into assignments
-    eval $(jq -r '@sh "device=\(.device) kind=\(.kind) name=\(.name) season=\(.season // 1) first_episode=\(.first_episode // 1) titles=\(.titles // [] | join(",")) part=\(.part // 0) preset=\(.preset // "") min_length=\(.min_length) wait=\(.wait) eject=\(.eject) encode=\(.encode)"' "$request")
+    eval $(jq -r '@sh "device=\(.device) kind=\(.kind) name=\(.name) season=\(.season // 1) first_episode=\(.first_episode // 1) titles=\(.titles // [] | join(",")) part=\(.part // 0) preset=\(.preset // "") crop=\(.crop // "") min_length=\(.min_length) wait=\(.wait) eject=\(.eject) encode=\(.encode)"' "$request")
 
     media-wait-for-disc "$device" "$wait" || return 1
 
@@ -181,7 +183,13 @@ process() {
                 dest=$(media-library-path --kind movie --library "$MEDIA_LIBRARY_ROOT" \
                     --name "$name" --position "$position" --part "$part")
             fi
-            enqueue_encode "$target" "$dest" "$preset" || return 1
+            # Only the feature: a disc's extras are frequently native 4:3,
+            # and the feature's letterbox crop would cut into their picture.
+            if [[ $kind != tv ]] && ((position == 0)); then
+                enqueue_encode "$target" "$dest" "$preset" "$crop" || return 1
+            else
+                enqueue_encode "$target" "$dest" "$preset" || return 1
+            fi
         fi
         position=$((position + 1))
     done
