@@ -64,6 +64,7 @@
           # Format: /path/to/share clientIP(options) subnet(options)
           # Example 1: Give a specific Proxmox host full read/write access
           /mnt/8tb/nfs/@no-cow  10.10.20.10(rw,sync,no_subtree_check,no_root_squash)
+          /mnt/8tb/nfs/@no-cow  10.10.20.11(rw,sync,no_subtree_check,no_root_squash)
 
           # Example 2: Give an entire VLAN/subnet read-only access
           # /mnt/storage/media_share    10.0.20.0/24(ro,sync,no_subtree_check)
