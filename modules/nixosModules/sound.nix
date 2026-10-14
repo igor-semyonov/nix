@@ -265,6 +265,18 @@
                 battery-powered internal codec usually wants to idle down instead.
               '';
             };
+
+            alwaysProcess = lib.mkOption {
+              type = lib.types.nullOr lib.types.bool;
+              default = null;
+              description = ''
+                Per-device override of the global `alwaysProcess`. null inherits it.
+
+                Pair with `suspendTimeout = 0` on the output that must never be caught
+                cold. Leave it off for anything power-sensitive -- it keeps the device
+                clocked permanently.
+              '';
+            };
           };
         }));
       };
@@ -345,6 +357,26 @@
           requires the close/reopen this prevents. `autoRetune` exists to get it back
           without reintroducing the wake gap; a non-zero value here is the cruder
           alternative.
+        '';
+      };
+
+      alwaysProcess = lib.mkOption {
+        type = lib.types.bool;
+        default = cfg.suspendTimeout == 0;
+        defaultText = lib.literalExpression "`suspendTimeout == 0`";
+        description = ''
+          Keep output devices processing even with nothing linked to them
+          (`node.always-process`), so the ALSA device stays open rather than closing
+          whenever playback stops.
+
+          `suspendTimeout = 0` is NOT sufficient on its own -- it only disables the idle
+          suspend timer, and pipewire still releases a device that has zero active
+          streams. The difference is audible on a DAC that needs a moment to re-lock:
+          speech synthesis started from silence loses its opening syllables, while the
+          same utterance over music does not, because the device was already open.
+
+          Costs a permanently running audio device: the DAC never powers down and the
+          graph keeps waking. Right for a desktop DAC, usually wrong on battery.
         '';
       };
 
@@ -479,6 +511,12 @@
                     matches = [{"node.name" = "~alsa_*";}];
                     actions.update-props."session.suspend-timeout-seconds" = cfg.suspendTimeout;
                   }
+                  # Outputs only -- holding a capture device open permanently would keep the
+                  # mic live, which is a privacy question rather than a latency one.
+                  {
+                    matches = [{"node.name" = "~alsa_output.*";}];
+                    actions.update-props."node.always-process" = cfg.alwaysProcess;
+                  }
                 ]
                 ++ (lib.mapAttrsToList (_: d: {
                     matches = [{"node.name" = d.match;}];
@@ -491,6 +529,9 @@
                       }
                       // lib.optionalAttrs (d.rate != null) {
                         "audio.rate" = d.rate;
+                      }
+                      // lib.optionalAttrs (d.alwaysProcess != null) {
+                        "node.always-process" = d.alwaysProcess;
                       };
                   })
                   cfg.devices);
