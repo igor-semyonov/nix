@@ -1,6 +1,19 @@
 ---
-description: Nix code style and conventions.
+description: Nix code style and conventions, and where nixpkgs and home-manager are checked out locally.
 ---
+
+# Local nixpkgs and home-manager
+
+- nixpkgs: `/home/igor/src/github.com/nixos/nixpkgs/master`
+- home-manager: `/home/igor/src/github.com/nix-community/home-manager/master`
+
+Read these instead of reaching for a remote search service — there is
+deliberately no `mcp-nixos`/`context7` MCP, and a clone reflects a known rev.
+home-manager's modules are not in nixpkgs, so `programs.*`/`home.*` options and
+assertions can only be found in its own tree. Before looking up an attribute
+path, option declaration, module default, or whether an option is deprecated,
+invoke the `nixpkgs-local` skill. Use `nix eval` on the host's config for what
+is actually _in effect_.
 
 # Nix Style
 

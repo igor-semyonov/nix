@@ -84,10 +84,15 @@
             sequential-thinking = {command = "${pkgs.mcp-server-sequential-thinking}/bin/mcp-server-sequential-thinking";};
             # Timezone-aware current time / conversions.
             time = {command = "${pkgs.mcp-server-time}/bin/mcp-server-time";};
-            # Up-to-date library docs lookup.
-            context7 = {command = "${pkgs.context7-mcp}/bin/context7-mcp";};
-            # Query NixOS options and nixpkgs packages.
-            nixos = {command = "${pkgs.mcp-nixos}/bin/mcp-nixos";};
+            # Deliberately absent — both ship the query itself to a third party:
+            #   context7 -> context7.com, clerk.context7.com
+            #   mcp-nixos -> api.flakehub.com, cache.nixos.org, nix.dev,
+            #                noogle.dev, nix-community.github.io,
+            #                nix-darwin.github.io, api.github.com
+            # Nix questions are answered from the local nixpkgs clone instead;
+            # see rules/nix-style.md and the `nixpkgs-local` skill. That also
+            # reflects the pinned rev rather than whatever search.nixos.org
+            # has indexed.
             # Extract text / tables / images from PDFs (OCR via tesseract).
             pdf = {command = "${pkgs.pdf-mcp}/bin/pdf-mcp";};
           }
