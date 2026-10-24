@@ -78,7 +78,7 @@
 
     # System packages
     environment.systemPackages = with pkgs; [
-      libreoffice-qt6-fresh
+      libreoffice-qt
       mpv
       signal-desktop
       winePackages.stagingFull

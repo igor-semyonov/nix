@@ -41,7 +41,7 @@
             linuxPackages.nvidia_x11
           ]
           ++ pythonManylinuxPackages.manylinux1
-          ++ lib.optionals (pkgs.system == "x86_64-linux" && cudaSupport) (with pkgs.cudaPackages; [
+          ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux" && cudaSupport) (with pkgs.cudaPackages; [
             libcutensor
             nccl
             libcusparse_lt
