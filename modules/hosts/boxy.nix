@@ -10,10 +10,7 @@
   includedUsers = ["igor"];
   nixosHomeManagerModule = true;
   groups = {"i2c" = {};};
-  homeModules = [
-    self.homeModules.abs-tract
-    {igix.abs-tract.enable = true;}
-  ];
+  homeModules = [];
   nixosModules = with self.nixosModules; [
     {
       nixpkgs.overlays = [
@@ -55,8 +52,9 @@
         )
       ];
       networking.firewall.allowedTCPPorts = [2049];
-      # Rootless podman units (abs-tract) are user services; without linger they
-      # would only run while igor has a session.
+      # Keeps igor's user units alive without a login session. Added for the
+      # rootless podman abs-tract container, which has since been removed; left
+      # on so any future user-level service does not need it rediscovered.
       users.users.igor.linger = true;
       services.nfs.server = {
         enable = true;
