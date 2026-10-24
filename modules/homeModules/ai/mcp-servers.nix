@@ -13,24 +13,38 @@
     # Runs the github MCP server with a token minted from the local `gh` login
     # (OAuth), avoiding PATs entirely. `gh auth token` errors non-zero when not
     # logged in, and `set -e` propagates that so the failure is visible.
+    #
+    # `--hostname` pins the token to the host the server talks to. Without it gh
+    # hands back its default host's token -- with only an enterprise login that
+    # is the enterprise token, which then went to api.github.com.
     ghCliWrapper = pkgs.writeShellApplication {
       name = "github-mcp-server-gh";
       runtimeInputs = [pkgs.gh pkgs.github-mcp-server];
       text = ''
-        GITHUB_PERSONAL_ACCESS_TOKEN=$(gh auth token)
+        GITHUB_PERSONAL_ACCESS_TOKEN=$(gh auth token --hostname ${lib.escapeShellArg cfg.gh.host})
         export GITHUB_PERSONAL_ACCESS_TOKEN
         exec github-mcp-server "$@"
       '';
+    };
+    # github-mcp-server only reads GITHUB_HOST (or --gh-host); anything else
+    # silently means github.com.
+    ghHostEnv = lib.optionalAttrs (cfg.gh.host != "github.com") {
+      GITHUB_HOST = "https://${cfg.gh.host}";
     };
   in {
     options.igix.mcp = {
       enable = lib.mkEnableOption "Enable the shared MCP server catalogue.";
 
       gh = {
-        url = lib.mkOption {
+        host = lib.mkOption {
           type = lib.types.str;
-          default = "https://api.github.com";
-          description = "GitHub API URL for the github MCP server.";
+          default = "github.com";
+          example = "github.example.com";
+          description = ''
+            GitHub host for the github MCP server: github.com, or a GitHub
+            Enterprise Server / ghe.com hostname. With `useGhCli`, also the host
+            whose `gh` login supplies the token.
+          '';
         };
         tokenFile = lib.mkOption {
           type = lib.types.nullOr lib.types.path;
@@ -106,17 +120,18 @@
               # unauthenticated server.
               command = "${ghCliWrapper}/bin/github-mcp-server-gh";
               args = ["stdio"];
-              env.GITHUB_API_URL = cfg.gh.url;
+              env = ghHostEnv;
             };
           }
           // lib.optionalAttrs (!cfg.gh.useGhCli && cfg.gh.tokenFile != null) {
             github = {
               command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
               args = ["stdio"];
-              env = {
-                GITHUB_API_URL = cfg.gh.url;
-                GITHUB_PERSONAL_ACCESS_TOKEN.file = cfg.gh.tokenFile;
-              };
+              env =
+                ghHostEnv
+                // {
+                  GITHUB_PERSONAL_ACCESS_TOKEN.file = cfg.gh.tokenFile;
+                };
             };
           }
           // lib.optionalAttrs cfg.playwright.enable {
