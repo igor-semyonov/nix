@@ -14,7 +14,7 @@
       };
     };
 
-    config = lib.mkIf (!pkgs.stdenv.isDarwin) {
+    config = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
       services.flatpak = {
         enable = true;
         packages = config.igix.flatpak.packages;

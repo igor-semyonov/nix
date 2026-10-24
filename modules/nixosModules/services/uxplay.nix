@@ -9,10 +9,13 @@
       enable = true;
       nssmdns4 = true; # Allows software to find .local domains
       openFirewall = true; # Opens UDP port 5353 for mDNS
-      publish = {
-        enable = true;
-        addresses = true;
-        userServices = true; # Critical for uxplay to register itself
+      # `settings` is freeform, so these must be avahi-daemon.conf keys, not the
+      # old publish.{enable,addresses,userServices} option names — those pass
+      # through as invalid keys and leave disable-publishing at its default true.
+      settings.publish = {
+        disable-publishing = false;
+        disable-user-service-publishing = false; # uxplay registers itself
+        publish-addresses = true;
       };
     };
   };

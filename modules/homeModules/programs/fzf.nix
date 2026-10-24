@@ -1,7 +1,7 @@
 {...}: {
   flake.homeModules.fzf = {pkgs, ...}: let
     copyCmd =
-      if pkgs.stdenv.isDarwin
+      if pkgs.stdenv.hostPlatform.isDarwin
       then "pbcopy"
       else "wl-copy";
   in {

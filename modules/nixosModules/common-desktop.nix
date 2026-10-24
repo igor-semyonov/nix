@@ -29,8 +29,21 @@
 
       # v4l (virtual camera) module settings
       kernelModules = ["v4l2loopback"];
-      extraModulePackages = with config.boot.kernelPackages; [
-        v4l2loopback
+      extraModulePackages = [
+        # On 7.x `modules_install` writes depmod's index files into an
+        # out-of-tree module's own $out despite DEPMOD=true, so every
+        # lib/modules/<ver>/modules.* collides with the kernel's copy in
+        # aggregateModules' buildEnv. Its own `rm` of those only runs in
+        # postBuild, after buildEnv has already failed, and depmod regenerates
+        # them all there anyway — so drop them here. The real payload is
+        # updates/v4l2loopback.ko.xz, which is untouched.
+        (config.boot.kernelPackages.v4l2loopback.overrideAttrs (old: {
+          postInstall =
+            (old.postInstall or "")
+            + ''
+              rm -f "$out"/lib/modules/*/modules.*
+            '';
+        }))
       ];
       extraModprobeConfig = ''
         options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
@@ -113,7 +126,8 @@
 
     services = {
       # brltty.enable = true;
-      ddccontrol.enable = true;
+      # ddccontrol is broken due to kernel module cert signing
+      # ddccontrol.enable = true;
       pcscd = {
         enable = true;
         plugins = [pkgs.opensc];

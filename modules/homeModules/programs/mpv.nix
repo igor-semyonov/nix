@@ -6,7 +6,7 @@
   }: {
     programs.mpv = {
       enable = true;
-      scripts = lib.optionals pkgs.stdenv.isLinux [pkgs.mpvScripts.mpris];
+      scripts = lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.mpvScripts.mpris];
     };
   };
 }

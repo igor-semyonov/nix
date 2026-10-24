@@ -12,7 +12,7 @@
       ];
     };
     # Apply XDG configuration only on non-Darwin platforms
-    # xdg = lib.mkIf (!pkgs.stdenv.isDarwin) {
+    # xdg = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
     #   mimeApps = {
     #     defaultApplications = {
     #       "application/x-extension-htm" = "brave-browser.desktop";

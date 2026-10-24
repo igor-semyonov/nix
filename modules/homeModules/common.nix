@@ -21,7 +21,7 @@
     home = {
       username = config.userConfig.name;
       homeDirectory =
-        if pkgs.pkgs.stdenv.isDarwin
+        if pkgs.pkgs.stdenv.hostPlatform.isDarwin
         then "/Users/${config.userConfig.name}"
         else "/home/${config.userConfig.name}";
     };
@@ -39,9 +39,9 @@
         lazydocker
         ripgrep
       ]
-      ++ lib.optionals pkgs.stdenv.isDarwin [
+      ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
       ]
-      ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+      ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
       ];
   };
 }

@@ -27,7 +27,6 @@
           "${pkgs.anyrun}/lib/libwebsearch.so"
         ];
         maxEntries = 7;
-        margin = 1;
       };
       extraCss =
         /*

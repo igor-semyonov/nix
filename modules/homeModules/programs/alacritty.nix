@@ -29,7 +29,7 @@
         window = {
           title = "Alacritty";
           decorations =
-            if pkgs.stdenv.isDarwin
+            if pkgs.stdenv.hostPlatform.isDarwin
             then "buttonless"
             else "none";
           dynamic_title = false;
@@ -55,7 +55,7 @@
           # than mkForce (50) so a host can still set its own size -- leto is a
           # small laptop screen and forces a larger one.
           size = lib.mkOverride 60 (
-            if pkgs.stdenv.isDarwin
+            if pkgs.stdenv.hostPlatform.isDarwin
             then 36
             else 41.5
           );

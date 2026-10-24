@@ -90,7 +90,7 @@
       };
     }
 
-    inputs.hardware.nixosModules.common-cpu-amd-zenpower
+    # inputs.hardware.nixosModules.common-cpu-amd-zenpower
     # inputs.hardware.nixosModules.common-gpu-nvidia
     inputs.hardware.nixosModules.common-pc-ssd
     (
@@ -139,6 +139,7 @@
           cudaCapabilities = ["8.9"];
           cudaForwardCompat = false;
         };
+        boot.kernelPackages = lib.mkForce pkgs.linuxPackages_7_2;
         hardware = {
           graphics = {
             enable = true;
@@ -191,12 +192,19 @@
           };
           avahi = {
             enable = true;
-            # Otherwise boxy.local also publishes the docker bridge addresses and
-            # clients resolve the printer's SRV target to 172.17.0.1.
-            allowInterfaces = ["br0"];
-            publish = {
-              enable = true;
-              userServices = true;
+            # `settings` is freeform — these must be avahi-daemon.conf keys. The
+            # old publish.{enable,userServices} names passed through as invalid
+            # keys; publishing only worked because ipp-usb still sets the
+            # deprecated options and its compat shim flipped disable-publishing.
+            settings = {
+              # Otherwise boxy.local also publishes the docker bridge addresses
+              # and clients resolve the printer's SRV target to 172.17.0.1.
+              server.allow-interfaces = ["br0"];
+              publish = {
+                disable-publishing = false;
+                disable-user-service-publishing = false;
+                publish-addresses = true;
+              };
             };
           };
 

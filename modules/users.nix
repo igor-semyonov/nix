@@ -67,7 +67,7 @@
                   home.packages = [pkgs.antigravity-cli];
                 })
               ]
-              ++ lib.optionals pkgs.stdenv.isLinux [
+              ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
                 igix-desktop-linux
                 {
                   igix = {
@@ -85,7 +85,7 @@
                   };
                 }
               ]
-              ++ lib.optionals pkgs.stdenv.isDarwin [igix-desktop-mac];
+              ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [igix-desktop-mac];
           };
         };
       igor-headless = let
@@ -189,7 +189,7 @@
                 bat
                 fastfetch
               ]
-              ++ lib.optionals pkgs.stdenv.isLinux [
+              ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
                 # kde
                 # hyprland
 

@@ -15,7 +15,7 @@
         stylix.targets.firefox.profileNames = ["default"];
       })
       {
-        services.psd = lib.mkIf pkgs.stdenv.isLinux {
+        services.psd = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
           enable = true;
           resyncTimer = "1h";
         };

@@ -23,7 +23,7 @@
           "break"
           {
             key =
-              if pkgs.stdenv.isDarwin
+              if pkgs.stdenv.hostPlatform.isDarwin
               then "     OS           "
               else "     OS           ";
             keyColor = "red";
