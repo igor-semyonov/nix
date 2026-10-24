@@ -13,8 +13,16 @@ boot:
 build target_hostname=actual_hostname:
     nixos-rebuild build --flake .#{{ target_hostname }} --cores {{ nproc }} --max-jobs {{ nproc }} --log-format bar-with-logs
 
+# eval without building
+eval target_hostname=actual_hostname:
+    nixos-rebuild dry-build --flake .#{{ target_hostname }} --show-trace
+
 size target_hostname=actual_hostname:
     nix path-info -Sh .#nixosConfigurations.{{ target_hostname }}.config.system.build.toplevel
+
+# repl for a given host or this one of none given
+repl target_hostname=actual_hostname:
+    nixos-rebuild repl --flake .#{{ target_hostname }}
 
 switch-remote target_hostname target_host:
     nixos-rebuild switch --flake .#{{ target_hostname }} --target-host {{ target_host }} --cores {{ nproc }} --max-jobs {{ nproc }} -L
@@ -35,9 +43,6 @@ billy-build:
 
 clean:
     nix-collect-garbage -d
-
-repl:
-    nixos-rebuild repl --flake .
 
 home:
     home-manager switch --flake .
