@@ -31,6 +31,17 @@
     ghHostEnv = lib.optionalAttrs (cfg.gh.host != "github.com") {
       GITHUB_HOST = "https://${cfg.gh.host}";
     };
+    # For servers with no business on the network: run them in a fresh user+net
+    # namespace, which holds only a downed loopback, so anything a future release
+    # tries fails closed instead of leaving the machine. Linux only; elsewhere the
+    # server runs as is.
+    offline = pkg: bin:
+      if pkgs.stdenv.hostPlatform.isLinux
+      then
+        toString (pkgs.writeShellScript "${bin}-offline" ''
+          exec ${pkgs.util-linux}/bin/unshare --user --map-current-user --net -- ${pkg}/bin/${bin} "$@"
+        '')
+      else "${pkg}/bin/${bin}";
   in {
     options.igix.mcp = {
       enable = lib.mkEnableOption "Enable the shared MCP server catalogue.";
@@ -91,13 +102,13 @@
             # Fetch arbitrary URLs and return their content as markdown.
             fetch = {command = "${pkgs.mcp-server-fetch}/bin/mcp-server-fetch";};
             # Git repository inspection and operations.
-            git = {command = "${pkgs.mcp-server-git}/bin/mcp-server-git";};
+            git = {command = offline pkgs.mcp-server-git "mcp-server-git";};
             # Persistent knowledge graph memory across sessions.
-            memory = {command = "${pkgs.mcp-server-memory}/bin/mcp-server-memory";};
+            memory = {command = offline pkgs.mcp-server-memory "mcp-server-memory";};
             # Structured step-by-step reasoning scratchpad.
-            sequential-thinking = {command = "${pkgs.mcp-server-sequential-thinking}/bin/mcp-server-sequential-thinking";};
+            sequential-thinking = {command = offline pkgs.mcp-server-sequential-thinking "mcp-server-sequential-thinking";};
             # Timezone-aware current time / conversions.
-            time = {command = "${pkgs.mcp-server-time}/bin/mcp-server-time";};
+            time = {command = offline pkgs.mcp-server-time "mcp-server-time";};
             # Deliberately absent — both ship the query itself to a third party:
             #   context7 -> context7.com, clerk.context7.com
             #   mcp-nixos -> api.flakehub.com, cache.nixos.org, nix.dev,
@@ -107,8 +118,9 @@
             # see rules/nix-style.md and the `nixpkgs-local` skill. That also
             # reflects the pinned rev rather than whatever search.nixos.org
             # has indexed.
-            # Extract text / tables / images from PDFs (OCR via tesseract).
-            pdf = {command = "${pkgs.pdf-mcp}/bin/pdf-mcp";};
+            # Extract text / tables / images from PDFs (OCR via tesseract). Offline,
+            # so URL paths fail closed.
+            pdf = {command = offline pkgs.pdf-mcp "pdf-mcp";};
           }
           # GitHub API server. Auth precedence: gh CLI OAuth token > PAT file.
           # SSH keys are not an option (the server uses the HTTPS API).
