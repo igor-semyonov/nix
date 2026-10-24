@@ -81,7 +81,7 @@
       name = "dac-retune";
       runtimeInputs = [pkgs.pulseaudio pkgs.gawk pkgs.coreutils];
       text = ''
-        allowed="${toString cfg.allowedRates}"
+        graph_allowed="${toString cfg.allowedRates}"
 
         # Rate the device is currently clocked at.
         sink_rate() {
@@ -89,6 +89,19 @@
             /^Sink #/          { mine = 0 }
             /^[ \t]*Name: /    { mine = ($2 == w) }
             mine && /Sample Specification:/ { gsub(/Hz/, "", $NF); print $NF; exit }
+          '
+        }
+
+        # Rates this sink may be clocked at: the `audio.allowed-rates` a `devices.*` rule put
+        # on its node, else nothing (caller falls back to the graph-wide list). Checking only
+        # the graph-wide list let a stream the device cannot clock -- 44.1k on a 48k-only
+        # laptop codec -- trigger a retune that changes nothing, then repeat it after every
+        # cooldown: a dropout every ~15s for as long as the stream plays.
+        sink_allowed() {
+          pactl list sinks | awk -v w="$1" '
+            /^Sink #/          { mine = 0 }
+            /^[ \t]*Name: /    { mine = ($2 == w) }
+            mine && /^[ \t]*audio\.allowed-rates = / { sub(/^[^=]*=/, ""); gsub(/[^0-9]+/, " "); print; exit }
           '
         }
 
@@ -126,6 +139,8 @@
           if [ -n "$sink" ]; then
             idx=$(pactl list short sinks | awk -v w="$sink" '$2 == w { print $1; exit }')
             dev=$(sink_rate "$sink")
+            allowed=$(sink_allowed "$sink")
+            [ -n "$allowed" ] || allowed="$graph_allowed"
 
             # Only rates we are permitted to switch to count. This is what keeps the 16kHz
             # TTS voices from ever triggering a retune: no DAC clocks 16k, so it is never
@@ -237,7 +252,10 @@
               defaultText = lib.literalExpression "the matching `knownDeviceRates` entry, if the attribute name is one, else null";
               description = ''
                 Rates this device may be clocked at, as `audio.allowed-rates`. null leaves
-                it unconstrained and it follows the graph-wide `allowedRates`.
+                it unconstrained and it follows the graph-wide `allowedRates`. `autoRetune`
+                reads the same property, so set this for any output that cannot clock every
+                graph-wide rate (e.g. a 48k-only internal codec), or the watcher will keep
+                retrying a retune the hardware cannot honour.
 
                 Measure rather than trusting `/proc` -- and note a rate absent from the
                 graph-wide list can never be selected here, so verify with it present or
