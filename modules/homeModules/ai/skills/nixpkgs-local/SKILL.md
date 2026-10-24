@@ -7,10 +7,20 @@ description: Answer nixpkgs/NixOS/home-manager questions from the local clones a
 
 Read these clones directly:
 
-| repo         | path                                                          |
-| ------------ | ------------------------------------------------------------- |
-| nixpkgs      | `/home/igor/src/github.com/nixos/nixpkgs/master`              |
-| home-manager | `/home/igor/src/github.com/nix-community/home-manager/master` |
+| repo         | default path                                         |
+| ------------ | ---------------------------------------------------- |
+| nixpkgs      | `~/src/github.com/nixos/nixpkgs/master`              |
+| home-manager | `~/src/github.com/nix-community/home-manager/master` |
+
+Resolve the real path rather than assuming it: a collection cloned before
+`gw-clone` lowercased owners keeps the original case (`github.com/NixOS/...`),
+and `gw-find` matches case-sensitively. Each Bash call is a fresh shell, so
+resolve in the same command that uses the path:
+
+```bash
+nixpkgs=$(gw-find '/nixpkgs master' | grep -i '^github\.com/nixos/' | cut -f2)
+hm=$(gw-find '/home-manager master' | grep '^github\.com/nix-community/' | cut -f2)
+```
 
 **Read them directly.** There is deliberately no `mcp-nixos` or `context7` MCP
 server — both forward the query to a third party. A clone is also _more_
@@ -40,8 +50,7 @@ later: `gw-add <branch>`.
 
 Check first rather than assuming — `gw-find nixpkgs` / `gw-find home-manager`
 list every matching worktree, and other branches (`pr/<n>`, release branches)
-may already exist. As of writing, nixpkgs is cloned (plus a `pr/552103`
-worktree) and home-manager is not.
+may already exist.
 
 Both flake inputs track the default branch (no `ref` pinned in `flake.lock`),
 so `master` is the branch to read for each.
@@ -53,7 +62,7 @@ When a devShell, a `flake.lock`, or a bisect needs a revision other than
 the path:
 
 ```bash
-cd /home/igor/src/github.com/nixos/nixpkgs/master
+cd "$nixpkgs"
 rev=$(jq -r '.nodes.nixpkgs.locked.rev' /path/to/flake.lock)
 dir=$(gw-add "$rev" "$rev")       # -> ~/src/github.com/nixos/nixpkgs/<rev>
 ```
@@ -61,7 +70,7 @@ dir=$(gw-add "$rev" "$rev")       # -> ~/src/github.com/nixos/nixpkgs/<rev>
 Same for home-manager, from any worktree of that collection:
 
 ```bash
-cd /home/igor/src/github.com/nix-community/home-manager/master
+cd "$hm"
 rev=$(jq -r '.nodes."home-manager".locked.rev' /path/to/flake.lock)
 dir=$(gw-add "$rev" "$rev")       # -> ~/src/.../home-manager/<rev>
 ```
@@ -94,7 +103,7 @@ deliberately with `gw-remove <rev>` when the pin stops mattering.
 Cheap orientation, in rough order of usefulness:
 
 ```bash
-cd /home/igor/src/github.com/nixos/nixpkgs/master
+cd "$nixpkgs"
 git log -1 --format='%h %ad %s' --date=short     # what rev am I reading?
 
 # Where a package or module lives
@@ -113,7 +122,7 @@ Same moves in home-manager, different layout — everything is under `modules/`,
 with no `pkgs/` or `nixos/` split:
 
 ```bash
-cd /home/igor/src/github.com/nix-community/home-manager/master
+cd "$hm"
 rg -n 'mkOption' modules/programs/firefox/        # option declarations
 rg -n 'assertion' modules/programs/firefox/       # why an eval is failing
 rg -l '<option-name>' modules/                    # which module owns an option

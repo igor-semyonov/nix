@@ -4,8 +4,11 @@ description: Nix code style and conventions, and where nixpkgs and home-manager 
 
 # Local nixpkgs and home-manager
 
-- nixpkgs: `/home/igor/src/github.com/nixos/nixpkgs/master`
-- home-manager: `/home/igor/src/github.com/nix-community/home-manager/master`
+- nixpkgs: `~/src/github.com/nixos/nixpkgs/master`
+- home-manager: `~/src/github.com/nix-community/home-manager/master`
+
+Owner case can differ on older clones (`NixOS`); the `nixpkgs-local` skill
+shows how to resolve the real path.
 
 Read these instead of reaching for a remote search service — there is
 deliberately no `mcp-nixos`/`context7` MCP, and a clone reflects a known rev.

@@ -46,4 +46,4 @@ nix repl
 - Read the trace **bottom-up**.
 - `infinite recursion` → a value references itself; often needs `lib.mkIf` or breaking a cycle.
 - `attribute 'X' missing` → a module arg or option isn't provided.
-- Use the `nixos` MCP server to look up option/package details.
+- Look up option/package details in the local nixpkgs/home-manager clones (`nixpkgs-local` skill).
