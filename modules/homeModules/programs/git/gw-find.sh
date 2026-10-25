@@ -11,8 +11,8 @@ List every worktree under $GW_ROOT as "<host>/<owner>/<repo> <branch>\t<path>".
 Each query is a case-sensitive substring of that "<repo-path> <branch>" text and
 they are ANDed, so terms narrow independently of order:
 
-  gw-find anduril            every worktree of every anduril repo
-  gw-find anduril master     master in anduril-nixpkgs, not its every branch
+  gw-find nixpkgs            every worktree of every nixpkgs repo
+  gw-find nixpkgs master     master of each nixpkgs repo; matching is case-sensitive
 EOF
     exit 0
 fi
