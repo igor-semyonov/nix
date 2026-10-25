@@ -10,7 +10,19 @@
   includedUsers = ["igor"];
   nixosHomeManagerModule = true;
   groups = {"i2c" = {};};
-  homeModules = [];
+  homeModules = [
+    self.homeModules.dropbox
+    {
+      igix.dropbox = {
+        enable = true;
+        settleMounts = [
+          "/mnt/8tb"
+          "/mnt/10tb"
+          "/mnt/gentoo-btrfs-pool"
+        ];
+      };
+    }
+  ];
   nixosModules = with self.nixosModules; [
     {
       nixpkgs.overlays = [
