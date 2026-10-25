@@ -83,26 +83,56 @@
       text = ''
         graph_allowed="${toString cfg.allowedRates}"
 
+        # pactl translates its labels; the parsers below match the untranslated ones. They
+        # also read its output to the end: exiting early can SIGPIPE pactl, which pipefail
+        # turns into a failed poll -- a crash, and with it the loss of every give-up mark.
+        export LC_ALL=C
+
+        # Words of $1 that are also words of $2, in $1's order.
+        intersect() {
+          local x out=""
+          for x in $1; do
+            case " $2 " in
+              *" $x "*) out="$out $x" ;;
+            esac
+          done
+          echo "$out"
+        }
+
         # Rate the device is currently clocked at.
         sink_rate() {
           pactl list sinks | awk -v w="$1" '
             /^Sink #/          { mine = 0 }
             /^[ \t]*Name: /    { mine = ($2 == w) }
-            mine && /Sample Specification:/ { gsub(/Hz/, "", $NF); print $NF; exit }
+            mine && !found && /Sample Specification:/ { gsub(/Hz/, "", $NF); print $NF; found = 1 }
           '
         }
 
-        # Rates this sink may be clocked at: the `audio.allowed-rates` a `devices.*` rule put
-        # on its node, else nothing (caller falls back to the graph-wide list). Checking only
-        # the graph-wide list let a stream the device cannot clock -- 44.1k on a 48k-only
-        # laptop codec -- trigger a retune that changes nothing, then repeat it after every
-        # cooldown: a dropout every ~15s for as long as the stream plays.
+        # The `audio.allowed-rates` a `devices.*` rule put on this sink's node. Exits 3 when
+        # the node has none, which is not the same as an empty list, and 1 when pactl fails:
+        # piped, pipefail would report awk's 3 for both.
         sink_allowed() {
-          pactl list sinks | awk -v w="$1" '
+          local sinks
+          sinks=$(pactl list sinks) || return 1
+          awk -v w="$1" '
             /^Sink #/          { mine = 0 }
             /^[ \t]*Name: /    { mine = ($2 == w) }
-            mine && /^[ \t]*audio\.allowed-rates = / { sub(/^[^=]*=/, ""); gsub(/[^0-9]+/, " "); print; exit }
-          '
+            mine && !found && /^[ \t]*audio\.allowed-rates = / { sub(/^[^=]*=/, ""); gsub(/[^0-9]+/, " "); print; found = 1 }
+            END                { exit found ? 0 : 3 }
+          ' <<<"$sinks"
+        }
+
+        # Rates this sink can be retuned to. pipewire takes the new clock from the graph-wide
+        # list alone; a node's own list only filters what that node accepts. So both lists
+        # when the node has one (possibly leaving none), else the graph-wide list.
+        sink_targets() {
+          local node rc=0
+          node=$(sink_allowed "$1") || rc=$?
+          case $rc in
+            0) intersect "$node" "$graph_allowed" ;;
+            3) echo "$graph_allowed" ;;
+            *) return 1 ;;
+          esac
         }
 
         # Source rates of the streams attached to that sink, EXCLUDING corked ones.
@@ -134,41 +164,53 @@
         # for music, but it ate the first word of every speech-synthesis run.
         previous=""
 
+        # "<sink>:<rate>" of the last retune, checked on the first poll after its cooldown,
+        # and of one that did not take: not retried until the default sink or wanted rate
+        # changes, since a listed rate can still fail to come up and each retry is a dropout.
+        pending=""
+        stuck=""
+
         while :; do
           sink=$(pactl get-default-sink 2>/dev/null || true)
+          dev=""
+          want=""
           if [ -n "$sink" ]; then
-            idx=$(pactl list short sinks | awk -v w="$sink" '$2 == w { print $1; exit }')
+            idx=$(pactl list short sinks | awk -v w="$sink" '$2 == w && !found { print $1; found = 1 }')
             dev=$(sink_rate "$sink")
-            allowed=$(sink_allowed "$sink")
-            [ -n "$allowed" ] || allowed="$graph_allowed"
+            allowed=$(sink_targets "$sink")
 
             # Only rates we are permitted to switch to count. This is what keeps the 16kHz
             # TTS voices from ever triggering a retune: no DAC clocks 16k, so it is never
             # in `allowedRates` and is simply resampled to whatever is running.
-            wanted=""
-            for r in $(stream_rates "$idx"); do
-              case " $allowed " in
-                *" $r "*) wanted="$wanted $r" ;;
-              esac
-            done
+            wanted=$(intersect "$(stream_rates "$idx")" "$allowed")
             # shellcheck disable=SC2086
             set -- $wanted
 
-            # Exactly one candidate, and it disagrees with the hardware. Two streams at
-            # different rates is ambiguous -- leave it resampling rather than thrash.
-            if [ "$#" -eq 1 ] && [ -n "$dev" ] && [ "$1" != "$dev" ]; then
-              if [ "$1" = "$previous" ]; then
-                pactl suspend-sink "$sink" 1
-                sleep 0.3
-                pactl suspend-sink "$sink" 0
-                previous=""
-                sleep ${toString cfg.autoRetune.cooldown}
-              else
-                previous="$1"
-              fi
-            else
-              previous=""
-            fi
+            # Exactly one candidate. Two streams at different rates is ambiguous -- leave it
+            # resampling rather than thrash.
+            if [ "$#" -eq 1 ]; then want=$1; fi
+          fi
+          key="$sink:$want"
+
+          if [ -n "$pending" ] && [ "$key" = "$pending" ] && [ "$dev" != "$want" ]; then
+            stuck=$pending
+            echo "give up $sink: $want Hz did not take, still $dev Hz" >&2
+          fi
+          pending=""
+          [ "$key" = "$stuck" ] || stuck=""
+
+          if [ -z "$want" ] || [ -z "$dev" ] || [ "$want" = "$dev" ] || [ "$key" = "$stuck" ]; then
+            previous=""
+          elif [ "$want" != "$previous" ]; then
+            previous=$want
+          else
+            echo "retune $sink: $dev -> $want Hz" >&2
+            pactl suspend-sink "$sink" 1
+            sleep 0.3
+            pactl suspend-sink "$sink" 0
+            previous=""
+            pending=$key
+            sleep ${toString cfg.autoRetune.cooldown}
           fi
           sleep ${toString cfg.autoRetune.interval}
         done
@@ -252,10 +294,16 @@
               defaultText = lib.literalExpression "the matching `knownDeviceRates` entry, if the attribute name is one, else null";
               description = ''
                 Rates this device may be clocked at, as `audio.allowed-rates`. null leaves
-                it unconstrained and it follows the graph-wide `allowedRates`. `autoRetune`
-                reads the same property, so set this for any output that cannot clock every
-                graph-wide rate (e.g. a 48k-only internal codec), or the watcher will keep
-                retrying a retune the hardware cannot honour.
+                it unconstrained and it follows the graph-wide `allowedRates`.
+
+                `autoRetune` only retunes this device to rates in both this list and the
+                graph-wide one -- pipewire picks the new clock from the graph-wide list
+                alone -- or to any graph-wide rate when this is null; an empty list means
+                never. Set it for any output that cannot clock every graph-wide rate (e.g.
+                a 48k-only internal codec). Otherwise each rate it cannot do costs one
+                retune, and its dropout, before the watcher gives up on that rate until the
+                default sink or the wanted rate changes; both are logged to the `dac-retune`
+                user journal.
 
                 Measure rather than trusting `/proc` -- and note a rate absent from the
                 graph-wide list can never be selected here, so verify with it present or
@@ -399,21 +447,37 @@
       };
 
       autoRetune = {
-        enable =
-          lib.mkEnableOption ''
-            a user service that retunes the DAC to match what is playing, by forcing a
-            suspend/resume cycle on the sink. Restores rate following when `suspendTimeout`
-            is 0, without the wake gap an idle timeout would cause
-          ''
-          // {
-            default = cfg.suspendTimeout == 0 && cfg.allowedRates != [];
-            defaultText = lib.literalExpression "`suspendTimeout == 0 && allowedRates != []`";
-          };
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = cfg.suspendTimeout == 0 && cfg.allowedRates != [];
+          defaultText = lib.literalExpression "`suspendTimeout == 0 && allowedRates != []`";
+          description = ''
+            Whether to run `dac-retune`, a user service that retunes the DAC to match what
+            is playing by forcing a suspend/resume cycle on the default sink. Restores rate
+            following when `suspendTimeout` is 0, without the wake gap an idle timeout would
+            cause.
+
+            Its targets are the rates in both the default sink's `devices.*.allowedRates`
+            and the graph-wide `allowedRates`, or in the graph-wide list alone for a device
+            that declares none. It retunes when, on two polls in a row, the sink's uncorked
+            streams ask for exactly one target and the sink is not at it. Any number of
+            streams may share that rate; streams at other rates, such as 16 kHz speech, are
+            resampled and ignored; two different targets leave the sink as it is.
+
+            The first poll after `cooldown` checks the result. If the sink is still not at
+            that rate, the watcher gives up on that sink and rate until the default sink
+            changes or its uncorked streams no longer ask for exactly that target -- they
+            stop or pause, or one at another target joins; one at a non-target rate does not
+            count -- or the service restarts, as the mark is only held in memory. Each
+            retune and each give-up is one line in the service's journal:
+            `journalctl --user -u dac-retune`.
+          '';
+        };
 
         interval = lib.mkOption {
           type = lib.types.ints.positive;
           default = 2;
-          description = "Seconds between checks. Each is two short `pactl` invocations.";
+          description = "Seconds between checks. Each runs five short `pactl` invocations.";
         };
 
         cooldown = lib.mkOption {
