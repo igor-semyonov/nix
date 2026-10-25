@@ -4,7 +4,6 @@
 {
   lib,
   coreutils,
-  direnv,
   fd,
   findutils,
   fzf,
@@ -22,7 +21,6 @@
       inherit name;
       runtimeInputs = [
         coreutils
-        direnv
         fd
         findutils
         gawk
@@ -91,7 +89,7 @@ in
         a nested directory named after the branch.
 
         Reads configuration from the environment: GW_ROOT (base directory for
-        collections), GW_DIRENV_ALLOW and GW_DIRENV_CACHE.
+        collections) and GW_DIRENV_CACHE.
 
         Which untracked files a new worktree inherits is per-collection state
         rather than a global preference, so it lives in each collection's own

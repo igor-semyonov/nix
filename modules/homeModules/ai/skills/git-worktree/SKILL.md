@@ -35,7 +35,7 @@ $GW_ROOT/<host>/<owner>/<repo>/     collection root
 (`feat/auth` → `<root>/feat/auth/`).
 
 **Prefer `gw-*` over raw `git worktree`/`git checkout`.** The helpers own the
-layout, upstream tracking, untracked-file seeding, and direnv approval; raw
+layout, upstream tracking, untracked-file seeding, and the direnv cache; raw
 commands skip all of it.
 
 ## Two interfaces, and which one you can use
@@ -122,8 +122,9 @@ gw-prune --yes                # non-interactive; otherwise it prompts on /dev/tt
 
 ## New-worktree seeding: `gw-share` and `gw-copy`
 
-`gw-add`/`gw-pr`/`gw-clone` seed a fresh worktree, then approve direnv. Tracked
-files (`.envrc` and friends) are already checked out by git and need no seeding.
+`gw-add`/`gw-pr`/`gw-clone` seed a fresh worktree. Tracked files (`.envrc` and
+friends) are already checked out by git and need no seeding. None of them runs
+`direnv allow`: read the new worktree's `.envrc`, then `direnv allow <path>`.
 Existing files are never overwritten.
 
 Which untracked files a worktree inherits is **per-collection state, not a global
@@ -165,7 +166,6 @@ nowhere yet is reported rather than silently ignored.
 | Env var           | Meaning                                                     | Default |
 | ----------------- | ----------------------------------------------------------- | ------- |
 | `GW_ROOT`         | base dir for collections                                    | `~/src` |
-| `GW_DIRENV_ALLOW` | `1` to run `direnv allow` in a worktree with an `.envrc`    | `1`     |
 | `GW_DIRENV_CACHE` | `1` to copy an existing worktree's `.direnv` into a new one | `1`     |
 
 `GW_DIRENV_CACHE` copies the evaluated devShell cache into each new worktree, so
@@ -191,7 +191,7 @@ Set by the home-manager module; a collection misbehaves without it.
 ## Source
 
 Scripts, shell functions, and the home-manager options
-(`igix.gitWorktree.{enable,root,direnvAllow,direnvCache}`) live in
+(`igix.gitWorktree.{enable,root,direnvCache}`) live in
 `modules/homeModules/programs/git/` of the nix-personal flake. Shared helpers are
 in `lib.sh`; each `gw-<verb>.sh` is concatenated onto it at build time. Build or
 run standalone with `nix run .#git-worktree-scripts`. Every script also takes

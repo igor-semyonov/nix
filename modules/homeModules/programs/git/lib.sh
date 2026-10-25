@@ -5,7 +5,6 @@
 #
 # Configuration comes from the environment so the scripts stay pure packages:
 #   GW_ROOT           base dir holding worktree collections (required)
-#   GW_DIRENV_ALLOW   1 to run `direnv allow` in a new worktree with an .envrc
 #   GW_DIRENV_CACHE   1 to copy an existing worktree's .direnv cache into a new
 #                     one, so the devShell is not re-evaluated per branch
 #
@@ -21,7 +20,6 @@ gw_die() {
 }
 
 : "${GW_ROOT:=$HOME/src}"
-: "${GW_DIRENV_ALLOW:=1}"
 : "${GW_DIRENV_CACHE:=1}"
 
 # Name of the per-collection store for shared untracked files. Lives beside
@@ -299,7 +297,7 @@ gw_propagate_copy() {
     done < <(gw_worktrees)
 }
 
-# Seed a fresh worktree with untracked dev files, then allow direnv.
+# Seed a fresh worktree with untracked dev files.
 #
 # Symlinked entries point at the collection's $gw_shared_dir, which sits beside
 # .bare/ and so survives `gw-remove` of any worktree -- linking worktree-to-
@@ -309,7 +307,8 @@ gw_propagate_copy() {
 #
 # Copied entries still come from a donor: they are meant to diverge per worktree,
 # so there is nothing to centralise. A tracked .envrc needs no seeding -- git
-# already checked it out -- but still needs allowing, so that runs regardless.
+# already checked it out -- and is never allowed here: it arrives with whatever
+# branch, PR or clone was checked out, so it runs only once it has been read.
 # Existing files are never overwritten.
 gw_inherit() {
     local dst="$1" donor="$2" name src shared from
@@ -364,7 +363,7 @@ gw_inherit() {
         fi
     done
 
-    # Before `direnv allow`, so the first evaluation already sees a warm cache.
+    # So the first evaluation after `direnv allow` already sees a warm cache.
     if [ "$GW_DIRENV_CACHE" = 1 ]; then
         if [ -n "$donor" ] && [ -d "$donor/.direnv" ]; then
             gw_copy_direnv "$dst" "$donor"
@@ -373,8 +372,8 @@ gw_inherit() {
         fi
     fi
 
-    if [ "$GW_DIRENV_ALLOW" = 1 ] && [ -e "$dst/.envrc" ] && command -v direnv >/dev/null 2>&1; then
-        (cd "$dst" && direnv allow) && gw_msg "  direnv allow"
+    if [ -e "$dst/.envrc" ]; then
+        gw_msg "  .envrc not allowed: read it, then run: direnv allow $dst"
     fi
 }
 

@@ -21,6 +21,13 @@
           cfg = config.igix.gitWorktree;
           gwScripts = self.packages.${pkgs.stdenv.hostPlatform.system}.git-worktree-scripts;
         in {
+          imports = [
+            (lib.mkRemovedOptionModule ["igix" "gitWorktree" "direnvAllow"] ''
+              gw-* no longer runs `direnv allow`: read a new worktree's .envrc, then
+              allow it yourself.
+            '')
+          ];
+
           options.igix.gitWorktree = {
             enable =
               lib.mkEnableOption "git worktree helper scripts"
@@ -36,17 +43,6 @@
                 Base directory holding worktree collections. `gw-clone` places a
                 repo at `<root>/<host>/<owner>/<repo>/`, with each branch checked
                 out into a nested subdirectory. Exported as `GW_ROOT`.
-              '';
-            };
-
-            direnvAllow = lib.mkOption {
-              type = lib.types.bool;
-              default = true;
-              description = ''
-                Run `direnv allow` in a new worktree that has an `.envrc`,
-                whether git checked it out or it was seeded by `gw-share` /
-                `gw-copy`. Each worktree is a distinct path, so direnv
-                requires approval for each one.
               '';
             };
 
@@ -138,10 +134,6 @@
 
               sessionVariables = {
                 GW_ROOT = cfg.root;
-                GW_DIRENV_ALLOW =
-                  if cfg.direnvAllow
-                  then "1"
-                  else "0";
                 GW_DIRENV_CACHE =
                   if cfg.direnvCache
                   then "1"

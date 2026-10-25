@@ -68,8 +68,8 @@ if [ "$want_branch" = "$(git symbolic-ref --quiet --short HEAD 2>/dev/null)" ]; 
     if git show-ref --verify --quiet "refs/remotes/origin/$want_branch"; then
         git branch --quiet --set-upstream-to="origin/$want_branch" "$want_branch" 2>/dev/null || true
     fi
-    # No donor exists yet -- this is the first worktree -- but a tracked .envrc
-    # still needs allowing, which gw_inherit handles.
+    # No donor exists yet -- this is the first worktree -- but gw_inherit still
+    # points out a tracked .envrc.
     gw_resolve_lists "$root"
     gw_inherit "$path" ""
 else
