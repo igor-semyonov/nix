@@ -93,6 +93,9 @@
     uxplay
     u2f
     {igix.u2f.enable = true;}
+
+    programs-open-audible
+    {igix.openaudible.enable = true;}
     {
       igix.sound.devices = {
         fiio-k9 = {};
