@@ -73,6 +73,13 @@
       appimage = {
         enable = true;
         binfmt = true;
+        # appimage-run builds its own FHS sandbox, so an outer LD_LIBRARY_PATH
+        # does not reach the AppImage. Eclipse SWT's browser widget dlopens
+        # libwebkit2gtk-4.1.so.0 (OpenAudible's Audible login needs it) and
+        # fails with "WebKitGTK 4.x not installed" unless it is in that sandbox.
+        package = pkgs.appimage-run.override {
+          extraPkgs = pkgs: [pkgs.webkitgtk_4_1];
+        };
       };
     };
 
