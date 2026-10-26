@@ -87,7 +87,6 @@
         lib.genAttrs [
           "arxiv.org"
           "crates.io"
-          "csrc.nist.gov"
           "ctan.org"
           "developer.mozilla.org"
           "doc.rust-lang.org"
@@ -101,9 +100,9 @@
           "kernel.org"
           "man.archlinux.org"
           "man7.org"
+          "nist.gov"
           "nix.dev"
           "nixos.org"
-          "nvlpubs.nist.gov"
           "openssl.org"
           "peps.python.org"
           "pypi.org"
