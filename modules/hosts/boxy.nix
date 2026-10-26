@@ -96,6 +96,17 @@
 
     programs-open-audible
     {igix.openaudible.enable = true;}
+
+    vaultwarden
+    {
+      # Dress rehearsal for billy's Postgres->SQLite migration. Loopback only,
+      # so no cert and no DNS entry; the WebAuthn enrolment in fid's data cannot
+      # be exercised from here because its RP ID is bound to vault.nalgor.net.
+      igix.vaultwarden = {
+        enable = true;
+        domain = "http://localhost:8222";
+      };
+    }
     {
       igix.sound.devices = {
         fiio-k9 = {};
