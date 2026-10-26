@@ -85,14 +85,14 @@
       # Public reference documentation run by the projects themselves.
       igix.claudeCode.webFetch.hosts =
         lib.genAttrs [
+          "anthropic.com"
           "arxiv.org"
+          "claude.com"
           "crates.io"
           "ctan.org"
           "developer.mozilla.org"
           "doc.rust-lang.org"
           "doc.sagemath.org"
-          "docs.claude.com"
-          "code.claude.com"
           "docs.python.org"
           "docs.rs"
           "iacr.org"
