@@ -8,6 +8,8 @@
     inherit (import ./_lib.nix {inherit pkgs lib self;}) contextText mkStatusline;
     inherit (mkStatusline "claude-code") statuslineName statusline;
   in {
+    imports = [self.homeModules.claude-web-fetch];
+
     home.packages = [statusline];
 
     programs.claude-code = {
