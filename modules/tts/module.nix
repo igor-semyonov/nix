@@ -19,6 +19,7 @@
         [
           cfg.wine-package
           pkgs.python314
+          pkgs.util-linux
         ]
         ++ lib.optional cfg.headless pkgs.xvfb-run;
       # Under `headless`, run the whole thing inside a throwaway X server.

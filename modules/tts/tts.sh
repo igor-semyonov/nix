@@ -30,6 +30,30 @@ text=" ${text}" # Preppending a space fixes some pronunciation
 # speech is therefore invisible to rate selection. That is the property the whole design
 # leans on. Resampling 16k on the realtime path is the cost, and it is inaudible.
 #
-# -q: wait for any already-running copy to finish instead of talking over it, so selecting
-# several passages in a row queues them. Nothing previously enforced this.
-echo "$text" | wine 'C:\balcon\balcon.exe' -i -n 'Microsoft Server Speech Text to Speech Voice (en-US, ZiraPro)' -s "$tts_speed" -q &>/dev/null
+# FIFO queue, not balcon's own `-q`: two instances starting within ~1s of each other (a
+# double-tapped hotkey, or one landing in the gap while a queued one takes over) both hang
+# in exit, blocked on the wineserver pipe, until wine is killed.
+#
+# Each run holds a lock on its own ticket and waits on its predecessor's. The kernel drops
+# a lock when its holder dies, so a killed run releases the next one instead of wedging
+# the queue. wine must not inherit the lock fds: wineserver outlives the run and would
+# keep the ticket locked.
+queue="${XDG_RUNTIME_DIR:-/tmp}/tts-queue"
+mkdir -p "$queue"
+ticket="$queue/$$"
+trap 'rm -f "$ticket"' EXIT
+exec 8>"$queue/.tail"
+flock 8
+prev=$(cat "$queue/.tail-name" 2>/dev/null) || prev=""
+exec 9>"$ticket"
+flock 9
+echo "$ticket" >"$queue/.tail-name"
+exec 8>&-
+# Opened read-only so a predecessor that already finished, and removed its ticket, is
+# skipped rather than recreated.
+if [[ -n $prev ]] && exec 7<"$prev"; then
+    flock 7
+    exec 7<&-
+fi 2>/dev/null
+
+echo "$text" | wine 'C:\balcon\balcon.exe' -i -n 'Microsoft Server Speech Text to Speech Voice (en-US, ZiraPro)' -s "$tts_speed" &>/dev/null 9>&-
