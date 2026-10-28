@@ -5,6 +5,7 @@
 }: {
   flake.homeModules.kde = {
     config,
+    lib,
     pkgs,
     ...
   }: let
@@ -306,9 +307,13 @@
             # pinning dolphin and konsole to the task-manager by default with widget-specific options.
             {
               iconTasks = {
-                launchers = [
-                  "applications:firefox.desktop"
-                ];
+                launchers =
+                  [
+                    "applications:firefox.desktop"
+                  ]
+                  # `or`: kde is importable without homeModules.firefox, which declares this.
+                  ++ lib.optional (config.igix.firefox.personalProfile.enable or false)
+                  "applications:firefox-personal.desktop";
                 appearance = {
                   showTooltips = false;
                   rows.multirowView = "never";
