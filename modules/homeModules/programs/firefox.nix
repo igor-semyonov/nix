@@ -228,6 +228,14 @@
         # --name sets the Wayland app_id, so Plasma groups these windows under this
         # launcher rather than the default profile's.
         (lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+          # Plasma's libtaskmanager matches a window's resourceName -- the executable,
+          # `firefox` for every profile -- against StartupWMClass before it looks at the
+          # app_id, so the stock `StartupWMClass=firefox` claims personal windows for the
+          # default launcher. Shadowed without it, default windows still match by
+          # app_id against the desktop file name.
+          xdg.dataFile."applications/firefox.desktop".source = pkgs.runCommand "firefox.desktop" {} ''
+            sed '/^StartupWMClass=/d' ${firefox}/share/applications/firefox.desktop > $out
+          '';
           xdg.desktopEntries.firefox-personal = {
             name = "Firefox (personal)";
             genericName = "Web Browser";
