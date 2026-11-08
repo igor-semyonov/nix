@@ -177,14 +177,9 @@
         stylix.targets.firefox.profileNames = ["default"];
       })
       {
-        services.psd = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
-          enable = true;
-          resyncTimer = "1h";
-        };
-        # overlayfs is more complicated with btrfs and I have plenty of ram. Choosing not to use overlayfs, maybe for leto it would make sense.
-        # xdg.configFile."psd/psd.conf".text = ''
-        #   USE_OVERLAYFS="yes"
-        # '';
+        # No psd: 7.x is fuse-overlayfs only, and its crash recovery keeps the newer-ctime of
+        # backup/back-ovfs then `rm -rf`s the other -- an empty back-ovfs after a restart plus an
+        # unclean stop wiped every profile.
 
         programs.firefox = {
           enable = true;
