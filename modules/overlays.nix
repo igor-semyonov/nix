@@ -4,8 +4,18 @@
     # be accessible through 'pkgs.stable'
     stable-pkgs = final: _prev: {
       stable = import inputs.nixpkgs-stable {
-        system = final.system;
+        system = final.stdenv.hostPlatform.system;
         config.allowUnfree = true;
+      };
+    };
+
+    # fastmcp is broken against mcp 2.x; drop once nixpkgs 1a7731090f51
+    # ("pdf-mcp: fix mcp compatibility") reaches nixos-unstable.
+    pdf-mcp = _final: prev: {
+      pdf-mcp = prev.pdf-mcp.override {
+        python3Packages = prev.python3Packages.overrideScope (pyFinal: _pyPrev: {
+          mcp = pyFinal.mcp_1;
+        });
       };
     };
 

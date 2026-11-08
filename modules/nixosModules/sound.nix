@@ -511,9 +511,11 @@
       boot.kernelParams = ["preempt=full"];
       security.rtkit.enable = true;
 
+      # pw-jack runs a JACK client against pipewire per-invocation; the global
+      # `services.pipewire.jack` shim is deprecated (LD_LIBRARY_PATH impurity).
       # pactl is the only supported way to force a rate renegotiation on an open device, and
       # it is what `dac-retune` drives. The daemon is not used -- pipewire-pulse replaces it.
-      environment.systemPackages = [pkgs.pulseaudio] ++ lib.optional cfg.autoRetune.enable retune;
+      environment.systemPackages = [pkgs.pulseaudio pkgs.pipewire.jack] ++ lib.optional cfg.autoRetune.enable retune;
 
       # A user unit is enabled for every user that gets a systemd user manager -- there is
       # no isNormalUser filter at this layer. Rather than start for every session and spin
@@ -547,7 +549,6 @@
           alsa.enable = true;
           alsa.support32Bit = true;
           pulse.enable = true;
-          jack.enable = true;
 
           extraConfig = {
             pipewire."92-low-latency" = {

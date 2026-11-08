@@ -19,11 +19,9 @@
       kernelPackages = pkgs.linuxPackages_latest;
       consoleLogLevel = 0;
 
-      # initrd.verbose = false;
       # kernelParams = ["quiet" "splash" "rd.udev.log_level=3"];
       # plymouth.enable = true;
 
-      initrd.verbose = true;
       kernelParams = ["rd.udev.log_level=3"];
       plymouth.enable = false;
 

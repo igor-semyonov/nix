@@ -31,7 +31,6 @@
         kitty
         bash
         bat
-        brave
         firefox
         matplotlib
         fastfetch

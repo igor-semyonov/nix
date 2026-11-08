@@ -27,6 +27,7 @@
     nixpkgs = {
       overlays = [
         self.overlays.stable-pkgs
+        self.overlays.pdf-mcp
         # self.overlays.vivaldi
       ];
       config = {

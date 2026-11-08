@@ -45,11 +45,11 @@
         alsa-lib
         libGL
         webkitgtk_4_1
-        xorg.libX11
-        xorg.libXext
-        xorg.libXi
-        xorg.libXrender
-        xorg.libXtst
+        libx11
+        libxext
+        libxi
+        libxrender
+        libxtst
       ];
 
       buildInputs = finalAttrs.runtimeLibs;

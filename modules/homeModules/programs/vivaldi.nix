@@ -16,18 +16,6 @@
       ];
     };
 
-    programs.brave = {
-      enable = true;
-      commandLineArgs = [
-        # "--ignore-gpu-blocklist"
-        # "--enable-accelerated-video-encode"
-        # "--enable-accelerated-video-decode"
-        # "--enable-features=UseOzonePlatform,VaapiVideoDecoder"
-        "--ozone-platform=wayland"
-        # "--use-gl=egl"
-      ];
-    };
-
     # Apply XDG configuration only on non-Darwin platforms
     # xdg = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
     #   mimeApps = {
