@@ -90,6 +90,26 @@
     media-jellyfin
     media-ripping
 
+    # frigate
+    ({config, ...}: {
+      sops.secrets.cam12-password-urlencoded.sopsFile = "${inputs.sops-secrets}/boxy.yaml";
+      igix.frigate = {
+        enable = true;
+        recordingsDir = "/mnt/8tb/@cameras/recordings";
+        firewallInterfaces = ["br0"];
+        nvidia = true;
+        # RLC-810WA. Main is 4K H.265 only; H.264 tops out at 1440p.
+        cameras.cam12 = {
+          host = "10.10.70.12";
+          passwordFile = config.sops.secrets.cam12-password-urlencoded.path;
+          detect = {
+            width = 640;
+            height = 360;
+          };
+        };
+      };
+    })
+
     uxplay
     u2f
     {igix.u2f.enable = true;}
