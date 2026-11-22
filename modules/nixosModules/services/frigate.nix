@@ -17,9 +17,24 @@
       config.cudaSupport = false;
     };
 
+    # Default cudaCapabilities on purpose: only then do the store paths match
+    # what cache.nixos-cuda.org builds. A host override such as boxy's ["8.9"]
+    # misses the cache and compiles the whole ML stack locally. The defaults
+    # include 8.9.
+    pkgsCuda = import inputs.nixpkgs {
+      inherit (pkgs.stdenv.hostPlatform) system;
+      config = {
+        allowUnfree = true;
+        cudaSupport = true;
+      };
+    };
+
     # Where the nixpkgs package expects them; nginx serves /recordings/ from here.
     recordingsMount = "/var/lib/frigate/recordings";
     cacheDir = "/var/cache/frigate";
+    # The package patches its model cache under cacheDir, which is a tmpfs here.
+    modelCache = "${cacheDir}/model_cache";
+    modelCacheState = "/var/lib/frigate/model_cache";
 
     restream = name: "rtsp://127.0.0.1:8554/${name}";
 
@@ -39,19 +54,47 @@
 
       package = lib.mkOption {
         type = lib.types.package;
-        default = pkgsNoCuda.frigate;
-        defaultText = lib.literalMD "`frigate` from nixpkgs with `cudaSupport = false`";
+        default =
+          if cfg.cuda
+          then pkgsCuda.frigate
+          else pkgsNoCuda.frigate;
+        defaultText = lib.literalMD ''
+          `frigate` from a nixpkgs with `cudaSupport` matching {option}`igix.frigate.cuda`
+          and default `cudaCapabilities`
+        '';
         description = ''
-          Frigate package. The default comes from a cudaSupport-free nixpkgs so
-          its ML dependencies are substituted instead of built as CUDA variants.
+          Frigate package. The default never inherits the host's CUDA settings,
+          so its ML dependencies come from cache.nixos.org (CPU) or
+          cache.nixos-cuda.org (CUDA) instead of being compiled locally.
         '';
       };
 
       nvidia = lib.mkEnableOption ''
         NVIDIA video hardware: NVDEC for the detect stream, NVENC for the
-        live-view H.264 restream, previews, birdseye and exports. Object
-        detection stays on the CPU, as GPU inference needs CUDA onnxruntime
-      '';
+        live-view H.264 restream, previews, birdseye and exports'';
+
+      cuda = lib.mkEnableOption ''
+        CUDA onnxruntime for GPU inference (the large face model, embeddings).
+        Adds cache.nixos-cuda.org as a substituter; the closure is about 17 GB.
+        The first switch must pass the cache on the command line, since the
+        daemon does not trust it yet'';
+
+      faceRecognition = {
+        enable = lib.mkEnableOption "face recognition on tracked people";
+
+        modelSize = lib.mkOption {
+          type = lib.types.enum ["small" "large"];
+          default =
+            if cfg.cuda
+            then "large"
+            else "small";
+          defaultText = lib.literalExpression ''if config.igix.frigate.cuda then "large" else "small"'';
+          description = ''
+            Face embedding model. `large` (ArcFace) needs a GPU to be usable;
+            `small` (FaceNet) runs on the CPU.
+          '';
+        };
+      };
 
       hostname = lib.mkOption {
         type = lib.types.singleLineStr;
@@ -148,13 +191,26 @@
             };
 
             detect = {
+              stream = lib.mkOption {
+                type = lib.types.enum ["main" "sub"];
+                default = "sub";
+                description = ''
+                  Stream to detect on. `main` is decoded and scaled down to
+                  width × height, which costs more decode but leaves faces large
+                  enough to recognise; on `sub` they rarely reach the 750 px
+                  minimum.
+                '';
+              };
               width = lib.mkOption {
                 type = lib.types.ints.positive;
-                description = "Sub-stream width; must match what the camera sends.";
+                description = ''
+                  Detect width. On `sub` it must match what the camera sends; on
+                  `main` it is the scaled size and must keep the aspect ratio.
+                '';
               };
               height = lib.mkOption {
                 type = lib.types.ints.positive;
-                description = "Sub-stream height; must match what the camera sends.";
+                description = "Detect height; same rules as width.";
               };
               fps = lib.mkOption {
                 type = lib.types.ints.positive;
@@ -181,10 +237,22 @@
         };
       };
 
-      systemd.tmpfiles.settings."10-frigate-recordings".${cfg.recordingsDir}.d = {
-        user = "frigate";
-        group = "frigate";
-        mode = "0750";
+      systemd.tmpfiles.settings."10-frigate-recordings" = {
+        ${cfg.recordingsDir}.d = {
+          user = "frigate";
+          group = "frigate";
+          mode = "0750";
+        };
+        ${modelCacheState}.d = {
+          user = "frigate";
+          group = "frigate";
+          mode = "0750";
+        };
+      };
+
+      nix.settings = lib.mkIf cfg.cuda {
+        substituters = ["https://cache.nixos-cuda.org"];
+        trusted-public-keys = ["cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="];
       };
 
       networking.firewall.interfaces = lib.genAttrs cfg.firewallInterfaces (_: {
@@ -225,10 +293,12 @@
         unitConfig.RequiresMountsFor = [recordingsMount cacheDir];
         serviceConfig = {
           ReadWritePaths = [recordingsMount];
-          # The CUDA driver JIT-loads kernels (scale_cuda's PTX) into
-          # writable+executable memory. The upstream module sets this plainly,
-          # so only mkForce can lift it.
-          MemoryDenyWriteExecute = lib.mkIf cfg.nvidia (lib.mkForce false);
+          # Downloaded models (face detection/embeddings) outlive the tmpfs.
+          BindPaths = ["${modelCacheState}:${modelCache}"];
+          # The CUDA driver JIT-loads kernels (scale_cuda's PTX, onnxruntime's
+          # CUDA EP) into writable+executable memory. The upstream module sets
+          # this plainly, so only mkForce can lift it.
+          MemoryDenyWriteExecute = lib.mkIf (cfg.nvidia || cfg.cuda) (lib.mkForce false);
         };
       };
 
@@ -266,6 +336,14 @@
               else [];
           };
 
+          # With the default COCO model Frigate finds faces itself (YuNet) inside
+          # each person box, then names them only above recognition_threshold;
+          # strangers get no sub label.
+          face_recognition = lib.mkIf cfg.faceRecognition.enable {
+            enabled = true;
+            model_size = cfg.faceRecognition.modelSize;
+          };
+
           snapshots = {
             enabled = true;
             retain.default = cfg.retainDays;
@@ -286,18 +364,27 @@
           cameras =
             lib.mapAttrs (name: cam: {
               ffmpeg = {
-                inputs = [
-                  {
-                    path = restream name;
-                    input_args = "preset-rtsp-restream";
-                    roles = ["record"];
-                  }
-                  {
-                    path = restream "${name}_sub";
-                    input_args = "preset-rtsp-restream";
-                    roles = ["detect"];
-                  }
-                ];
+                inputs =
+                  if cam.detect.stream == "main"
+                  then [
+                    {
+                      path = restream name;
+                      input_args = "preset-rtsp-restream";
+                      roles = ["record" "detect"];
+                    }
+                  ]
+                  else [
+                    {
+                      path = restream name;
+                      input_args = "preset-rtsp-restream";
+                      roles = ["record"];
+                    }
+                    {
+                      path = restream "${name}_sub";
+                      input_args = "preset-rtsp-restream";
+                      roles = ["detect"];
+                    }
+                  ];
                 # Stream copy: recordings keep the camera's own encoding. Any
                 # re-encode would be a second lossy generation.
                 output_args.record = "preset-record-generic-audio-copy";
