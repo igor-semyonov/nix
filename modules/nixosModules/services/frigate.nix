@@ -152,6 +152,33 @@
         '';
       };
 
+      mqtt = {
+        enable = lib.mkEnableOption "publishing events to an MQTT broker (Home Assistant)";
+
+        host = lib.mkOption {
+          type = lib.types.singleLineStr;
+          example = "10.10.50.10";
+          description = "Broker address.";
+        };
+
+        port = lib.mkOption {
+          type = lib.types.port;
+          default = 1883;
+          description = "Broker port.";
+        };
+
+        user = lib.mkOption {
+          type = lib.types.singleLineStr;
+          default = "frigate";
+          description = "Broker username.";
+        };
+
+        passwordFile = lib.mkOption {
+          type = lib.types.path;
+          description = "File holding the broker password.";
+        };
+      };
+
       cameras = lib.mkOption {
         description = "RTSP cameras, each restreamed once through go2rtc.";
         default = {};
@@ -295,6 +322,9 @@
           ReadWritePaths = [recordingsMount];
           # Downloaded models (face detection/embeddings) outlive the tmpfs.
           BindPaths = ["${modelCacheState}:${modelCache}"];
+          # Frigate reads FRIGATE_* files from $CREDENTIALS_DIRECTORY as
+          # substitution variables, so the password never enters the YAML.
+          LoadCredential = lib.mkIf cfg.mqtt.enable ["FRIGATE_MQTT_PASSWORD:${cfg.mqtt.passwordFile}"];
           # The CUDA driver JIT-loads kernels (scale_cuda's PTX, onnxruntime's
           # CUDA EP) into writable+executable memory. The upstream module sets
           # this plainly, so only mkForce can lift it.
@@ -305,8 +335,20 @@
       services.frigate = {
         enable = true;
         inherit (cfg) hostname package;
+        # The build-time --validate-config has no credentials; a placeholder
+        # keeps the check, and the real value is substituted at runtime.
+        preCheckConfig = lib.mkIf cfg.mqtt.enable ''
+          export FRIGATE_MQTT_PASSWORD=placeholder
+        '';
         settings = {
-          mqtt.enabled = false;
+          mqtt =
+            if cfg.mqtt.enable
+            then {
+              enabled = true;
+              inherit (cfg.mqtt) host port user;
+              password = "{FRIGATE_MQTT_PASSWORD}";
+            }
+            else {enabled = false;};
 
           detectors.cpu = {
             type = "cpu";

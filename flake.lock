@@ -1021,11 +1021,11 @@
     "sops-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1794802638,
-        "narHash": "sha256-8Dsv5L8SxIBTH+IwfARS9cPRrsnKHI4dzcbq001zs+w=",
+        "lastModified": 1795320803,
+        "narHash": "sha256-1b14OOFdwCYq0CLSXu9VrP6Ip7tkzXwwu3hZyQEJIM0=",
         "ref": "refs/heads/main",
-        "rev": "21bb6d3bc46eb4e4d2d9879f9ad2eb10b53a1e20",
-        "revCount": 12,
+        "rev": "66e70d3360fc2a4fbf9e8e840b8a0e8ced235bfd",
+        "revCount": 13,
         "type": "git",
         "url": "ssh://git@github.com/igor-semyonov/nix-secrets.git"
       },
